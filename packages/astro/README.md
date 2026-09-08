@@ -203,6 +203,12 @@ Since this project is in its infancy and proper documentation is still in progre
 
 [Start Tutorial](https://github.com/aminobelyamani/haq/tree/master/packages/astro/Tutorial.md)
 
+## IDE Support
+
+- Visual Studio Code - [HAQ Astro Visual Studio Code Extension](https://marketplace.visualstudio.com/items?itemName=aminobelyamani.haq-astro-vsce)
+    - Provides completions and inline diagnostics in Astro (`.astro`) and CSS (`.css`) files.
+- Zed - No extension at the moment. It is currently being developed.
+
 ## Useful Links
 
 - [Astro](https://astro.build/) - The official website of Astro.

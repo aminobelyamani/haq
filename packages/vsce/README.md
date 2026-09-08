@@ -4,8 +4,8 @@ This extension provides completions and inline diagnostics in Astro (`.astro`) a
 
 ## Requirements
 
-- You must have astro installed.
-- You must have HAQ Astro installed.
+- You must have Astro (`astro`) installed.
+- You must have HAQ Astro (`@haq/astro`) installed.
 - You must have a HAQ Astro config file (`haq.config.json`) in the root of your workspace.
 - You must have run the `haq gen` or `haq check` command at least once before the extension can run.
 
@@ -14,14 +14,14 @@ This extension provides completions and inline diagnostics in Astro (`.astro`) a
 ### Astro (`.astro`) Files
 
 - Class name completions on `class`, `class:list`, and `x_class_list` attributes.
-- Aliased component completions used on `x_slot` attributes.
+- Aliased component completions on `x_slot` attributes.
 - Slot name completions on `slot` attributes.
 - Inline diagnostics.
 
 ### CSS (`.css`) Files
 
 - Inline diagnostics.
-- Selector completion.s
+- Selector completions.
 - Attribute name completions.
 - Attribute value completions.
 

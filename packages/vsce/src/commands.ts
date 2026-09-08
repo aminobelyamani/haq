@@ -14,7 +14,7 @@ import { loadFile } from "./utils.js"
 //#endregion ----------------------------------------------- Module Imports
 
 export const checkCommand = (Diagnostics: RT_makeDiagnostics, collection: DiagnosticCollection): Disposable =>
-	commands.registerCommand("haq.check", () => {
+	commands.registerCommand("haq-astro-vsce.check", () => {
 		const startLintTime = performance.now()
 
 		collection.clear()

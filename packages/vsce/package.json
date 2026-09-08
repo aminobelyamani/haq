@@ -6,7 +6,7 @@
 	"author": "Amino Belyamani",
 	"publisher": "aminobelyamani",
 	"description": "IDE support for HAQ Astro",
-	"icon": "./@assets/logo.jpg",
+	"icon": "./@assets/logo-dark.jpg",
 	"license": "AGPL-3.0-or-later",
 	"categories": [
 		"Linters",
@@ -16,11 +16,12 @@
 		"astro",
 		"css",
 		"typescript",
-		"vanilla"
+		"vanilla",
+		"haq"
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/golang/vscode-go"
+		"url": "https://github.com/aminobelyamani/haq.git"
 	},
 	"contributes": {
 		"commands": [
