@@ -12,10 +12,10 @@
 
 - [ ] Update version in jsr.json
 - [ ] Review changes and commit and push [CI Release]
-- [ ] `pn deploy`
+- [ ] `pn deploy:publish`
 
 ## @haq/astro or @haq/astro-ssr
 
 **NOTE** - We can skip running changesets if change was made in @haq/utils
 
-- [ ] Review changes then run `pn deploy`
+- [ ] Review changes then run `pn deploy:publish`

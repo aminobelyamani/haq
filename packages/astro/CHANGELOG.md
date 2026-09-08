@@ -1,5 +1,12 @@
 # @haq/astro
 
+## 0.1.8
+
+### Patch Changes
+
+- Updated dependencies
+  - @haq/utils@0.1.5
+
 ## 0.1.7
 
 ### Patch Changes

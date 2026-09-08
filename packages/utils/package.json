@@ -1,6 +1,6 @@
 {
 	"name": "@haq/utils",
-	"version": "0.1.4",
+	"version": "0.1.5",
 	"description": "Compile time and runtime typescript utilities for common use cases.",
 	"license": "MIT",
 	"author": "Amino Belyamani",
@@ -17,7 +17,7 @@
 	"scripts": {
 		"clean": "rm -rf @dist",
 		"compile": "tsc -p ./",
-		"deploy": "pnpm dlx jsr publish",
+		"deploy:publish": "pnpm dlx jsr publish",
 		"deploy:dry-run": "pnpm dlx jsr publish --dry-run --allow-dirty",
 		"watch": "tsc --watch"
 	}
