@@ -1,0 +1,62 @@
+{
+	"name": "@haq/astro-ssr",
+	"version": "0.1.2",
+	"description": "A lightweight library for building fully type safe HAQ Astro SSR projects in node.",
+	"author": "Amino Belyamani",
+	"license": "AGPL-3.0-or-later",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./src/server/index.ts",
+			"default": "./@dist/server/index.js"
+		},
+		"./astro-mw": {
+			"types": "./src/astro-mw/index.ts",
+			"default": "./@dist/astro-mw/index.js"
+		},
+		"./errors": {
+			"types": "./src/errors/index.ts",
+			"default": "./@dist/errors/index.js"
+		},
+		"./utils": {
+			"types": "./src/utils/index.ts",
+			"default": "./@dist/utils/index.js"
+		},
+		"./client": {
+			"types": "./src/client/index.ts",
+			"default": "./@dist/client/index.js"
+		}
+	},
+	"scripts": {
+		"clean": "rm -rf @dist",
+		"compile": "tsc -p ./",
+		"deploy": "bash _scripts/deploy.sh",
+		"deploy:dry-run": "pnpm dlx jsr publish --dry-run --allow-dirty",
+		"watch": "tsc --watch"
+	},
+	"dependencies": {
+		"@haq/utils": "workspace:*",
+		"astro": "^7.3.1",
+		"bcrypt": "^6.0.0",
+		"express": "^5.2.1",
+		"express-fileupload": "^1.5.2",
+		"express-flash": "^0.0.2",
+		"express-session": "^1.19.0",
+		"http-proxy-middleware": "^4.2.0",
+		"memorystore": "^1.6.8",
+		"method-override": "^3.0.0",
+		"passport": "^0.7.0",
+		"passport-local": "^1.0.0",
+		"zod": "^4.5.4"
+	},
+	"devDependencies": {
+		"@types/bcrypt": "^6.0.0",
+		"@types/express": "^5.0.6",
+		"@types/express-fileupload": "^1.5.1",
+		"@types/express-flash": "^0.0.5",
+		"@types/express-session": "^1.19.0",
+		"@types/method-override": "^3.0.0",
+		"@types/passport": "^1.0.17",
+		"@types/passport-local": "^1.0.38"
+	}
+}

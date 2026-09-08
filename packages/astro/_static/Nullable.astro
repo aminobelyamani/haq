@@ -1,0 +1,8 @@
+---
+type Props = {
+	noRender?: true;
+};
+const { noRender } = Astro.props;
+---
+
+{noRender ? "" : <slot x_slot />}

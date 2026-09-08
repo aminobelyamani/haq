@@ -1,0 +1,108 @@
+[
+	{
+		"cssFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/HAQ-monorepo/examples/astro/src/app-components/MyHeader/MyHeader.css",
+		"astroFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/HAQ-monorepo/examples/astro/src/app-components/MyHeader/MyHeader.astro",
+		"componentName": "MyHeader",
+		"flatMarkup": [
+			{
+				"tagName": "my-confetti",
+				"id": "MyConfetti",
+				"selKind": "TAG",
+				"selValue": "my-confetti",
+				"parentId": "MyHeader"
+			},
+			{ "tagName": "a", "id": "NavLink", "selKind": "HAQ_SEL_ATTR", "selValue": "nav-link", "parentId": "Nav" },
+			{ "id": "Nav", "selKind": "HAQ_SEL_ATTR", "selValue": "nav", "parentId": "MyHeader", "tagName": "nav" },
+			{ "id": "MyHeader", "selKind": "ID", "selValue": "header", "tagName": "header" }
+		]
+	},
+	{
+		"cssFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/HAQ-monorepo/examples/astro/src/components/OldMyHeader.css",
+		"astroFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/HAQ-monorepo/examples/astro/src/components/OldMyHeader.astro",
+		"componentName": "OldMyHeader",
+		"flatMarkup": [
+			{ "id": "Nav", "selKind": "HAQ_SEL_ATTR", "selValue": "nav", "parentId": "OldMyHeader", "tagName": "nav" },
+			{ "id": "OldMyHeader", "selKind": "HAQ_SEL_ATTR", "selValue": "header", "tagName": "header" }
+		]
+	},
+	{
+		"cssFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/HAQ-monorepo/examples/astro/src/components/SvgIcon/SvgIcon.css",
+		"astroFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/HAQ-monorepo/examples/astro/src/components/SvgIcon/SvgIcon.astro",
+		"componentName": "SvgIcon",
+		"flatMarkup": [{ "id": "SvgIcon", "selKind": "TAG", "tagName": "svg-icon" }]
+	},
+	{
+		"cssFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/HAQ-monorepo/examples/astro/src/components/btns/MinusBtn.css",
+		"astroFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/HAQ-monorepo/examples/astro/src/components/btns/MinusBtn.astro",
+		"componentName": "MinusBtn",
+		"flatMarkup": [
+			{ "tagName": "svg-icon", "id": "SvgIcon", "selKind": "TAG", "parentId": "MinusBtn" },
+			{ "id": "MinusBtn", "selKind": "HAQ_SEL_ATTR", "selValue": "minus-btn", "tagName": "button" }
+		]
+	},
+	{
+		"cssFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/HAQ-monorepo/examples/astro/src/components/btns/PlusBtn.css",
+		"astroFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/HAQ-monorepo/examples/astro/src/components/btns/PlusBtn.astro",
+		"componentName": "PlusBtn",
+		"flatMarkup": [
+			{ "tagName": "svg-icon", "id": "SvgIcon", "selKind": "TAG", "parentId": "PlusBtn" },
+			{ "id": "PlusBtn", "selKind": "HAQ_SEL_ATTR", "selValue": "plus-btn", "tagName": "button" }
+		]
+	},
+	{
+		"cssFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/HAQ-monorepo/examples/astro/src/css/styles.css",
+		"astroFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/HAQ-monorepo/examples/astro/src/layouts/Scaffold.astro",
+		"componentName": "Scaffold",
+		"flatMarkup": [
+			{ "tagName": "header", "id": "MyHeader", "selKind": "ID", "selValue": "header", "parentId": "Scaffold" },
+			{ "id": "Scaffold", "selKind": "TAG", "tagName": "html" },
+			{
+				"id": "MyConfetti",
+				"tagName": "my-confetti",
+				"selKind": "TAG",
+				"selValue": "my-confetti",
+				"parentId": "MyHeader"
+			},
+			{ "id": "NavLink", "tagName": "a", "selKind": "HAQ_SEL_ATTR", "selValue": "nav-link", "parentId": "Nav" },
+			{ "id": "Nav", "selKind": "HAQ_SEL_ATTR", "selValue": "nav", "parentId": "MyHeader", "tagName": "nav" }
+		]
+	},
+	{
+		"cssFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/HAQ-monorepo/examples/astro/src/web-components/MyConfetti/MyConfetti.css",
+		"astroFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/HAQ-monorepo/examples/astro/src/web-components/MyConfetti/MyConfetti.astro",
+		"componentName": "MyConfetti",
+		"flatMarkup": [
+			{
+				"tagName": "my-confetti-particle",
+				"id": "MyConfettiParticle",
+				"selKind": "TAG",
+				"selValue": "my-confetti-particle",
+				"parentId": "MyConfetti"
+			},
+			{ "id": "MyConfetti", "selKind": "TAG", "selValue": "my-confetti", "tagName": "my-confetti" }
+		]
+	},
+	{
+		"cssFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/HAQ-monorepo/examples/astro/src/web-components/MyCounter/MyCounter.css",
+		"astroFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/HAQ-monorepo/examples/astro/src/web-components/MyCounter/MyCounter.astro",
+		"componentName": "MyCounter",
+		"flatMarkup": [
+			{
+				"tagName": "button",
+				"id": "MinusBtn",
+				"selKind": "HAQ_SEL_ATTR",
+				"selValue": "minus-btn",
+				"parentId": "MyCounter"
+			},
+			{ "id": "Count", "selKind": "HAQ_SEL_ATTR", "selValue": "count", "parentId": "MyCounter", "tagName": "span" },
+			{
+				"tagName": "button",
+				"id": "PlusBtn",
+				"selKind": "HAQ_SEL_ATTR",
+				"selValue": "plus-btn",
+				"parentId": "MyCounter"
+			},
+			{ "id": "MyCounter", "selKind": "TAG", "selValue": "my-counter", "tagName": "my-counter" }
+		]
+	}
+]

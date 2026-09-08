@@ -1,0 +1,15 @@
+/* src/app-components/MyHeader/MyHeader.css */
+
+header#header {
+	position: fixed;
+	top: 0;
+	width: 100%;
+	padding: 1rem 2rem;
+}
+
+header#header nav[x_sel="nav"] {
+	font-size: 1rem;
+	flex-wrap: balance;
+	column-gap: 2rem;
+	row-gap: 0.5rem;
+}

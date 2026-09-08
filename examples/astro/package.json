@@ -1,0 +1,23 @@
+{
+	"name": "@haq/examples",
+	"version": "0.1.0",
+	"description": "Example uses of haq tools.",
+	"type": "module",
+	"private": true,
+	"exports": null,
+	"scripts": {
+		"dev": "astro dev",
+		"build": "astro build",
+		"preview": "astro preview",
+		"clean": "rm -rf @dist",
+		"haq": "node src/haq.ts",
+		"watch": "tsc --watch"
+	},
+	"devDependencies": {
+		"@astrojs/check": "^0.9.10",
+		"@haq/astro": "workspace:*",
+		"@haq/utils": "workspace:*",
+		"@typescript/typescript6": "^6.0.2",
+		"astro": "^7.3.1"
+	}
+}

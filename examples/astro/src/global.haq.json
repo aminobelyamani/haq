@@ -1,0 +1,21 @@
+{
+	"native-elements": [
+		{
+			"tag": "*",
+			"attrs": [
+				{
+					"name": "d_lang",
+					"value": ["ar"]
+				}
+			]
+		},
+		{
+			"tag": "a",
+			"attrs": [
+				{
+					"name": "d_active"
+				}
+			]
+		}
+	]
+}

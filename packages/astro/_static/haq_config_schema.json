@@ -1,0 +1,35 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"title": "Configuration",
+	"description": "The configuration for haq type generation and linting.",
+	"type": "object",
+	"properties": {
+		"$schema": {
+			"description": "A field for the [JSON schema](https://json-schema.org/) specification",
+			"type": ["string", "null"]
+		},
+		"projectDir": {
+			"type": "string",
+			"description": "Directory to scan files for type generation."
+		},
+		"outDir": {
+			"type": "string",
+			"description": "Output path for the generated files."
+		},
+		"globalCssDir": {
+			"type": "string",
+			"description": "Directory where your global css lives."
+		},
+		"astroDirs": {
+			"type": "array",
+			"description": "Directories where Astro pages folder lives.",
+			"items": {
+				"type": "string"
+			},
+			"minItems": 1,
+			"uniqueItems": true
+		}
+	},
+	"required": ["projectDir", "outDir", "globalCssDir", "astroDirs"],
+	"additionalProperties": false
+}

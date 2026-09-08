@@ -1,0 +1,11 @@
+packages:
+    - "packages/*"
+    - "examples/*"
+
+allowBuilds:
+    "@parcel/watcher": false
+    "@vscode/vsce-sign": false
+    bcrypt: true
+    esbuild: false
+    keytar: false
+    sharp: false

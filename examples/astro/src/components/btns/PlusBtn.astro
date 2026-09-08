@@ -1,0 +1,29 @@
+---
+// src/component/btns/PlusBtn.astro
+
+import type { HTMLAttributes } from "astro/types";
+import type { HAQ_AliasableComponentProps } from "@haq/astro";
+type T = HTMLAttributes<"button">;
+
+import "./PlusBtn.css";
+
+import SvgIcon from "../SvgIcon/SvgIcon.astro";
+
+interface Props extends Pick<HAQ_AliasableComponentProps, "x_alias"> {
+	disabled?: T["disabled"];
+}
+const { ...attrs } = Astro.props;
+---
+
+<button
+	class="flex flex-center"
+	type="button"
+	aria-label="Add"
+	title="Add"
+	x_sel="plus-btn"
+	disabled={attrs.disabled}
+	x_ev_types={["click"]}
+	x_haq
+>
+	<SvgIcon d_icon="plus" x_alias />
+</button>

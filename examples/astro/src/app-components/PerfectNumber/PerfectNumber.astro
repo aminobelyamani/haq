@@ -1,0 +1,14 @@
+---
+// src/app-components/PerfectNumber/PerfectNumber.astro
+
+import type { HAQ_AliasableComponentProps } from "@haq/astro";
+
+import OddEven from "../../web-components/OddEven/OddEven.astro";
+
+interface Props extends Pick<HAQ_AliasableComponentProps, "x_appc"> {}
+---
+
+<div id="perfectNumber" x_haq>
+	<h1 class="text-center" x_class_list="clr-accent" x_sel="result-heading" x_haq>0 is not a perfect number.</h1>
+	<OddEven x_alias />
+</div>

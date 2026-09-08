@@ -1,0 +1,20 @@
+[
+	{ "componentName": "Nullable", "slotList": [{ "slotName": "default", "componentNames": [], "required": true }] },
+	{ "componentName": "MyForm", "slotList": [] },
+	{ "componentName": "MyHeader", "slotList": [] },
+	{ "componentName": "PerfectNumber", "slotList": [] },
+	{ "componentName": "MainContainer", "slotList": [{ "slotName": "default", "componentNames": [] }] },
+	{ "componentName": "NavLink", "slotList": [] },
+	{ "componentName": "OldMyHeader", "slotList": [] },
+	{ "componentName": "SvgIcon", "slotList": [] },
+	{ "componentName": "MinusBtn", "slotList": [] },
+	{ "componentName": "PlusBtn", "slotList": [] },
+	{
+		"componentName": "Scaffold",
+		"slotList": [{ "slotName": "body:", "componentNames": ["MyHeader"], "required": true }]
+	},
+	{ "componentName": "MyConfetti", "slotList": [] },
+	{ "componentName": "MyConfettiParticle", "slotList": [] },
+	{ "componentName": "MyCounter", "slotList": [] },
+	{ "componentName": "OddEven", "slotList": [] }
+]

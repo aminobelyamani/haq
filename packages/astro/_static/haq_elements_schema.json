@@ -1,0 +1,123 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"title": "Configuration",
+	"description": "The configuration for any custom element json file that ends with \".haq.json\"",
+	"type": "object",
+	"properties": {
+		"$schema": {
+			"description": "A field for the [JSON schema](https://json-schema.org/) specification",
+			"type": ["string", "null"]
+		},
+		"native-elements": {
+			"description": "Array of configs for native elements",
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"tag": {
+						"type": "string"
+					},
+					"attrs": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								"name": {
+									"type": "string"
+								},
+								"value": {
+									"anyOf": [
+										{
+											"enum": ["string", "number"]
+										},
+										{
+											"type": "array",
+											"items": {
+												"type": "string"
+											},
+											"minItems": 1,
+											"uniqueItems": true
+										}
+									]
+								},
+								"required": {
+									"type": "boolean"
+								}
+							},
+							"required": ["name"],
+							"additionalProperties": false
+						},
+						"minItems": 1,
+						"uniqueItems": true
+					}
+				},
+				"required": ["tag"],
+				"additionalProperties": false
+			}
+		},
+		"custom-elements": {
+			"description": "Array of configs for custom elements",
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"tag": {
+						"type": "string"
+					},
+					"attrs": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								"name": {
+									"type": "string"
+								},
+								"value": {
+									"anyOf": [
+										{
+											"enum": ["string", "number"]
+										},
+										{
+											"type": "array",
+											"items": {
+												"type": "string"
+											},
+											"minItems": 1,
+											"uniqueItems": true
+										}
+									]
+								},
+								"required": {
+									"type": "boolean"
+								}
+							},
+							"required": ["name"],
+							"additionalProperties": false
+						},
+						"minItems": 1,
+						"uniqueItems": true
+					},
+					"cssStaticVars": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						},
+						"minItems": 1,
+						"uniqueItems": true
+					},
+					"cssDynamicVars": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						},
+						"minItems": 1,
+						"uniqueItems": true
+					}
+				},
+				"required": ["tag"],
+				"additionalProperties": false
+			}
+		}
+	},
+	"additionalProperties": false
+}

@@ -1,0 +1,17 @@
+---
+// src/pages/tutorial/custom-events.astro
+
+import MyHeader from "../../app-components/MyHeader/MyHeader.astro";
+import MainContainer from "../../components/MainContainer.astro";
+import Scaffold from "../../layouts/Scaffold.astro";
+import OddEven from "../../web-components/OddEven/OddEven.astro";
+
+const HAQ_ROUTE = "/tutorial/custom-events";
+---
+
+<Scaffold title="Custom Events" x_page={HAQ_ROUTE}>
+	<MyHeader slot="body:" x_appc />
+	<MainContainer slot="body:">
+		<OddEven />
+	</MainContainer>
+</Scaffold>

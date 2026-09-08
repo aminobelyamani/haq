@@ -1,0 +1,17 @@
+---
+// src/pages/tutorial/app-components.astro
+
+import MyHeader from "../../app-components/MyHeader/MyHeader.astro";
+import PerfectNumber from "../../app-components/PerfectNumber/PerfectNumber.astro";
+import MainContainer from "../../components/MainContainer.astro";
+import Scaffold from "../../layouts/Scaffold.astro";
+
+const HAQ_ROUTE = "/tutorial/app-components";
+---
+
+<Scaffold title="App Components" x_page={HAQ_ROUTE}>
+	<MyHeader slot="body:" x_appc />
+	<MainContainer slot="body:">
+		<PerfectNumber x_appc />
+	</MainContainer>
+</Scaffold>

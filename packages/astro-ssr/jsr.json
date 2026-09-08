@@ -1,0 +1,14 @@
+{
+	"$schema": "https://jsr.io/schema/config-file.v1.json",
+	"name": "@haq/astro-ssr",
+	"version": "0.1.2",
+	"license": "AGPL-3.0-or-later",
+	"exports": {
+		".": "./src/server/index.ts",
+		"./astro-mw": "./src/astro-mw/index.ts",
+		"./errors": "./src/errors/index.ts",
+		"./utils": "./src/utils/index.ts",
+		"./client": "./src/client/index.ts"
+	},
+	"publish": { "include": ["LICENSE", "README.md", "src"] }
+}

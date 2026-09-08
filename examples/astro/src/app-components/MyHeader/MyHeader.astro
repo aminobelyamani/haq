@@ -1,0 +1,23 @@
+---
+// src/app-components/MyHeader/MyHeader.astro
+
+import type { HAQ_AliasableComponentProps } from "@haq/astro";
+
+import "./MyHeader.css";
+
+import NavLink from "../../components/NavLink.astro";
+import MyConfetti from "../../web-components/MyConfetti/MyConfetti.astro";
+
+interface Props extends Pick<HAQ_AliasableComponentProps, "x_appc"> {}
+---
+
+<header transition:persist="MyHeader" id="header" x_haq>
+	<MyConfetti d_particle_count="100" x_alias />
+	<nav class="flex flex-center" x_sel="nav" x_haq>
+		<NavLink text="Home" href="/" x_alias />
+		<NavLink text="Custom Elements" href="/tutorial/custom-elements" />
+		<NavLink text="Web Components" href="/tutorial/web-components" />
+		<NavLink text="Custom Events" href="/tutorial/custom-events" />
+		<NavLink text="App Components" href="/tutorial/app-components" />
+	</nav>
+</header>

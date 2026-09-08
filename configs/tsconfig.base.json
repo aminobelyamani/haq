@@ -1,0 +1,42 @@
+{
+	"compilerOptions": {
+		/* Language and Environment */
+		"target": "ESNext" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
+		/* Modules */
+		"module": "ESNext" /* Specify what module code is generated. */,
+		"moduleResolution": "bundler" /* Specify how TypeScript looks up a file from a given module specifier. */,
+		"moduleDetection": "force",
+		"rewriteRelativeImportExtensions": true,
+		"verbatimModuleSyntax": true,
+		"resolveJsonModule": true /* Enable importing .json files. */,
+		/* Interop Constraints */
+		"esModuleInterop": true /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */,
+		"isolatedModules": true,
+		"forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,
+		/* Type Checking */
+		"strict": true /* Enable all strict type-checking options. */,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"allowUnusedLabels": false,
+		"noUncheckedSideEffectImports": true,
+		"noFallthroughCasesInSwitch": true,
+		"allowUnreachableCode": false,
+		"noUncheckedIndexedAccess": true /* Add 'undefined' to a type when accessed using an index. */,
+		"noPropertyAccessFromIndexSignature": true,
+		"erasableSyntaxOnly": true,
+		"noImplicitOverride": true,
+		"exactOptionalPropertyTypes": true,
+		"skipLibCheck": true /* Skip type checking all .d.ts files. */,
+		/* Error messages */
+		// "noErrorTruncation": false /* defaults to false */,
+		/* Output */
+		"removeComments": true /* Disable emitting comments. */,
+		"noEmit": true,
+		"rootDir": "${configDir}/src",
+		"outDir": "${configDir}/@dist",
+		/* Type libraries */
+		"types": ["node"]
+	},
+	"include": ["${configDir}/src", "./reset.d.ts"],
+	"exclude": ["${configDir}/node_modules"]
+}

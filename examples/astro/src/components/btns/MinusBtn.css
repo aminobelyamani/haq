@@ -1,0 +1,20 @@
+/* src/components/btns/MinusBtn.css */
+
+button[x_sel="minus-btn"] svg-icon {
+	--_width: 40px;
+	--_height: 40px;
+}
+
+button[x_sel="minus-btn"][disabled] svg-icon {
+	background-color: var(--clr-text-dim);
+}
+
+button[x_sel="minus-btn"]:not([disabled]):focus-visible svg-icon {
+	background-color: var(--clr-text);
+}
+
+@media (hover: hover) {
+	button[x_sel="minus-btn"]:not([disabled]):hover svg-icon {
+		background-color: var(--clr-text);
+	}
+}

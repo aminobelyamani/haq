@@ -1,0 +1,13 @@
+---
+import type { HAQ_AliasableComponentProps } from "@haq/astro";
+
+interface Props extends Pick<HAQ_AliasableComponentProps, "x_appc"> {}
+---
+
+<form id="myForm" x_haq>
+	<input type="text" name="fullName" />
+	<input type="email" name="email" />
+	<input type="password" name="password" />
+	<input type="text" name="role" x_input_values={["ADMIN", "CLIENT"]} />
+	<input type="file" name="profilePic" />
+</form>

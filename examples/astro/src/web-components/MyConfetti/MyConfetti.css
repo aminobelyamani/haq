@@ -1,0 +1,54 @@
+/* src/web-components/MyConfetti/MyConfetti.css  */
+
+my-confetti {
+	position: fixed;
+	inset: 0;
+	overflow: hidden;
+	z-index: 9999;
+	pointer-events: none; /* Prevents blocking clicks on elements below */
+}
+
+my-confetti my-confetti-particle {
+	--__bkgColor: var(--clr-accent);
+	--__left: 0%;
+	--__delay: 0s;
+	--__duration: 0s;
+	position: absolute;
+	top: -10px;
+	width: 20px;
+	height: 3px;
+	border-radius: 10% 0% 75% 100%;
+	opacity: 0;
+	background-color: var(--__bkgColor);
+	left: var(--__left);
+}
+
+my-confetti[d_animate] my-confetti-particle {
+	animation: fall 4s linear infinite;
+	animation-delay: var(--__delay);
+	animation-duration: var(--__duration);
+}
+
+@keyframes fall {
+	0% {
+		top: -5%;
+		transform: translateX(0) rotate(0deg);
+		opacity: 1;
+	}
+	50% {
+		transform: translateX(100px) rotate(360deg);
+		opacity: 1;
+	}
+	100% {
+		top: 110%;
+		transform: translateX(-50px) rotate(720deg);
+		opacity: 0;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	my-confetti my-confetti-particle {
+		animation: none;
+		display: none;
+	}
+}

@@ -1,0 +1,24 @@
+{
+	"name": "@haq/utils",
+	"version": "0.1.4",
+	"description": "Compile time and runtime typescript utilities for common use cases.",
+	"license": "MIT",
+	"author": "Amino Belyamani",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./src/index.ts",
+			"default": "./@dist/index.js"
+		},
+		"./types": {
+			"types": "./src/types.ts"
+		}
+	},
+	"scripts": {
+		"clean": "rm -rf @dist",
+		"compile": "tsc -p ./",
+		"deploy": "pnpm dlx jsr publish",
+		"deploy:dry-run": "pnpm dlx jsr publish --dry-run --allow-dirty",
+		"watch": "tsc --watch"
+	}
+}

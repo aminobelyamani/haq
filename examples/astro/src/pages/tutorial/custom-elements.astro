@@ -1,0 +1,23 @@
+---
+// src/pages/tutorial/custom-elements.astro
+
+import MyHeader from "../../app-components/MyHeader/MyHeader.astro";
+import MainContainer from "../../components/MainContainer.astro";
+import SvgIcon from "../../components/SvgIcon/SvgIcon.astro";
+import Scaffold from "../../layouts/Scaffold.astro";
+
+const HAQ_ROUTE = "/tutorial/custom-elements";
+---
+
+<Scaffold title="Custom Elements" x_page={HAQ_ROUTE}>
+	<MyHeader slot="body:" x_appc />
+	<MainContainer slot="body:">
+		<div class="text-center">
+			<h1 class="clr-accent">HTML & CSS Are Awesome!</h1>
+			<div class="flex flex-center">
+				<SvgIcon d_icon="html" />
+				<SvgIcon d_icon="css" />
+			</div>
+		</div>
+	</MainContainer>
+</Scaffold>

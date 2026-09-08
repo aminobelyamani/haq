@@ -1,0 +1,18 @@
+---
+// src/web-components/OddEven/OddEven.astro
+
+import type { HAQ_AliasableComponentProps } from "@haq/astro";
+
+import MyCounter from "../MyCounter/MyCounter.astro";
+
+interface Props extends Pick<HAQ_AliasableComponentProps, "x_alias"> {}
+---
+
+<odd-even class="text-center" x_webc>
+	<h2 x_sel="result" x_haq>This number is even!</h2>
+	<MyCounter x_alias />
+</odd-even>
+
+<script>
+	import "./OddEven";
+</script>

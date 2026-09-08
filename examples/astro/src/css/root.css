@@ -1,0 +1,13 @@
+/* src/css/root.css  */
+
+:root {
+	--clr-primary: hsl(0deg 0% 9.41%);
+	--clr-accent: hsl(180.3deg 100% 70.95%);
+	--clr-text: white;
+	--clr-text-dim: hsl(0deg 0% 23.22%);
+
+	--fontFamily: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+	--fontSize: clamp(1.35rem, 1.298rem + 0.2598vw, 1.4994rem);
+
+	--__vh: 1vh;
+}

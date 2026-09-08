@@ -1,0 +1,24 @@
+---
+// src/components/MyHeader.astro
+
+import type { HAQ_PageRoute } from "@haq/routes-1";
+
+import "./OldMyHeader.css";
+
+import NavLink from "./NavLink.astro";
+
+interface Props {
+	x_page: HAQ_PageRoute;
+}
+
+const { x_page } = Astro.props;
+---
+
+<header transition:persist="MyHeader" x_sel="header" x_haq>
+	<nav class="flex flex-center" x_sel="nav" x_haq>
+		<NavLink text="Home" href="/" {x_page} />
+		<NavLink text="Custom Elements" href="/tutorial/custom-elements" {x_page} />
+		<NavLink text="Web Components" href="/tutorial/web-components" {x_page} />
+		<NavLink text="Custom Events" href="/tutorial/custom-events" {x_page} />
+	</nav>
+</header>

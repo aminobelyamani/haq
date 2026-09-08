@@ -1,0 +1,19 @@
+{
+	"$schema": "https://turbo.build/schema.json",
+	"tasks": {
+		"compile": {
+			"dependsOn": ["^compile"],
+			"inputs": ["src/**/*.ts"],
+			"outputs": ["@dist/**"]
+		},
+		"//#lint": {
+			"inputs": ["**/src/**/*.{ts,astro,css,json}"]
+		},
+		"//#format": {
+			"inputs": ["**/src/**/*.{ts,json,css}"]
+		},
+		"clean": {
+			"cache": false
+		}
+	}
+}

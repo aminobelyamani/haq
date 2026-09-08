@@ -1,0 +1,67 @@
+{
+	"name": "haq-astro-vsce",
+	"displayName": "HAQ Astro",
+	"version": "0.1.0",
+	"private": true,
+	"author": "Amino Belyamani",
+	"publisher": "aminobelyamani",
+	"description": "IDE support for HAQ Astro",
+	"icon": "./@assets/logo.jpg",
+	"license": "AGPL-3.0-or-later",
+	"categories": [
+		"Linters",
+		"Other"
+	],
+	"keywords": [
+		"astro",
+		"css",
+		"typescript",
+		"vanilla"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/golang/vscode-go"
+	},
+	"contributes": {
+		"commands": [
+			{
+				"command": "haq-astro-vsce.check",
+				"title": "HAQ Astro check"
+			}
+		]
+	},
+	"activationEvents": [
+		"onLanguage:astro",
+		"onLanguage:css"
+	],
+	"engines": {
+		"vscode": "^1.136.0"
+	},
+	"main": "./out/src/extension.js",
+	"scripts": {
+		"bundle": "node --experimental-strip-types @build/esbuild.ts",
+		"postbundle": "node --experimental-strip-types @build/post-bundle.ts",
+		"bundle:watch": "pnpm bundle --watch",
+		"clean": "rm -rf out",
+		"lint": "biome lint .",
+		"package": "pnpm vsce package --no-dependencies --allow-missing-repository",
+		"publish": "pnpm vsce publish --no-dependencies",
+		"ts-check": "tsc -p ./",
+		"vscode:prepublish": "pnpm clean && pnpm ts-check && pnpm lint && pnpm bundle --production",
+		"watch": "tsc --watch -p ./"
+	},
+	"dependencies": {
+		"@astrojs/compiler": "^4.0.0",
+		"@haq/astro": "workspace:*",
+		"@haq/utils": "workspace:*",
+		"css-tree": "^3.2.1"
+	},
+	"devDependencies": {
+		"@types/mocha": "^10.0.10",
+		"@types/vscode": "^1.136.0",
+		"@vscode/test-cli": "^0.0.15",
+		"@vscode/test-electron": "^3.1.0",
+		"@vscode/vsce": "^3.9.2",
+		"esbuild": "^0.28.2"
+	}
+}

@@ -1,0 +1,7 @@
+{
+	"$schema": "./node_modules/@haq/astro/_static/haq_config_schema.json",
+	"projectDir": "./src",
+	"outDir": "./src",
+	"globalCssDir": "./src/css",
+	"astroDirs": ["./src"]
+}

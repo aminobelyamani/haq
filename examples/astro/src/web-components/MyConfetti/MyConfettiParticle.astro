@@ -1,0 +1,9 @@
+---
+// src/web-components/MyConfetti/MyConfettiParticle.astro
+
+import type { HAQ_AliasableComponentProps } from "@haq/astro";
+
+interface Props extends Pick<HAQ_AliasableComponentProps, "x_alias"> {}
+---
+
+<my-confetti-particle x_haq></my-confetti-particle>

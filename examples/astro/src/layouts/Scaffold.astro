@@ -1,0 +1,34 @@
+---
+// src/layouts/Scaffold.astro
+
+import type { HAQ_PageRoute } from "@haq/routes-1";
+
+import { ClientRouter } from "astro:transitions";
+
+import "../css/styles.css";
+
+interface Props {
+	title: string;
+	x_page: HAQ_PageRoute;
+}
+const { title, x_page } = Astro.props;
+---
+
+<html lang="en" {x_page} x_haq>
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, minimum-scale=1.0,  maximum-scale=1.0, user-scalable=no" />
+		<meta name="mobile-web-app-capable" content="yes" />
+		<meta name="msapplication-tap-highlight" content="no" />
+		<meta name="HandheldFriendly" content="true" />
+		<title>{title}</title>
+		<ClientRouter fallback="none" />
+	</head>
+	<body>
+		<slot name="body:" x_slot="MyHeader" />
+		<script>
+			import "../app-router";
+		</script>
+	</body>
+</html>

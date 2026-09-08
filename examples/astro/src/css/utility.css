@@ -1,0 +1,31 @@
+/* src/css/utility.css  */
+
+.min-full-screen {
+	width: 100%;
+	min-height: calc(100 * var(--__vh));
+}
+
+.flex {
+	display: flex;
+}
+
+.flex-center {
+	align-items: center;
+	justify-content: center;
+}
+
+.clr-primary {
+	color: var(--clr-primary);
+}
+
+.clr-accent {
+	color: var(--clr-accent);
+}
+
+.text-center {
+	text-align: center;
+}
+
+.padding-200 {
+	padding: 2rem;
+}

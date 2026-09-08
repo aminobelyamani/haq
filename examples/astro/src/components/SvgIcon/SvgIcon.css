@@ -1,0 +1,35 @@
+/* src/components/SvgIcon/SvgIcon.css  */
+
+svg-icon {
+	--_width: 200px;
+	--_height: 200px;
+	display: block;
+	width: var(--_width);
+	height: var(--_height);
+	-webkit-mask-repeat: no-repeat;
+	mask-repeat: no-repeat;
+	-webkit-mask-position: center;
+	mask-position: center;
+	background-color: var(--clr-accent);
+	pointer-events: none;
+}
+
+svg-icon[d_icon="html"] {
+	-webkit-mask-image: url(./html.svg);
+	mask-image: url(./html.svg);
+}
+
+svg-icon[d_icon="css"] {
+	-webkit-mask-image: url(./css.svg);
+	mask-image: url(./css.svg);
+}
+
+svg-icon[d_icon="plus"] {
+	-webkit-mask-image: url(./plus.svg);
+	mask-image: url(./plus.svg);
+}
+
+svg-icon[d_icon="minus"] {
+	-webkit-mask-image: url(./minus.svg);
+	mask-image: url(./minus.svg);
+}

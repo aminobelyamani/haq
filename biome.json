@@ -1,0 +1,209 @@
+{
+	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+	"files": {
+		"includes": [
+			"**",
+			"!**/.git",
+			"!**/.turbo",
+			"!**/.astro",
+			"!**/.vscode",
+			"!**/.vscode-test",
+			"!**/node_modules",
+			"!**/dist",
+			"!**/@dist",
+			"!**/out",
+			"!**/_test",
+			"!**/_work",
+			"!**/*.js",
+			"!**/*.mjs",
+			"!**/*.cjs",
+			"!**/settings.json"
+		],
+		"maxSize": 3000000
+	},
+	"assist": {
+		"actions": { "source": { "organizeImports": "on" } },
+		"includes": ["**", "!**/*.astro"]
+	},
+
+	"css": {
+		"formatter": {
+			"lineWidth": 120
+		}
+	},
+
+	"javascript": {
+		"formatter": {
+			"semicolons": "asNeeded",
+			"trailingCommas": "none",
+			"lineWidth": 120
+		}
+	},
+	"json": {
+		"parser": {
+			"allowTrailingCommas": true,
+			"allowComments": true
+		},
+		"formatter": {
+			"trailingCommas": "none",
+			"lineWidth": 120
+		}
+	},
+
+	"formatter": {
+		"includes": ["**", "!**/*.astro"]
+	},
+
+	"linter": {
+		"includes": ["**", "!**/_haq", "!**/examples"],
+
+		"rules": {
+			"complexity": "error",
+			"correctness": "error",
+			"nursery": "error",
+			"performance": "error",
+			"style": "error",
+			"suspicious": "error",
+			"security": "error",
+			"a11y": "error"
+		}
+	},
+
+	"overrides": [
+		{
+			"includes": ["**"],
+			"linter": {
+				"rules": {
+					"correctness": {
+						"noNestedComponentDefinitions": "off",
+						"noUndeclaredDependencies": "off",
+						"noNodejsModules": "off",
+						"noUnresolvedImports": "off",
+						"useQwikValidLexicalScope": "off",
+						"useImportExtensions": {
+							"level": "error",
+							"options": {
+								"forceJsExtensions": true
+							}
+						}
+					},
+
+					"complexity": {
+						"noExcessiveLinesPerFunction": "off"
+					},
+
+					"nursery": {
+						"useExplicitType": "off",
+						"useAwaitThenable": "off",
+						"useNamedCaptureGroup": "off",
+						"useUnicodeRegex": "off",
+						"noPlaywrightUselessAwait": "off",
+						"useImportsFirst": "off",
+						"noComponentHookFactories": "off",
+						"useThisInClassMethods": "off",
+						"useReactFunctionComponentDefinition": "off",
+						"noRestrictedDependencies": "off",
+						"noUnsafeTypeAssertion": "warn"
+					},
+
+					"performance": {
+						"noAwaitInLoops": "off"
+					},
+
+					"style": {
+						"noContinue": "off",
+						"noTernary": "off",
+						"noIncrementDecrement": "off",
+						"useDestructuring": "off",
+						"noExcessiveLinesPerFile": "off",
+						"useNamingConvention": "off",
+						"useExportsLast": "off",
+						"useConsistentTypeDefinitions": "off",
+						"useBlockStatements": "off",
+						"useConsistentArrayType": {
+							"level": "error",
+							"options": {
+								"syntax": "shorthand"
+							}
+						},
+						"useFilenamingConvention": {
+							"level": "error",
+							"options": {
+								"strictCase": false,
+								"requireAscii": true,
+								"filenameCases": ["kebab-case"]
+							}
+						},
+						"noExcessiveClassesPerFile": "off"
+					},
+
+					"suspicious": {
+						"noConsole": {
+							"level": "warn",
+							"options": { "allow": ["info", "error", "trace", "warn", "clear"] }
+						},
+						"noEmptySource": "off"
+					},
+
+					"security": {
+						"noSecrets": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": ["**/*.ts"],
+			"linter": {
+				"rules": {
+					"correctness": {
+						"useImportExtensions": {
+							"level": "error",
+							"options": {
+								"forceJsExtensions": true
+							}
+						}
+					}
+				}
+			}
+		},
+		{
+			"includes": ["**/*.css"],
+			"linter": {
+				"rules": {
+					"nursery": {
+						"useBaseline": {
+							"options": {
+								"available": "newly"
+							},
+							"level": "error"
+						}
+					}
+				}
+			}
+		},
+		{
+			"includes": ["**/*.astro"],
+			"linter": {
+				"rules": {
+					"style": {
+						"useConst": "off",
+						"useImportType": "off",
+						"useFilenamingConvention": {
+							"level": "error",
+							"options": {
+								"strictCase": false,
+								"requireAscii": true,
+								"filenameCases": ["PascalCase"]
+							}
+						}
+					},
+					"correctness": {
+						"noUnusedVariables": "off",
+						"noUnusedImports": "off",
+						"useImportExtensions": "off"
+					}
+				}
+			}
+		}
+	]
+}

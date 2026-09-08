@@ -1,0 +1,28 @@
+---
+// src/web-components/MyConfetti/MyConfetti.astro
+
+import type { HAQ_AliasableComponentProps } from "@haq/astro";
+import type { HTMLAttributes } from "astro/types";
+type T = HTMLAttributes<"my-confetti">;
+
+import "./MyConfetti.css";
+
+import Nullable from "@haq/Nullable.astro";
+import MyConfettiParticle from "./MyConfettiParticle.astro";
+
+interface Props extends Pick<HAQ_AliasableComponentProps, "x_alias"> {
+	d_particle_count: T["d_particle_count"];
+}
+
+const { ...attrs } = Astro.props;
+---
+
+<my-confetti d_particle_count={attrs.d_particle_count} x_webc>
+	<Nullable>
+		<MyConfettiParticle x_alias />
+	</Nullable>
+</my-confetti>
+
+<script>
+	import "./MyConfetti";
+</script>

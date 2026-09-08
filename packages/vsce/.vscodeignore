@@ -1,0 +1,15 @@
+.gitignore
+.yarnrc
+vsc-extension-quickstart.md
+tsconfig.json
+biome.json
+reset.d.ts
+.npmrc
+.vscode/**
+.vscode-test/**
+.turbo/**
+.astro/**
+tmp/**
+_haq/**
+src/**
+@build/**

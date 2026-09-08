@@ -1,0 +1,1 @@
+import "@haq/astro/cli"

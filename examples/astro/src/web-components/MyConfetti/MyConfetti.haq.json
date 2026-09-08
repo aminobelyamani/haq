@@ -1,0 +1,21 @@
+{
+	"custom-elements": [
+		{
+			"tag": "my-confetti",
+			"attrs": [
+				{
+					"name": "d_particle_count",
+					"value": "number",
+					"required": true
+				},
+				{
+					"name": "d_animate"
+				}
+			]
+		},
+		{
+			"tag": "my-confetti-particle",
+			"cssDynamicVars": ["bkgColor", "left", "delay", "duration"]
+		}
+	]
+}

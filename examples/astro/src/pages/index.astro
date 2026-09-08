@@ -1,0 +1,19 @@
+---
+// src/pages/index.astro
+
+import MyHeader from "../app-components/MyHeader/MyHeader.astro";
+import MainContainer from "../components/MainContainer.astro";
+import Scaffold from "../layouts/Scaffold.astro";
+
+const HAQ_ROUTE = "/";
+---
+
+<Scaffold title="Hello, World!" x_page={HAQ_ROUTE}>
+	<MyHeader slot="body:" x_appc />
+	<MainContainer slot="body:">
+		<div class="text-center">
+			<h1 class="clr-accent">Hello, World!</h1>
+			<h1 class="clr-accent" d_lang="ar">مرحبا بالعالم!</h1>
+		</div>
+	</MainContainer>
+</Scaffold>

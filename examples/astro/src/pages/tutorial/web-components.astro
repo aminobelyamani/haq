@@ -1,0 +1,20 @@
+---
+// src/pages/tutorial/web-components.astro
+
+import MyHeader from "../../app-components/MyHeader/MyHeader.astro";
+import MainContainer from "../../components/MainContainer.astro";
+import Scaffold from "../../layouts/Scaffold.astro";
+import MyCounter from "../../web-components/MyCounter/MyCounter.astro";
+
+const HAQ_ROUTE = "/tutorial/web-components";
+---
+
+<Scaffold title="Web Components" x_page={HAQ_ROUTE}>
+	<MyHeader slot="body:" x_appc />
+	<MainContainer slot="body:">
+		<div class="text-center">
+			<h1 class="clr-accent">Web Components Are Awesome!</h1>
+			<MyCounter />
+		</div>
+	</MainContainer>
+</Scaffold>

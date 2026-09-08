@@ -1,0 +1,9 @@
+/* src/web-components/MyCounter/MyCounter.css  */
+
+my-counter {
+	gap: 2rem;
+}
+
+my-counter span[x_sel="count"] {
+	width: 40px;
+}

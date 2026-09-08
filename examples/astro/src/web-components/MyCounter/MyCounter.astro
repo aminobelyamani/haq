@@ -1,0 +1,22 @@
+---
+// src/web-components/MyCounter/MyCounter.astro
+
+import type { HAQ_AliasableComponentProps } from "@haq/astro";
+
+import "./MyCounter.css";
+
+import MinusBtn from "../../components/btns/MinusBtn.astro";
+import PlusBtn from "../../components/btns/PlusBtn.astro";
+
+interface Props extends Pick<HAQ_AliasableComponentProps, "x_alias"> {}
+---
+
+<my-counter class="flex flex-center" x_webc>
+	<MinusBtn disabled x_alias />
+	<span class="flex flex-center" x_sel="count" set:text="0" x_haq />
+	<PlusBtn x_alias />
+</my-counter>
+
+<script>
+	import "./MyCounter";
+</script>

@@ -1,0 +1,16 @@
+[
+	{
+		"tag": "svg-icon",
+		"attrs": [{ "name": "d_icon", "value": ["html", "css", "plus", "minus"], "required": true }],
+		"cssStaticVars": ["--_width", "--_height"]
+	},
+	{ "tag": "*", "attrs": [{ "name": "d_lang", "value": ["ar"] }] },
+	{ "tag": "a", "attrs": [{ "name": "d_active" }] },
+	{
+		"tag": "my-confetti",
+		"attrs": [{ "name": "d_particle_count", "value": "number", "required": true }, { "name": "d_animate" }]
+	},
+	{ "tag": "my-confetti-particle", "cssDynamicVars": ["--__bkgColor", "--__left", "--__delay", "--__duration"] },
+	{ "tag": "my-counter" },
+	{ "tag": "odd-even" }
+]

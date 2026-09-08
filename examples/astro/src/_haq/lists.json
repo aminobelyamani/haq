@@ -1,0 +1,27 @@
+{
+	"classNames": ["min-full-screen", "flex", "flex-center", "clr-primary", "clr-accent", "text-center", "padding-200"],
+	"rootCustomProperties": [
+		"--clr-primary",
+		"--clr-accent",
+		"--clr-text",
+		"--clr-text-dim",
+		"--fontFamily",
+		"--fontSize",
+		"--__vh"
+	],
+	"aliasableComponents": [
+		"MyForm",
+		"MyHeader",
+		"PerfectNumber",
+		"NavLink",
+		"OldMyHeader",
+		"SvgIcon",
+		"MinusBtn",
+		"PlusBtn",
+		"Scaffold",
+		"MyConfetti",
+		"MyConfettiParticle",
+		"MyCounter",
+		"OddEven"
+	]
+}

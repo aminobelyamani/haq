@@ -1,0 +1,14 @@
+---
+// src/components/NavLink.astro
+
+import type { HAQ_AliasableComponentProps } from "@haq/astro";
+import type { HAQ_PageRoute } from "@haq/routes-1";
+
+interface Props extends Pick<HAQ_AliasableComponentProps, "x_alias"> {
+	href: HAQ_PageRoute;
+	text: string;
+}
+const { href, text } = Astro.props;
+---
+
+<a {href} x_sel="nav-link" x_ev_types={["click"]} x_haq>{text}</a>

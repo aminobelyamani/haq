@@ -1,0 +1,17 @@
+---
+// src/components/SvgIcon/SvgIcon.astro
+
+import type { HTMLAttributes } from "astro/types";
+import type { HAQ_AliasableComponentProps, HAQ_SelectorProps } from "@haq/astro";
+type T = HTMLAttributes<"svg-icon">;
+
+import "./SvgIcon.css";
+
+interface Props extends Pick<HAQ_AliasableComponentProps, "x_alias">, Pick<HAQ_SelectorProps, "x_sel"> {
+	d_icon: T["d_icon"];
+}
+
+const { ...attrs } = Astro.props;
+---
+
+<svg-icon d_icon={attrs.d_icon} x_sel={attrs.x_sel} x_dyn_sel x_haq></svg-icon>
