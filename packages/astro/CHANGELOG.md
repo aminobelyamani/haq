@@ -1,5 +1,13 @@
 # @haq/astro
 
+## 0.1.9
+
+### Patch Changes
+
+- - Combined `gen` and `check` cli commands into one `compile` command.
+  
+  - Improves DX and performance.
+
 ## 0.1.8
 
 ### Patch Changes
