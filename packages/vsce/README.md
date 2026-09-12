@@ -7,7 +7,7 @@ This extension provides completions and inline diagnostics in Astro (`.astro`) a
 - You must have Astro (`astro`) installed.
 - You must have HAQ Astro (`@haq/astro`) installed.
 - You must have a HAQ Astro config file (`haq.config.json`) in the root of your workspace.
-- You must have run the `haq gen` or `haq check` command at least once before the extension can run.
+- You must have run the `haq compile` command at least once before the extension can run.
 
 ## Features
 

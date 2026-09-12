@@ -18,6 +18,6 @@
 		"@haq/astro": "workspace:*",
 		"@haq/utils": "workspace:*",
 		"@typescript/typescript6": "^6.0.2",
-		"astro": "^7.3.1"
+		"astro": "^7.3.2"
 	}
 }

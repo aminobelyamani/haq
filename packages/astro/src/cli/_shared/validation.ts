@@ -3,6 +3,7 @@
 import { stringArray } from "@haq/utils"
 import { z } from "zod"
 import { HAQError } from "./errors.js"
+import type { __TagName__ } from "./types.js"
 
 //#endregion ----------------------------------------------- Module Imports
 
@@ -88,8 +89,7 @@ export type JSON_Attribute = NonNullable<JSON_CustomElement["attrs"]>[number]
  *
  ******************************************************************************/
 
-type TagName = string & { tagName?: never }
-export type CustomElementsMap = Map<TagName, Pick<JSON_CustomElement, "attrs" | "cssDynamicVars" | "cssStaticVars">>
+export type CustomElementsMap = Map<__TagName__, Pick<JSON_CustomElement, "attrs" | "cssDynamicVars" | "cssStaticVars">>
 
 export function isJSONSchemaValid(json: unknown): json is JSON_Schema {
 	return JSONSchema.safeParse(json).success

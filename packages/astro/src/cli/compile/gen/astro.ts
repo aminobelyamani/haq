@@ -3,9 +3,10 @@
 import type { ComponentNode, Node, TagLikeNode } from "@astrojs/compiler/types"
 import type { TypedOmit } from "@haq/utils/types"
 import type {
+	__ComponentName__,
 	AstroASTMap,
 	CSSMarkupObject,
-	Diagnostic,
+	FileDocumentMap,
 	GeneratedComponentMap,
 	GeneratedCSSMarkupObject,
 	GeneratedNamespaceTypes,
@@ -15,7 +16,7 @@ import type {
 	JSON_CSSMarkup,
 	JSON_Lists,
 	SelectorKind
-} from "../_shared/types.js"
+} from "../../_shared/types.js"
 
 //#endregion ----------------------------------------------- Type Imports
 
@@ -24,16 +25,14 @@ import type {
 import path from "node:path"
 import { is } from "@astrojs/compiler/utils"
 import { entriesFromObject } from "@haq/utils"
-import { GLOBALS } from "../../globals.js"
+import { GLOBALS } from "../../../globals.js"
 import {
 	addUniqueSelectorOrThrow,
 	canIgnoreUniqueSelector,
-	createAstroComponentsMap,
 	getAttributeByName,
 	getIDAttributeValue,
 	getPartialRouteFromFilePath,
 	getPositionRange,
-	getRootNodeByFileName,
 	getSlotDirectiveValues,
 	getXSelectorValue,
 	hasChildren,
@@ -45,10 +44,11 @@ import {
 	isCustomTagNode,
 	isDirectiveNode,
 	isSlotNode,
-	isWebComponentNode
-} from "../_shared/astro.js"
-import { HAQError } from "../_shared/errors.js"
-import { getFileNameWithoutExtension, getRelativeFilePath, getRouteFromAstroPage } from "../_shared/fs.js"
+	isWebComponentNode,
+	parseAstroFile
+} from "../../_shared/astro.js"
+import { HAQError } from "../../_shared/errors.js"
+import { getFileNameWithoutExtension, getRelativeFilePath, getRouteFromAstroPage } from "../../_shared/fs.js"
 import {
 	containsUppercase,
 	generateArrayFromSpaceSeparatedList,
@@ -58,9 +58,8 @@ import {
 	getArrayFromStringifiedArray,
 	kebab2Pascal,
 	removeEmptyLines
-} from "../_shared/strings.js"
-import { addUniqueSetValueOrThrow } from "../_shared/validation.js"
-import { getMarkupDiagnostics } from "./markup-diag.js"
+} from "../../_shared/strings.js"
+import { addUniqueSetValueOrThrow } from "../../_shared/validation.js"
 
 //#endregion ----------------------------------------------- Module Imports
 
@@ -80,25 +79,24 @@ type ProcessedNodeObj = {
 	formNode: TagLikeNode | undefined
 }
 
+type __TypeName__ = string & { typeName?: never }
 type ChildMapRecord = {
 	childrenTypeNameSet: Set<string>
 	typeAsString: string[]
 }
-type ChildMap = Map<string, ChildMapRecord>
+type ChildMap = Map<__TypeName__, ChildMapRecord>
 
 type ProcessedMarkupObject = CSSMarkupObject & { reference: string | undefined }
-
-type ComponentName = string & { componentName?: never }
 
 type FormPayload = {
 	filePath: string
 	formNode: TagLikeNode
 }
-type FormASTMap = Map<ComponentName, FormPayload>
+type FormASTMap = Map<__ComponentName__, FormPayload>
 
 type AttrValuesPayload = { filePath: string; tagLikeNode: TagLikeNode; attributesToTrack: string[] }
 
-type AttrValuesASTMap = Map<ComponentName, AttrValuesPayload>
+type AttrValuesASTMap = Map<__ComponentName__, AttrValuesPayload>
 
 /*******************************************************************************
  *
@@ -121,7 +119,10 @@ type RT_getAstroTypes = Promise<{
 	astroComponents: JSON_AstroComponent[]
 	flatMarkupArray: JSON_CSSMarkup[]
 	generatedAppComponentsRouterTypes: GeneratedNamespaceTypes
-	markupDiagnostics: Diagnostic[]
+	fileDocumentMap: FileDocumentMap
+	astroASTMap: AstroASTMap
+	sortedComponentNames: string[]
+	generatedComponentMap: GeneratedComponentMap
 }>
 export async function getAstroTypes({ astroFileNames, outDir, astroDirs }: ARGS_getAstroTypes): RT_getAstroTypes {
 	const generatedTypes: string[] = []
@@ -138,15 +139,17 @@ export async function getAstroTypes({ astroFileNames, outDir, astroDirs }: ARGS_
 	const flatMarkupMap: FlatMarkupMap = new Map()
 	const flatMarkupArray: JSON_CSSMarkup[] = []
 
+	const fileDocumentMap: FileDocumentMap = new Map()
 	const astroASTMap: AstroASTMap = new Map()
 	const formASTMap: FormASTMap = new Map()
 	const attrValuesASTMap: AttrValuesASTMap = new Map()
 
 	for (const filePath of astroFileNames) {
-		const ast = await getRootNodeByFileName(filePath, true)
-		if (!ast) continue
+		const result = await parseAstroFile(filePath, true)
+		if (!result) continue
 
-		astroASTMap.set(filePath, ast)
+		fileDocumentMap.set(filePath, result.fileContents)
+		astroASTMap.set(filePath, result.ast)
 
 		// no directives allowed in /pages, except /pages/@partial
 		const fileShouldNotHaveDirective = filePath.match(GLOBALS.REGEX_PAGES_WITHOUT_PARTIAL) !== null
@@ -154,7 +157,7 @@ export async function getAstroTypes({ astroFileNames, outDir, astroDirs }: ARGS_
 
 		const generatedFileTypes = generateFileTypes({
 			filePath,
-			node: ast,
+			node: result.ast,
 			outDir,
 			astroComponentNames,
 			idSelectorList,
@@ -192,7 +195,7 @@ export async function getAstroTypes({ astroFileNames, outDir, astroDirs }: ARGS_
 		generateAstroComponentsList({
 			astroComponents,
 			filePath,
-			root: ast,
+			root: result.ast,
 			astroComponentName,
 			slotNames
 		})
@@ -201,7 +204,7 @@ export async function getAstroTypes({ astroFileNames, outDir, astroDirs }: ARGS_
 	// build dependency graph (handle aliased components)
 
 	const graph = buildDependencyGraph(componentMap)
-	const sorted = topologicalSort(graph)
+	const sortedComponentNames = topologicalSort(graph)
 
 	generateFormDataTypes({ astroFileNames, astroASTMap, formASTMap, generatedTypes, componentMap })
 
@@ -209,7 +212,7 @@ export async function getAstroTypes({ astroFileNames, outDir, astroDirs }: ARGS_
 
 	// Populate flat markup and handle unique ids
 
-	populateRefMarkup(flatMarkupMap, sorted, componentMap)
+	populateRefMarkup(flatMarkupMap, sortedComponentNames, componentMap)
 
 	populateFlatMarkup(flatMarkupMap, flatMarkupArray)
 
@@ -224,13 +227,10 @@ export async function getAstroTypes({ astroFileNames, outDir, astroDirs }: ARGS_
 		astroComponents,
 		flatMarkupArray,
 		generatedAppComponentsRouterTypes,
-		markupDiagnostics: getMarkupDiagnostics({
-			astroASTMap,
-			astroComponentsMap: createAstroComponentsMap(astroComponents),
-			componentMap,
-			astroFileNames,
-			sortedIdentifiers: sorted
-		})
+		fileDocumentMap,
+		astroASTMap,
+		generatedComponentMap: componentMap,
+		sortedComponentNames
 	}
 
 	//* ---------- Helpers -----------------------------------------------
@@ -1930,7 +1930,7 @@ function generateAttrValuesTypes({
 /* Topological Sorting
 -----------------------------------------------*/
 
-type DepdendencyGraph = Map<string, Set<string>>
+type DepdendencyGraph = Map<__ComponentName__, Set<__ComponentName__>>
 function buildDependencyGraph(componentMap: GeneratedComponentMap): DepdendencyGraph {
 	const graph: DepdendencyGraph = new Map()
 	for (const [identifier, info] of componentMap.entries()) {
@@ -1974,7 +1974,7 @@ function topologicalSort(graph: DepdendencyGraph): string[] {
 -----------------------------------------------*/
 
 type FlatMarkupMapContent = { children: ProcessedMarkupObject[]; filePath: string; cssFilePath?: string }
-type FlatMarkupMap = Map<string, FlatMarkupMapContent>
+type FlatMarkupMap = Map<__TypeName__, FlatMarkupMapContent>
 
 type ARGS_handleCssSelectors = {
 	reference: string | undefined
@@ -2053,7 +2053,7 @@ function populateFlatMarkup(flatMarkupMap: FlatMarkupMap, flatMarkupArray: JSON_
 }
 
 type CurrentChildrenMapContent = TypedOmit<ProcessedMarkupObject, "id">
-type CurrentChildrenMap = Map<string, CurrentChildrenMapContent>
+type CurrentChildrenMap = Map<__ComponentName__, CurrentChildrenMapContent>
 
 function populateRefMarkup(
 	flatMarkupMap: FlatMarkupMap,

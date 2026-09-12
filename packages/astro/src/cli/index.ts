@@ -12,9 +12,9 @@
 
 import type {
 	CLI_AppCFlags,
+	CLI_CompileFlags,
 	CLI_EnvFlags,
 	CLI_Flags,
-	CLI_GenFlags,
 	CLI_SubCommand,
 	CLI_WebCFlags
 } from "./_shared/types.js"
@@ -34,7 +34,7 @@ import { outputStyler } from "./_shared/output.js"
 function resolveCommand(flags: yargs.Arguments): CLI_SubCommand {
 	const cmd = flags._[2] as CLI_SubCommand
 
-	const allCommands = stringArray<CLI_SubCommand>()(["help", "init", "gen", "check", "env", "ce", "webc", "appc"])
+	const allCommands = stringArray<CLI_SubCommand>()(["help", "init", "compile", "env", "ce", "webc", "appc"])
 	const validCommands: Set<CLI_SubCommand> = new Set(allCommands)
 
 	if (validCommands.has(cmd)) {
@@ -46,67 +46,50 @@ function resolveCommand(flags: yargs.Arguments): CLI_SubCommand {
 async function runCommand(cmd: CLI_SubCommand, flags: CLI_Flags): Promise<void> {
 	switch (cmd) {
 		case "help": {
-			const { help } = await import("./help/index.js")
+			const { help } = await import("./help.js")
 			help({ outputStyler })
 
 			break
 		}
 
 		case "init": {
-			const { init } = await import("./init/index.js")
+			const { init } = await import("./init.js")
 			await init({ outputStyler })
 
 			break
 		}
 
-		case "gen": {
-			const { gen } = await import("./gen/index.js")
-			const { numOfGenErrors } = await gen({ outputStyler, flags: flags as CLI_GenFlags })
+		case "compile": {
+			const { compile } = await import("./compile/index.js")
+			const { numOfGenErrors } = await compile({ outputStyler, flags: flags as CLI_CompileFlags })
 			handleDiag(numOfGenErrors)
 
 			break
 		}
 
-		case "check": {
-			const { gen } = await import("./gen/index.js")
-			const { check } = await import("./check/index.js")
-
-			const { numOfGenErrors, outDir } = await gen({ outputStyler, flags: flags as CLI_GenFlags, isCheckMode: true })
-
-			const numOfCheckDiagErrors = await check({
-				outputStyler,
-				flags: flags as CLI_GenFlags,
-				outDir,
-				numOfGenErrors
-			})
-			handleDiag(numOfCheckDiagErrors)
-
-			break
-		}
-
 		case "env": {
-			const { env } = await import("./env/index.js")
+			const { env } = await import("./env.js")
 			env({ outputStyler, flags: flags as CLI_EnvFlags })
 
 			break
 		}
 
 		case "ce": {
-			const { ce } = await import("./ce/index.js")
+			const { ce } = await import("./ce.js")
 			ce({ outputStyler, flags: flags as CLI_WebCFlags })
 
 			break
 		}
 
 		case "webc": {
-			const { webc } = await import("./webc/index.js")
+			const { webc } = await import("./webc.js")
 			webc({ outputStyler, flags: flags as CLI_WebCFlags })
 
 			break
 		}
 
 		case "appc": {
-			const { appc } = await import("./appc/index.js")
+			const { appc } = await import("./appc.js")
 			appc({ outputStyler, flags: flags as CLI_AppCFlags })
 
 			break
@@ -117,9 +100,9 @@ async function runCommand(cmd: CLI_SubCommand, flags: CLI_Flags): Promise<void> 
 	}
 }
 
-function handleExit(cmd: CLI_SubCommand, flags: CLI_GenFlags, exitCode: 0 | 1): void {
+function handleExit(cmd: CLI_SubCommand, flags: CLI_CompileFlags, exitCode: 0 | 1): void {
 	const watchMode = flags.w || flags.watch
-	if ((cmd === "gen" || cmd === "check") && watchMode) {
+	if (cmd === "compile" && watchMode) {
 		return
 	}
 	process.exit(exitCode)
@@ -130,11 +113,11 @@ async function main(argv: string[]): Promise<void> {
 	const cmd = resolveCommand(flags)
 	try {
 		await runCommand(cmd, flags as CLI_Flags)
-		handleExit(cmd, flags as CLI_GenFlags, 0)
+		handleExit(cmd, flags as CLI_CompileFlags, 0)
 	} catch (err) {
 		const { handleError } = await import("./_shared/errors.js")
 		handleError({ err, outputStyler })
-		handleExit(cmd, flags as CLI_GenFlags, 1)
+		handleExit(cmd, flags as CLI_CompileFlags, 1)
 	}
 }
 

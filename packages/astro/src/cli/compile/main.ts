@@ -7,7 +7,7 @@ import type {
 	I_OutputStyler,
 	JSON_Lists
 } from "../_shared/types.js"
-import type { ConfigSchema } from "../_shared/validation.js"
+import type { ConfigSchema, JSON_CustomElement } from "../_shared/validation.js"
 
 //#endregion ----------------------------------------------- Type Imports
 
@@ -15,14 +15,18 @@ import type { ConfigSchema } from "../_shared/validation.js"
 
 import fs from "node:fs"
 import { GLOBALS } from "../../globals.js"
-import { getAllAstroAndJSONFileNamesInDir, getAllCSSFileNamesInDir, writeLogFile } from "../_shared/fs.js"
+import { createAstroComponentsMap, createCssMarkupMap, createCustomElementsMap } from "../_shared/astro.js"
+import { getAllAstroAndJSONFileNamesInDir, getAllCSSFileNamesInDir, loadFile, writeLogFile } from "../_shared/fs.js"
 import { HAQLogger } from "../_shared/logger.js"
 import { formatAndWrite } from "../_shared/output.js"
 import { addDisclaimerComment, injectTypesInGlobalNamespace } from "../_shared/strings.js"
-import { getAstroTypes } from "./astro.js"
-import { getAttributeTypes } from "./attributes.js"
-import { makeCSSLists } from "./css-lists.js"
-import { generateRoutesTypes } from "./routes-type-gen.js"
+import { getAstroDiagnostics } from "./diag/astro-diagnostics.js"
+import { getCSSDiagnostics } from "./diag/css-diagnostics.js"
+import { getMarkupDiagnostics } from "./diag/markup-diag.js"
+import { getAstroTypes } from "./gen/astro.js"
+import { getAttributeTypes } from "./gen/attributes.js"
+import { getCSSLists } from "./gen/css-lists.js"
+import { generateRoutesTypes } from "./gen/routes-type-gen.js"
 
 //#endregion ----------------------------------------------- Module Imports
 
@@ -33,18 +37,27 @@ import { generateRoutesTypes } from "./routes-type-gen.js"
 //------------------------------------------------------------------------------
 
 type ARGS_main = ConfigSchema & {
+	nativeElementsJsonContent: JSON_CustomElement[]
 	outputStyler: I_OutputStyler
 }
-export async function main({ projectDir, outDir, globalCssDir, astroDirs, outputStyler }: ARGS_main): Promise<number> {
+export async function main({
+	projectDir,
+	outDir,
+	globalCssDir,
+	astroDirs,
+	outputStyler,
+	nativeElementsJsonContent
+}: ARGS_main): Promise<number> {
 	const Logger = new HAQLogger(outputStyler)
-	Logger.showInfo({ message: "Generating types and contexts..." })
+	Logger.showInfo({ message: "Compiling..." })
 
 	const startPerformanceTime = performance.now()
 	const result = await generate({
 		projectDir,
 		outDir,
 		globalCssDir,
-		astroDirs
+		astroDirs,
+		nativeElementsJsonContent
 	})
 
 	let routeCount = 0
@@ -53,13 +66,13 @@ export async function main({ projectDir, outDir, globalCssDir, astroDirs, output
 		generateRoutesTypes({ astroDir: dir, outDir, index: routeCount })
 	}
 
-	for (const diagnostic of result.markupDiagnostics) {
+	for (const diagnostic of result.diagnostics) {
 		Logger.showDiag(diagnostic)
 	}
 
 	writeLogFile(outDir)
 
-	const generatedFiles = fs.readdirSync(outDir, { withFileTypes: true })
+	const generatedFiles = fs.readdirSync(outDir)
 	const endPerformanceTime = performance.now()
 
 	Logger.showSuccessSummary({
@@ -68,7 +81,7 @@ export async function main({ projectDir, outDir, globalCssDir, astroDirs, output
 		duration: Math.round(endPerformanceTime - startPerformanceTime)
 	})
 
-	return result.markupDiagnostics.length
+	return result.diagnostics.length
 }
 
 //------------------------------------------------------------------------------
@@ -78,27 +91,34 @@ export async function main({ projectDir, outDir, globalCssDir, astroDirs, output
 //------------------------------------------------------------------------------
 
 type ARGS_generate = ConfigSchema & {
-	lint?: true
+	nativeElementsJsonContent: JSON_CustomElement[]
 }
 
 type RT_generate = Promise<{
 	filesParsed: number
-	markupDiagnostics: Diagnostic[]
+	diagnostics: Diagnostic[]
 }>
 
-async function generate({ projectDir, outDir, globalCssDir, astroDirs }: ARGS_generate): RT_generate {
-	const allProjectFiles = getAllAstroAndJSONFileNamesInDir(projectDir)
-	const cssFiles = getAllCSSFileNamesInDir(globalCssDir)
+async function generate({
+	projectDir,
+	outDir,
+	globalCssDir,
+	astroDirs,
+	nativeElementsJsonContent
+}: ARGS_generate): RT_generate {
+	const allAstroAndJSONFiles = getAllAstroAndJSONFileNamesInDir(projectDir)
+	const allCSSFiles = getAllCSSFileNamesInDir(projectDir)
 
-	const astroFileNames = allProjectFiles.filter((file) => file.match(GLOBALS.REGEX_ASTRO_EXTENSION))
-	const jsonFiles = allProjectFiles.filter((file) => file.match(GLOBALS.REGEX_HAQ_JSON_EXTENSION))
+	const astroFileNames = allAstroAndJSONFiles.filter((file) => file.match(GLOBALS.REGEX_ASTRO_EXTENSION))
+	const jsonFiles = allAstroAndJSONFiles.filter((file) => file.match(GLOBALS.REGEX_HAQ_JSON_EXTENSION))
+	const globalCssFiles = allCSSFiles.filter((file) => file.includes(globalCssDir))
 
 	const astroTypes = await getAstroTypes({
 		astroFileNames,
 		outDir,
 		astroDirs
 	})
-	const cssLists = makeCSSLists({ cssFiles })
+	const cssLists = getCSSLists({ cssFiles: globalCssFiles })
 
 	const generatedAttributeTypes = getAttributeTypes({
 		jsonFiles,
@@ -180,12 +200,63 @@ async function generate({ projectDir, outDir, globalCssDir, astroDirs }: ARGS_ge
 		content: JSON.stringify(astroTypes.flatMarkupArray)
 	})
 
+	const astroComponentsMap = createAstroComponentsMap(astroTypes.astroComponents)
+	const customElementsMap = createCustomElementsMap(generatedAttributeTypes.json, nativeElementsJsonContent)
+
+	const markupDiagnostics = getMarkupDiagnostics({
+		astroASTMap: astroTypes.astroASTMap,
+		astroComponentsMap,
+		generatedComponentMap: astroTypes.generatedComponentMap,
+		astroFileNames,
+		sortedComponentNames: astroTypes.sortedComponentNames
+	})
+
+	const fileSpecificDiagnostics = (await _runAstroDiagonstics()).concat(_runCSSDiagnostics())
+
 	return {
-		filesParsed: allProjectFiles.length + cssFiles.length,
-		markupDiagnostics: astroTypes.markupDiagnostics
+		filesParsed: allAstroAndJSONFiles.length + allCSSFiles.length,
+		diagnostics: markupDiagnostics.concat(fileSpecificDiagnostics)
 	}
 
 	//* ---------- Helpers -----------------------------------------------
+
+	async function _runAstroDiagonstics(): Promise<Diagnostic[]> {
+		const fileDiagnostics: Diagnostic[] = []
+		for (const astroFileName of astroFileNames) {
+			fileDiagnostics.push(
+				...(await getAstroDiagnostics({
+					document: astroTypes.fileDocumentMap.get(astroFileName) ?? "",
+					filePath: astroFileName,
+					astroASTMap: astroTypes.astroASTMap,
+					lists: generatedLists,
+					customElementsMap,
+					astroComponentsMap
+				}))
+			)
+		}
+		return fileDiagnostics
+	}
+
+	function _runCSSDiagnostics(): Diagnostic[] {
+		const fileDiagnostics: Diagnostic[] = []
+
+		for (const cssFileName of allCSSFiles) {
+			const file = loadFile(cssFileName)
+			if (!file || file.toString().length === 0) continue
+
+			fileDiagnostics.push(
+				...getCSSDiagnostics({
+					document: file.toString(),
+					filePath: cssFileName,
+					globalCssPath: globalCssDir,
+					customElementsMap,
+					cssMarkupMap: createCssMarkupMap(astroTypes.flatMarkupArray),
+					rootCustomProperties: generatedLists.rootCustomProperties
+				})
+			)
+		}
+		return fileDiagnostics
+	}
 
 	function _handleWebComponents(generatedWebComponentTagMapTypes: GeneratedNamespaceTypesWithGlobal): void {
 		let count = 1

@@ -1,17 +1,17 @@
 //#region -------------------------------------------------- Type Imports
 
-import type { JSON_Attribute, JSON_CustomElement, JSON_NativeElement } from "../_shared/validation.js"
+import type { JSON_Attribute, JSON_CustomElement, JSON_NativeElement } from "../../_shared/validation.js"
 
 //#endregion ----------------------------------------------- Type Imports
 
 //#region -------------------------------------------------- Module Imports
 
 import path from "node:path"
-import { GLOBALS } from "../../globals.js"
-import { HAQError } from "../_shared/errors.js"
-import { loadJSONFile } from "../_shared/fs.js"
-import { generateUnionFromArray, kebab2Pascal } from "../_shared/strings.js"
-import { addUniqueSetValueOrThrow, isJSONSchemaValid } from "../_shared/validation.js"
+import { GLOBALS } from "../../../globals.js"
+import { HAQError } from "../../_shared/errors.js"
+import { loadJsonFile } from "../../_shared/fs.js"
+import { generateUnionFromArray, kebab2Pascal } from "../../_shared/strings.js"
+import { addUniqueSetValueOrThrow, isJSONSchemaValid } from "../../_shared/validation.js"
 
 //#endregion ----------------------------------------------- Module Imports
 
@@ -89,7 +89,7 @@ export function getAttributeTypes({
 	const allElements: (JSON_CustomElement | JSON_NativeElement)[] = []
 
 	for (const fileName of jsonFiles) {
-		const jsonContent = loadJSONFile(fileName)
+		const jsonContent = loadJsonFile(fileName)
 
 		if (!isJSONSchemaValid(jsonContent))
 			throw new HAQError({

@@ -2,6 +2,7 @@
 
 import type { ComponentNode, Node, TagLikeNode } from "@astrojs/compiler/types"
 import type {
+	__ComponentName__,
 	AstroASTMap,
 	AstroComponentsMap,
 	Diagnostic,
@@ -9,7 +10,7 @@ import type {
 	GeneratedComponentMap,
 	SelectorKind,
 	SlotList
-} from "../_shared/types.js"
+} from "../../_shared/types.js"
 
 //#endregion ----------------------------------------------- Type Imports
 
@@ -17,7 +18,7 @@ import type {
 
 import { is } from "@astrojs/compiler/utils"
 import { assertUnreachable } from "@haq/utils"
-import { GLOBALS } from "../../globals.js"
+import { GLOBALS } from "../../../globals.js"
 import {
 	addUniqueSelectorOrThrow,
 	canIgnoreUniqueSelector,
@@ -27,10 +28,10 @@ import {
 	getXSelectorValue,
 	hasChildren,
 	isAliasedAppComponentNode
-} from "../_shared/astro.js"
-import { sameDiagRanges } from "../_shared/diag.js"
-import { getFileNameWithoutExtension, getRelativeFilePath } from "../_shared/fs.js"
-import { arraysAreEqual } from "../_shared/strings.js"
+} from "../../_shared/astro.js"
+import { sameDiagRanges } from "../../_shared/diag.js"
+import { getFileNameWithoutExtension, getRelativeFilePath } from "../../_shared/fs.js"
+import { arraysAreEqual } from "../../_shared/strings.js"
 
 //#endregion ----------------------------------------------- Module Imports
 
@@ -74,7 +75,8 @@ type SelDiag = SelObj & {
 	parentB: string[]
 }
 
-type SlotNameMap = Map<string, { hasValidComponent: boolean }>
+type __SlotName___ = string & { slotName?: never }
+type SlotNameMap = Map<__SlotName___, { hasValidComponent: boolean }>
 type SlottableComponent = {
 	componentName: string
 	slotNameMap: SlotNameMap
@@ -83,16 +85,18 @@ type SlottableComponent = {
 
 //------------------------------------------------------------------------------
 //
-// Markup Diag
+// Markup Diag (context-wide)
+//
+// Traverses recursively from every page in /pages dir
 //
 //------------------------------------------------------------------------------
 
 type ARGS_getMarkupDiagnostics = {
 	astroASTMap: AstroASTMap
-	componentMap: GeneratedComponentMap
+	generatedComponentMap: GeneratedComponentMap
 	astroComponentsMap: AstroComponentsMap
 	astroFileNames: string[]
-	sortedIdentifiers: string[]
+	sortedComponentNames: string[]
 }
 export function getMarkupDiagnostics(args: ARGS_getMarkupDiagnostics): Diagnostic[] {
 	const globalDiagnostics: Diagnostic[] = []
@@ -108,7 +112,7 @@ export function getMarkupDiagnostics(args: ARGS_getMarkupDiagnostics): Diagnosti
 		const invalidChildOfFragileTagOccurence: InvalidChildOfFragileTagOccurence[] = []
 
 		const componentName = getFileNameWithoutExtension(astroFile)
-		const component = args.componentMap.get(componentName)
+		const component = args.generatedComponentMap.get(componentName)
 
 		const selDiags = _traverseAstroPage({
 			astroPage: astroFile,
@@ -177,15 +181,15 @@ export function getMarkupDiagnostics(args: ARGS_getMarkupDiagnostics): Diagnosti
 	}
 
 	function _propagateSelectors(): void {
-		for (const identifier of args.sortedIdentifiers) {
-			const current = args.componentMap.get(identifier)
+		for (const identifier of args.sortedComponentNames) {
+			const current = args.generatedComponentMap.get(identifier)
 			if (!current) continue
 
 			const uniqueSelectors: Set<string> = new Set()
 			_populateCurrentSelectors(current, uniqueSelectors)
 
 			for (const refId of current.references) {
-				const ref = args.componentMap.get(refId)
+				const ref = args.generatedComponentMap.get(refId)
 				if (!ref) continue
 
 				_populateRefSelectors({ current, ref, uniqueSelectors })
@@ -310,9 +314,9 @@ export function getMarkupDiagnostics(args: ARGS_getMarkupDiagnostics): Diagnosti
 		selectors: SelObj[]
 		ancestorSelStack: string[]
 		webComponentSelectors: SelObj[]
-		ancestorWebComponentMap: Map<string, SelObj[]>
+		ancestorWebComponentMap: Map<__ComponentName__, SelObj[]>
 		appComponentSelectors: SelObj[]
-		ancestorAppComponentMap: Map<string, SelObj[]>
+		ancestorAppComponentMap: Map<__ComponentName__, SelObj[]>
 		selectorOccurenceMap: Map<string, SelectorOccurrence[]>
 		idSelectorOccs: IdSelectorOccurence[]
 		diagnostics: SelDiag[]
@@ -469,7 +473,7 @@ export function getMarkupDiagnostics(args: ARGS_getMarkupDiagnostics): Diagnosti
 			//* ---------- transition:persist -----------------------------------------------
 
 			function ___handleTransitionPersistMatch(tagLikeNode: TagLikeNode): void {
-				if (is.component(tagLikeNode)) return // HAQ check diagnostics will report an error when used on components
+				if (is.component(tagLikeNode)) return // file specific astro diagnostics will report an error when used on components
 
 				transitionPersistMatch = getAttributeByName(tagLikeNode, "transition:persist") !== undefined
 
@@ -514,7 +518,7 @@ export function getMarkupDiagnostics(args: ARGS_getMarkupDiagnostics): Diagnosti
 			const targetAstroFile = args.astroFileNames.find((f) => f.endsWith(`/${componentNode.name}.astro`))
 			if (!targetAstroFile) return
 
-			const componentFromMap = args.componentMap.get(componentNode.name)
+			const componentFromMap = args.generatedComponentMap.get(componentNode.name)
 			__validateAppComponentDirective(componentNode, componentFromMap)
 
 			_traverseAstroPage({
@@ -546,31 +550,35 @@ export function getMarkupDiagnostics(args: ARGS_getMarkupDiagnostics): Diagnosti
 		//* ---------- Slottable Components -----------------------------------------------
 
 		function __handleSlottableComponents(tagLikeNode: TagLikeNode): void {
-			__initSlotNameMap(tagLikeNode)
-			__validateAllParentSlottedComponents(tagLikeNode)
-		}
-
-		function __initSlotNameMap(tagLikeNode: TagLikeNode): void {
 			const prevSlottableComponent = slottableComponentStack.at(-1)
 			if (!prevSlottableComponent) return
 
-			const prevSlottableComponentSlotList = args.astroComponentsMap.get(prevSlottableComponent.componentName) ?? []
+			const slottableComponentSlotList = args.astroComponentsMap.get(prevSlottableComponent.componentName) ?? []
 
-			prevSlottableComponent.hasChildTagLikeNode = true
+			__initSlotNameMap(tagLikeNode, prevSlottableComponent, slottableComponentSlotList)
+			__validateAllParentSlottedComponents(tagLikeNode)
+		}
+
+		function __initSlotNameMap(
+			tagLikeNode: TagLikeNode,
+			slottableComponent: SlottableComponent,
+			slottableComponentSlotList: SlotList[]
+		): void {
+			slottableComponent.hasChildTagLikeNode = true
 
 			const slotAttribute = getAttributeByName(tagLikeNode, "slot")
 			const currentSlotName = slotAttribute ? slotAttribute.value : GLOBALS.ASTRO_DEFAULT_SLOT_NAME
-			const validSlot = prevSlottableComponentSlotList.find((s) => s.slotName === currentSlotName)
+			const validSlot = slottableComponentSlotList.find((s) => s.slotName === currentSlotName)
 
-			if (validSlot && !prevSlottableComponent.slotNameMap.has(currentSlotName)) {
-				prevSlottableComponent.slotNameMap.set(currentSlotName, { hasValidComponent: false })
+			if (validSlot && !slottableComponent.slotNameMap.has(currentSlotName)) {
+				slottableComponent.slotNameMap.set(currentSlotName, { hasValidComponent: false })
 			}
 		}
 
 		function __validateAllParentSlottedComponents(tagLikeNode: TagLikeNode): void {
 			for (const slottableComponent of slottableComponentStack) {
-				const prevSlottableComponentSlotList = args.astroComponentsMap.get(slottableComponent.componentName) ?? []
-				__validateSlottedComponent(tagLikeNode, slottableComponent, prevSlottableComponentSlotList)
+				const slottableComponentSlotList = args.astroComponentsMap.get(slottableComponent.componentName) ?? []
+				__validateSlottedComponent(tagLikeNode, slottableComponent, slottableComponentSlotList)
 			}
 		}
 
@@ -698,7 +706,7 @@ export function getMarkupDiagnostics(args: ARGS_getMarkupDiagnostics): Diagnosti
 		}
 
 		function __handleWebComponentLeave(componentNode: ComponentNode): void {
-			if (!args.componentMap.get(componentNode.name)?.isWebComponent) return
+			if (!args.generatedComponentMap.get(componentNode.name)?.isWebComponent) return
 
 			webComponentSelectors = []
 

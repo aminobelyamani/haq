@@ -160,9 +160,9 @@ export function validateEnv<Env extends Record<string, string>>(env: unknown, zo
 //------------------------------------------------------------------------------
 
 // biome-ignore lint/performance/noBarrelFile: These exposed functions are almost always used together so no significant tree shaking effect.
-export { getAstroDiagnostics } from "../cli/check/astro-diagnostics.js"
-export { getCSSDiagnostics } from "../cli/check/css-diagnostics.js"
-export { getGeneratedData } from "../cli/check/load.js"
+export { getAstroDiagnostics } from "../cli/compile/diag/astro-diagnostics.js"
+export { getCSSDiagnostics } from "../cli/compile/diag/css-diagnostics.js"
 export { GLOBALS } from "../globals.js"
 export { getAstroCompletions } from "./astro-completions.js"
 export { getCSSCompletions } from "./css-completions.js"
+export { getGeneratedData, getProjectData } from "./load.js"

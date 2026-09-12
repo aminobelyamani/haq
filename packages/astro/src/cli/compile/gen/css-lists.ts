@@ -1,25 +1,25 @@
 //#region -------------------------------------------------- Type Imports
 
-import type { CSSNode } from "../_shared/types.js"
+import type { CSSNode } from "../../_shared/types.js"
 
 //#endregion ----------------------------------------------- Type Imports
 
 //#region -------------------------------------------------- Module Imports
 
 import { parse, walk } from "css-tree"
-import { isClassSelector, isCustomPropertyDeclation, isRootSelector, isSelector } from "../_shared/css.js"
-import { loadFile } from "../_shared/fs.js"
+import { isClassSelector, isCustomPropertyDeclation, isRootSelector, isSelector } from "../../_shared/css.js"
+import { loadFile } from "../../_shared/fs.js"
 
 //#endregion ----------------------------------------------- Module Imports
 
-type ARGS_makeCSSLists = {
+type ARGS_getCSSLists = {
 	cssFiles: string[]
 }
-type RT_makeCSSLists = {
+type RT_getCSSLists = {
 	classNames: string[]
 	rootCustomProperties: string[]
 }
-export function makeCSSLists({ cssFiles }: ARGS_makeCSSLists): RT_makeCSSLists {
+export function getCSSLists({ cssFiles }: ARGS_getCSSLists): RT_getCSSLists {
 	const classNameSet: Set<string> = new Set()
 	const rootCustomPropertySet: Set<string> = new Set()
 

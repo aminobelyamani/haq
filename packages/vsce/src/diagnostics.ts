@@ -43,6 +43,7 @@ export function makeDiagnostics(makeLists: RT_makeLists): RT_makeDiagnostics {
 		const astroDiagnostics = await getAstroDiagnostics({
 			document,
 			filePath: sourceFile,
+			astroASTMap: new Map(),
 			lists,
 			customElementsMap: makeLists.getCustomElementsMap(),
 			astroComponentsMap: makeLists.getAstroComponentsMap()
@@ -54,14 +55,14 @@ export function makeDiagnostics(makeLists: RT_makeLists): RT_makeDiagnostics {
 	}
 
 	function getCSSDiagnosticsFromHAQ({ document, sourceFile }: GetDiagArgs): Diagnostic[] {
-		const { cssDir } = makeLists.getProjectConfig()
+		const { globalCssDir } = makeLists.getProjectConfig()
 
 		const vsCodeDiagnostics: Diagnostic[] = []
 
 		const HAQ_CSSDiagnostics = getCSSDiagnostics({
 			document,
 			filePath: sourceFile,
-			globalCssPath: cssDir,
+			globalCssPath: globalCssDir,
 			customElementsMap: makeLists.getCustomElementsMap(),
 			rootCustomProperties: makeLists.getRootCustomProperties(),
 			cssMarkupMap: makeLists.getCssMarkupMap()

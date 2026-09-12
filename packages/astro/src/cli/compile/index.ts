@@ -1,6 +1,6 @@
 //#region -------------------------------------------------- Type Imports
 
-import type { CLI_GenFlags, I_OutputStyler } from "../_shared/types.js"
+import type { CLI_CompileFlags, I_OutputStyler } from "../_shared/types.js"
 
 //#endregion ----------------------------------------------- Type Imports
 
@@ -12,25 +12,25 @@ import path from "node:path"
 import process from "node:process"
 import watcher from "@parcel/watcher"
 import { GLOBALS } from "../../globals.js"
+import { loadNativeElementsJson } from "../../tools/load.js"
 import { HAQError, handleDiag, handleError } from "../_shared/errors.js"
-import { filePathExistsOrThrow, loadJSONFile } from "../_shared/fs.js"
+import { filePathExistsOrThrow, loadJsonFile } from "../_shared/fs.js"
 import { HAQLogger } from "../_shared/logger.js"
 import { isConfigValid } from "../_shared/validation.js"
 import { main } from "./main.js"
 
 //#endregion ----------------------------------------------- Module Imports
 
-type ARGS_gen = {
-	flags: CLI_GenFlags
+type ARGS_compile = {
+	flags: CLI_CompileFlags
 	outputStyler: I_OutputStyler
-	isCheckMode?: true
 }
 
-type RT_gen = {
+type RT_compile = {
 	numOfGenErrors: number
 	outDir: string
 }
-export async function gen({ flags, outputStyler, isCheckMode }: ARGS_gen): Promise<RT_gen> {
+export async function compile({ flags, outputStyler }: ARGS_compile): Promise<RT_compile> {
 	const currentDir = process.cwd()
 	const configFile = `${currentDir}/${GLOBALS.HAQ_CONFIG_JSON_FILE_NAME}`
 
@@ -44,7 +44,7 @@ export async function gen({ flags, outputStyler, isCheckMode }: ARGS_gen): Promi
 
 	// load config json content
 
-	const configContent = loadJSONFile(configFile)
+	const configContent = loadJsonFile(configFile)
 
 	// validate
 
@@ -130,6 +130,8 @@ export async function gen({ flags, outputStyler, isCheckMode }: ARGS_gen): Promi
 
 	// run
 
+	const nativeElementsJsonContent = loadNativeElementsJson(outDir)
+
 	const Logger = new HAQLogger(outputStyler)
 
 	// run and exit if no watch mode
@@ -142,7 +144,8 @@ export async function gen({ flags, outputStyler, isCheckMode }: ARGS_gen): Promi
 				outDir,
 				astroDirs,
 				globalCssDir,
-				outputStyler
+				outputStyler,
+				nativeElementsJsonContent
 			}),
 			outDir
 		}
@@ -183,7 +186,8 @@ export async function gen({ flags, outputStyler, isCheckMode }: ARGS_gen): Promi
 				outDir,
 				astroDirs,
 				globalCssDir,
-				outputStyler
+				outputStyler,
+				nativeElementsJsonContent
 			})
 			handleDiag(numOfDiagErrors)
 			_showWatchDisplay()
@@ -194,7 +198,6 @@ export async function gen({ flags, outputStyler, isCheckMode }: ARGS_gen): Promi
 	}
 
 	function _showWatchDisplay(): void {
-		if (isCheckMode) return // watch display handled by check command
 		Logger.showInfo({ message: "Watching *.{astro,css,haq.json} files for changes..." })
 	}
 }

@@ -7,7 +7,7 @@ import type { HAQ_AstroComponentsMap, HAQ_CSSMarkupMap, HAQ_CustomElementsMap } 
 //#region -------------------------------------------------- Module Imports
 
 import { watch } from "node:fs"
-import { GLOBALS, getGeneratedData } from "@haq/astro/tools"
+import { GLOBALS, getGeneratedData, getProjectData } from "@haq/astro/tools"
 import { window, workspace } from "vscode"
 
 //#endregion ----------------------------------------------- Module Imports
@@ -17,8 +17,10 @@ type ARGS_makeLists = {
 }
 
 type GetProjectConfigReturn = {
-	cssDir: string
+	globalCssDir: string
 }
+
+type ProjectData = ReturnType<typeof getProjectData>
 
 export type RT_makeLists = Readonly<{
 	init: () => void
@@ -32,7 +34,10 @@ export type RT_makeLists = Readonly<{
 }>
 
 export function makeLists({ LOG_FILE_PATH }: ARGS_makeLists): RT_makeLists {
-	let CSS_DIR: string
+	const CURRENT_DIR = workspace.workspaceFolders?.at(0)?.uri.fsPath
+	const PROJECT_DATA: ProjectData | null = CURRENT_DIR ? getProjectData(CURRENT_DIR) : null
+	const GLOBAL_CSS_DIR = PROJECT_DATA?.globalCssDir ?? ""
+
 	let CLASS_NAMES: string[] = []
 	let ROOT_CUSTOM_PROPERTIES: string[] = []
 	let ALIASABLE_COMPONENTS: string[] = []
@@ -57,7 +62,7 @@ export function makeLists({ LOG_FILE_PATH }: ARGS_makeLists): RT_makeLists {
 
 	function getProjectConfig(): GetProjectConfigReturn {
 		return {
-			cssDir: CSS_DIR
+			globalCssDir: GLOBAL_CSS_DIR
 		}
 	}
 
@@ -106,14 +111,9 @@ export function makeLists({ LOG_FILE_PATH }: ARGS_makeLists): RT_makeLists {
 	//* ---------- Helpers -----------------------------------------------
 
 	function _updateLists(): void {
-		const workspaceFolders = workspace.workspaceFolders
-		if (!workspaceFolders) return
-		const currentDir = workspaceFolders[0]?.uri.fsPath
-		if (!currentDir) return
+		if (!PROJECT_DATA) return
 
-		const { astroComponentsMap, cssMarkupMap, cssDir, customElementsMap, listContent } = getGeneratedData(currentDir)
-
-		CSS_DIR = cssDir
+		const { astroComponentsMap, cssMarkupMap, customElementsMap, listContent } = getGeneratedData(PROJECT_DATA)
 
 		CLASS_NAMES = listContent.classNames
 		ROOT_CUSTOM_PROPERTIES = listContent.rootCustomProperties

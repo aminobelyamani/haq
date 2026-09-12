@@ -9,7 +9,7 @@ import type { CI_Flag, CI_PackageJson } from "../cli/_shared/types.js"
 import { copyFile } from "node:fs/promises"
 import path from "node:path"
 import process from "node:process"
-import { loadJSONFile } from "../cli/_shared/fs.js"
+import { loadJsonFile } from "../cli/_shared/fs.js"
 import { formatAndWrite } from "../cli/_shared/output.js"
 
 //#endregion ----------------------------------------------- Module Imports
@@ -25,12 +25,12 @@ export async function versions(flag: CI_Flag): Promise<string> {
 
 	// load current package.json
 
-	const packageJson = (await loadJSONFile(packageJsonPath)) as CI_PackageJson
+	const packageJson = (await loadJsonFile(packageJsonPath)) as CI_PackageJson
 
 	// update utils version
 
 	const utilsPackageJsonPath = path.join(currentDir, "../utils/package.json")
-	const utilsPackageJson = (await loadJSONFile(utilsPackageJsonPath)) as CI_PackageJson
+	const utilsPackageJson = (await loadJsonFile(utilsPackageJsonPath)) as CI_PackageJson
 	const currentUtilsVersion = utilsPackageJson.version
 	packageJson.dependencies["@haq/utils"] = `npm:@jsr/haq__utils@^${currentUtilsVersion}`
 
@@ -49,7 +49,7 @@ export async function versions(flag: CI_Flag): Promise<string> {
 
 	// update jsr.json
 
-	const jsrJson = (await loadJSONFile(jsrJsonPath)) as Pick<CI_PackageJson, "version">
+	const jsrJson = (await loadJsonFile(jsrJsonPath)) as Pick<CI_PackageJson, "version">
 	jsrJson.version = packageJson.version
 	formatAndWrite({ outDir: currentDir, content: JSON.stringify(jsrJson), filePath: jsrJsonPath })
 

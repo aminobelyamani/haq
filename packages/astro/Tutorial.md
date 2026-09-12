@@ -55,7 +55,7 @@ Now we are ready to develop our Astro project.
 Open a new terminal window and run the following command:
 
 ```bash
-pnpm haq check -w
+pnpm haq compile -w
 ```
 
 This will generate files and check for any errors.
@@ -347,7 +347,7 @@ Now we're all set up to start building Astro pages.
 ## Part 2 - Hello, World!
 
 Now we are ready for our first Astro page.
-In order to keep our watched process (`pnpm haq check -w`) running, open up a new terminal window and start the Astro dev server.
+In order to keep our watched process (`pnpm haq compile -w`) running, open up a new terminal window and start the Astro dev server.
 This will allow you to see our changes live in the browser.
 
 ```bash
@@ -1383,7 +1383,7 @@ interface Props extends Pick<HAQ_AliasableComponentProps, "x_alias"> {}
 
 ```
 
-If you're still running the background process (`pnpm haq check -w`) we started in the very beginning of this tutorial, then you will see an error saying `Duplicate selector identifier` for the `svg-icon` selector.
+If you're still running the background process (`pnpm haq compile -w`) we started in the very beginning of this tutorial, then you will see an error saying `Duplicate selector identifier` for the `svg-icon` selector.
 
 This is another rule enforced by HAQ Astro.
 Selectors must be unique within a context.

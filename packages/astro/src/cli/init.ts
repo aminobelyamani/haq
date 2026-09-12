@@ -1,6 +1,6 @@
 //#region -------------------------------------------------- Type Imports
 
-import type { I_OutputStyler } from "../_shared/types.js"
+import type { I_OutputStyler } from "./_shared/types.js"
 
 //#endregion ----------------------------------------------- Type Imports
 
@@ -8,8 +8,8 @@ import type { I_OutputStyler } from "../_shared/types.js"
 
 import { copyFile } from "node:fs/promises"
 import process from "node:process"
-import { GLOBALS } from "../../globals.js"
-import { HAQLogger } from "../_shared/logger.js"
+import { GLOBALS } from "../globals.js"
+import { HAQLogger } from "./_shared/logger.js"
 
 //#endregion ----------------------------------------------- Module Imports
 

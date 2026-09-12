@@ -1,6 +1,6 @@
 //#region -------------------------------------------------- Type Imports
 
-import type { CLI_AppCFlags, I_OutputStyler } from "../_shared/types.js"
+import type { CLI_AppCFlags, I_OutputStyler } from "./_shared/types.js"
 
 //#endregion ----------------------------------------------- Type Imports
 
@@ -9,11 +9,11 @@ import type { CLI_AppCFlags, I_OutputStyler } from "../_shared/types.js"
 import fs from "node:fs"
 import path from "node:path"
 import process from "node:process"
-import { GLOBALS } from "../../globals.js"
-import { HAQError } from "../_shared/errors.js"
-import { filePathExistsOrThrow } from "../_shared/fs.js"
-import { HAQLogger } from "../_shared/logger.js"
-import { formatAndWrite } from "../_shared/output.js"
+import { GLOBALS } from "../globals.js"
+import { HAQError } from "./_shared/errors.js"
+import { filePathExistsOrThrow } from "./_shared/fs.js"
+import { HAQLogger } from "./_shared/logger.js"
+import { formatAndWrite } from "./_shared/output.js"
 
 //#endregion ----------------------------------------------- Module Imports
 
@@ -30,15 +30,15 @@ export function appc({ outputStyler, flags }: ARGS_appc): void {
 
 	if (!(flags.n || flags.name)) {
 		throw new HAQError({
-			message: "Missing AppComponent name flag.",
-			description: "You must specify a name for your AppComponent."
+			message: "Missing App Component name flag.",
+			description: "You must specify a name for your App Component."
 		})
 	}
 
 	if (!(flags.o || flags.output)) {
 		throw new HAQError({
 			message: "Missing output flag.",
-			description: "You must specify the output path to where your AppComponent will live."
+			description: "You must specify the output path to where your App Component will live."
 		})
 	}
 
@@ -47,8 +47,8 @@ export function appc({ outputStyler, flags }: ARGS_appc): void {
 
 	if (!componentName.match(GLOBALS.REGEX_NO_SPACES)) {
 		throw new HAQError({
-			message: "Invalid AppComponent name.",
-			description: "AppComponent name cannot have spaces."
+			message: "Invalid App Component name.",
+			description: "App Component name cannot have spaces."
 		})
 	}
 
@@ -68,14 +68,14 @@ export function appc({ outputStyler, flags }: ARGS_appc): void {
 	// log success
 
 	Logger.showSuccessSummary({
-		message: `Generated AppComponent directory "${componentName}" successfully.`,
+		message: `Generated App Component directory "${componentName}" successfully.`,
 		dir: componentDir
 	})
 
 	//* ---------- Helpers -----------------------------------------------
 
 	function _gen(): void {
-		Logger.showInfo({ message: "Generating AppComponent dir..." })
+		Logger.showInfo({ message: "Generating App Component dir..." })
 
 		if (fs.existsSync(componentDir)) {
 			throw new HAQError({

@@ -72,7 +72,7 @@ async function getFileByName(fileName: string): Promise<vscode.Uri[]> {
 
 async function showError(fileName: string): Promise<void> {
 	const value = await window.showErrorMessage(
-		`HAQ Astro generated file: ${fileName} not found. Make sure to run the "haq gen" command first. Then click on Reload`,
+		`HAQ Astro generated file: ${fileName} not found. Make sure to run the "haq compile" command first. Then click on Reload`,
 		"Reload"
 	)
 	if (value === "Reload") {

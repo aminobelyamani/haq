@@ -9,3 +9,8 @@ allowBuilds:
     esbuild: false
     keytar: false
     sharp: false
+
+peerDependencyRules:
+    ignoreMissing:
+        - "@emnapi/core"
+        - "@emnapi/runtime"

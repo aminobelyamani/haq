@@ -1,11 +1,22 @@
 //#region -------------------------------------------------- Type Imports
 
-import type { AttributeNode, Position, RootNode, TagLikeNode } from "@astrojs/compiler/types"
+import type { AttributeNode, Position, RootNode } from "@astrojs/compiler/types"
 import type { AstroBuiltinAttributes } from "astro"
 import type * as csstree from "css-tree"
 import type { MarkupDirective } from "../../globals.js"
 
 //#endregion ----------------------------------------------- Type Imports
+
+//------------------------------------------------------------------------------
+//
+// Aliases for string keys/values in records
+//
+//------------------------------------------------------------------------------
+
+export type __FilePath__ = string & { filePath?: never }
+export type __FileContents__ = string & { fileContents?: never }
+export type __ComponentName__ = string & { componentName?: never }
+export type __TagName__ = string & { tagName?: never }
 
 //------------------------------------------------------------------------------
 //
@@ -17,8 +28,8 @@ export interface I_AstroAttributeNode extends AttributeNode {
 	name: MarkupDirective | keyof AstroBuiltinAttributes | "name" | "id" | "class" | "slot" | "transition:persist-props"
 }
 
-type FilePath = string & { filePath?: never }
-export type AstroASTMap = Map<FilePath, RootNode | TagLikeNode>
+export type AstroASTMap = Map<__FilePath__, RootNode>
+export type FileDocumentMap = Map<__FilePath__, __FileContents__>
 
 export type GeneratedComponent = {
 	filePath: string
@@ -30,8 +41,7 @@ export type GeneratedComponent = {
 	isAlias: boolean
 }
 
-type ComponentName = string & { componentName?: never }
-export type GeneratedComponentMap = Map<ComponentName, GeneratedComponent>
+export type GeneratedComponentMap = Map<__ComponentName__, GeneratedComponent>
 
 export type GeneratedNamespaceTypesWithGlobal = {
 	global: string
@@ -79,7 +89,7 @@ export type JSON_CSSMarkup = {
  *
  ******************************************************************************/
 
-export type CSSMarkupMap = Map<FilePath, JSON_CSSMarkup>
+export type CSSMarkupMap = Map<__FilePath__, JSON_CSSMarkup>
 
 //------------------------------------------------------------------------------
 //
@@ -196,7 +206,7 @@ export type SlotList = {
  *
  ******************************************************************************/
 
-export type AstroComponentsMap = Map<ComponentName, SlotList[]>
+export type AstroComponentsMap = Map<__ComponentName__, SlotList[]>
 
 //------------------------------------------------------------------------------
 //
@@ -204,10 +214,10 @@ export type AstroComponentsMap = Map<ComponentName, SlotList[]>
 //
 //------------------------------------------------------------------------------
 
-export type CLI_SubCommand = "help" | "init" | "gen" | "check" | "env" | "webc" | "appc" | "ce"
+export type CLI_SubCommand = "help" | "init" | "compile" | "env" | "webc" | "appc" | "ce"
 
-// gen/check flags
-export type CLI_GenFlags = {
+// compile flags
+export type CLI_CompileFlags = {
 	w?: true
 	watch?: true
 }
@@ -238,7 +248,7 @@ export type CLI_AppCFlags = {
 	output?: string
 }
 
-export type CLI_Flags = CLI_GenFlags | CLI_EnvFlags | CLI_WebCFlags
+export type CLI_Flags = CLI_CompileFlags | CLI_EnvFlags | CLI_WebCFlags
 
 export interface I_OutputStyler {
 	bgGreen: (msg: string) => string

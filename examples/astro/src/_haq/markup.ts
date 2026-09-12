@@ -37,6 +37,7 @@ export type MU_MyHeader = {
 	HAQ_styleProperties: HAQ_StylePropertiesByTag<"header">
 	HAQ_id: "header"
 	HAQ_selector: "#header"
+	HAQ_attributeValues: AV_MyHeader
 	HAQ_children: {
 		MyConfetti: HAQ_MarkupAlias<MU_MyConfetti>
 		Nav: {
@@ -236,6 +237,13 @@ export type FD_MyForm = {
 	password: string
 	role: "ADMIN" | "CLIENT"
 	profilePic: File
+}
+
+// LINK src/app-components/MyHeader/MyHeader.astro
+
+export type AV_MyHeader = {
+	d_particle_count: "100"
+	text: "Home" | "Custom Elements" | "Web Components" | "Custom Events" | "App Components"
 }
 
 export type HAQ_AppComponents_1 = {

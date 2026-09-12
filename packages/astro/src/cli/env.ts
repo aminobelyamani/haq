@@ -1,6 +1,6 @@
 //#region -------------------------------------------------- Type Imports
 
-import type { CLI_EnvFlags, I_OutputStyler } from "../_shared/types.js"
+import type { CLI_EnvFlags, I_OutputStyler } from "./_shared/types.js"
 
 //#endregion ----------------------------------------------- Type Imports
 
@@ -9,11 +9,11 @@ import type { CLI_EnvFlags, I_OutputStyler } from "../_shared/types.js"
 import path from "node:path"
 import process from "node:process"
 import dotenv from "dotenv"
-import { GLOBALS } from "../../globals.js"
-import { HAQError } from "../_shared/errors.js"
-import { filePathExistsOrThrow, loadFile } from "../_shared/fs.js"
-import { HAQLogger } from "../_shared/logger.js"
-import { formatAndWrite } from "../_shared/output.js"
+import { GLOBALS } from "../globals.js"
+import { HAQError } from "./_shared/errors.js"
+import { filePathExistsOrThrow, loadFile } from "./_shared/fs.js"
+import { HAQLogger } from "./_shared/logger.js"
+import { formatAndWrite } from "./_shared/output.js"
 
 //#endregion ----------------------------------------------- Module Imports
 
@@ -145,10 +145,10 @@ export function env({ outputStyler, flags }: ARGS_env): void {
 	function _injectTypesInScaffold(types: string): string {
 		return `
     /*******************************************************************************
-     * 
-     * NOTE: Do not commit or publish this file to a public repository. 
+     *
+     * NOTE: Do not commit or publish this file to a public repository.
      * Treat it like a .env file and is only meant to be used locally.
-     * 
+     *
      ******************************************************************************/
     \n\n
         export type HAQ_ENV = {

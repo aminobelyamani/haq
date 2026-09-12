@@ -42,7 +42,7 @@ export function loadFile(url: string): Buffer<ArrayBuffer> {
 	}
 }
 
-export function loadJSONFile(url: string): unknown {
+export function loadJsonFile(url: string): unknown {
 	try {
 		const file = fs.readFileSync(url) as unknown as string
 		const parsed = JSON.parse(file)

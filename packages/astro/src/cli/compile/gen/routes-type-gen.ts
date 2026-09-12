@@ -2,11 +2,11 @@
 
 import fs from "node:fs"
 import path from "node:path"
-import { GLOBALS } from "../../globals.js"
-import { HAQError } from "../_shared/errors.js"
-import { getAstroPages, getRelativeFilePath } from "../_shared/fs.js"
-import { formatAndWrite } from "../_shared/output.js"
-import { addDisclaimerComment, removeTrailingSlash } from "../_shared/strings.js"
+import { GLOBALS } from "../../../globals.js"
+import { HAQError } from "../../_shared/errors.js"
+import { getAstroPages, getRelativeFilePath } from "../../_shared/fs.js"
+import { formatAndWrite } from "../../_shared/output.js"
+import { addDisclaimerComment, removeTrailingSlash } from "../../_shared/strings.js"
 
 //#endregion ----------------------------------------------- Module Imports
 

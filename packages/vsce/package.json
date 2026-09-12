@@ -1,7 +1,7 @@
 {
 	"name": "haq-astro-vsce",
 	"displayName": "HAQ Astro",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"private": true,
 	"author": "Amino Belyamani",
 	"publisher": "aminobelyamani",
@@ -36,7 +36,7 @@
 		"onLanguage:css"
 	],
 	"engines": {
-		"vscode": "^1.136.0"
+		"vscode": "^1.137.0"
 	},
 	"main": "./out/src/extension.js",
 	"scripts": {
@@ -45,7 +45,7 @@
 		"bundle:watch": "pnpm bundle --watch",
 		"clean": "rm -rf out",
 		"lint": "biome lint .",
-		"package": "pnpm vsce package --no-dependencies --allow-missing-repository",
+		"package": "pnpm vsce package --no-dependencies --allow-missing-repository --out @releases",
 		"publish": "pnpm vsce publish --no-dependencies",
 		"ts-check": "tsc -p ./",
 		"vscode:prepublish": "pnpm clean && pnpm ts-check && pnpm lint && pnpm bundle --production",
@@ -59,7 +59,7 @@
 	},
 	"devDependencies": {
 		"@types/mocha": "^10.0.10",
-		"@types/vscode": "^1.136.0",
+		"@types/vscode": "^1.137.0",
 		"@vscode/test-cli": "^0.0.15",
 		"@vscode/test-electron": "^3.1.0",
 		"@vscode/vsce": "^3.9.2",

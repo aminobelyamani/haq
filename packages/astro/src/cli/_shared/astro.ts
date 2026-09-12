@@ -12,11 +12,14 @@ import type {
 import type { MarkupDirective } from "../../globals.js"
 import type {
 	AstroComponentsMap,
+	CSSMarkupMap,
 	Diagnostic,
 	GeneratedComponent,
 	I_AstroAttributeNode,
-	JSON_AstroComponent
+	JSON_AstroComponent,
+	JSON_CSSMarkup
 } from "./types.js"
+import type { CustomElementsMap, JSON_CustomElement } from "./validation.js"
 
 //#endregion ----------------------------------------------- Type Imports
 
@@ -31,15 +34,20 @@ import { generateArrayFromSpaceSeparatedList, removeTrailingSlash } from "./stri
 
 //#endregion ----------------------------------------------- Module Imports
 
-export async function getRootNodeByFileName(fileName: string, withPosition: boolean): Promise<RootNode | undefined> {
+type RT_parseAstroFile = {
+	ast: RootNode
+	fileContents: string
+}
+export async function parseAstroFile(fileName: string, withPosition: boolean): Promise<RT_parseAstroFile | undefined> {
 	const file = loadFile(fileName)
 	if (!file) return
 
-	const result = await parse(file.toString(), {
+	const fileContents = file.toString()
+	const result = await parse(fileContents, {
 		position: withPosition // defaults to `true`
 	})
 
-	return result.ast
+	return { ast: result.ast, fileContents }
 }
 
 export function hasChildren(node: Node): node is RootNode | ExpressionNode | TagLikeNode {
@@ -230,4 +238,45 @@ export function createAstroComponentsMap(astroComponentsContent: JSON_AstroCompo
 	}
 
 	return astroComponentsMap
+}
+
+export function createCustomElementsMap(
+	customElementsContent: JSON_CustomElement[],
+	nativeElementsContent: JSON_CustomElement[]
+): CustomElementsMap {
+	const customElementsMap: CustomElementsMap = new Map()
+	for (const record of customElementsContent) {
+		customElementsMap.set(record.tag, {
+			attrs: record.attrs,
+			cssDynamicVars: record.cssDynamicVars,
+			cssStaticVars: record.cssStaticVars
+		})
+	}
+	for (const record of nativeElementsContent) {
+		const extendedNativeEl = customElementsMap.get(record.tag)
+		customElementsMap.set(record.tag, {
+			attrs:
+				extendedNativeEl && record.attrs && extendedNativeEl.attrs
+					? [...record.attrs, ...extendedNativeEl.attrs]
+					: record.attrs,
+			cssDynamicVars: record.cssDynamicVars,
+			cssStaticVars: record.cssStaticVars
+		})
+	}
+
+	return customElementsMap
+}
+
+export function createCssMarkupMap(cssMarkupJsonContent: JSON_CSSMarkup[]): CSSMarkupMap {
+	const cssMarkupMap: CSSMarkupMap = new Map()
+	for (const record of cssMarkupJsonContent) {
+		cssMarkupMap.set(record.cssFilePath, {
+			componentName: record.componentName,
+			astroFilePath: record.astroFilePath,
+			cssFilePath: record.cssFilePath,
+			flatMarkup: record.flatMarkup
+		})
+	}
+
+	return cssMarkupMap
 }

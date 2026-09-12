@@ -1,7 +1,7 @@
 //#region -------------------------------------------------- Type Imports
 
-import type { CLI_WebCFlags, I_OutputStyler } from "../_shared/types.js"
-import type { JSON_Schema } from "../_shared/validation.js"
+import type { CLI_WebCFlags, I_OutputStyler } from "./_shared/types.js"
+import type { JSON_Schema } from "./_shared/validation.js"
 
 //#endregion ----------------------------------------------- Type Imports
 
@@ -10,12 +10,12 @@ import type { JSON_Schema } from "../_shared/validation.js"
 import fs from "node:fs"
 import path from "node:path"
 import process from "node:process"
-import { GLOBALS } from "../../globals.js"
-import { HAQError } from "../_shared/errors.js"
-import { filePathExistsOrThrow } from "../_shared/fs.js"
-import { HAQLogger } from "../_shared/logger.js"
-import { formatAndWrite } from "../_shared/output.js"
-import { kebab2Pascal } from "../_shared/strings.js"
+import { GLOBALS } from "../globals.js"
+import { HAQError } from "./_shared/errors.js"
+import { filePathExistsOrThrow } from "./_shared/fs.js"
+import { HAQLogger } from "./_shared/logger.js"
+import { formatAndWrite } from "./_shared/output.js"
+import { kebab2Pascal } from "./_shared/strings.js"
 
 //#endregion ----------------------------------------------- Module Imports
 

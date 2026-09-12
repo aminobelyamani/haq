@@ -33,9 +33,10 @@
 
 ### Other
 
-| Name           | Description                        |
-| :------------- | :--------------------------------- |
-| INF_PascalCase | Inferred using the `infer` keyword |
+| Name             | Description                              |
+| :--------------- | :--------------------------------------- |
+| INF_PascalCase   | Inferred using the `infer` keyword       |
+| `__PascalCase__` | What a string key in a record represents |
 
 ## Functions/methods
 

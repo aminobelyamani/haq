@@ -36,7 +36,7 @@
 	},
 	"dependencies": {
 		"@haq/utils": "workspace:*",
-		"astro": "^7.3.1",
+		"astro": "^7.3.2",
 		"bcrypt": "^6.0.0",
 		"express": "^5.2.1",
 		"express-fileupload": "^1.5.2",
@@ -47,7 +47,7 @@
 		"method-override": "^3.0.0",
 		"passport": "^0.7.0",
 		"passport-local": "^1.0.0",
-		"zod": "^4.5.4"
+		"zod": "^4.6.2"
 	},
 	"devDependencies": {
 		"@types/bcrypt": "^6.0.0",

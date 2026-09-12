@@ -11,7 +11,7 @@ import MyConfetti from "../../web-components/MyConfetti/MyConfetti.astro";
 interface Props extends Pick<HAQ_AliasableComponentProps, "x_appc"> {}
 ---
 
-<header transition:persist="MyHeader" id="header" x_haq>
+<header transition:persist="MyHeader" id="header" x_attr_values="text d_particle_count" x_haq>
 	<MyConfetti d_particle_count="100" x_alias />
 	<nav class="flex flex-center" x_sel="nav" x_haq>
 		<NavLink text="Home" href="/" x_alias />

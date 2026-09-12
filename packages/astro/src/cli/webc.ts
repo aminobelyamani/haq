@@ -1,7 +1,7 @@
 //#region -------------------------------------------------- Type Imports
 
-import type { CLI_WebCFlags, I_OutputStyler } from "../_shared/types.js"
-import type { JSON_Schema } from "../_shared/validation.js"
+import type { CLI_WebCFlags, I_OutputStyler } from "./_shared/types.js"
+import type { JSON_Schema } from "./_shared/validation.js"
 
 //#endregion ----------------------------------------------- Type Imports
 
@@ -10,12 +10,12 @@ import type { JSON_Schema } from "../_shared/validation.js"
 import fs from "node:fs"
 import path from "node:path"
 import process from "node:process"
-import { GLOBALS } from "../../globals.js"
-import { HAQError } from "../_shared/errors.js"
-import { filePathExistsOrThrow } from "../_shared/fs.js"
-import { HAQLogger } from "../_shared/logger.js"
-import { formatAndWrite } from "../_shared/output.js"
-import { kebab2Pascal } from "../_shared/strings.js"
+import { GLOBALS } from "../globals.js"
+import { HAQError } from "./_shared/errors.js"
+import { filePathExistsOrThrow } from "./_shared/fs.js"
+import { HAQLogger } from "./_shared/logger.js"
+import { formatAndWrite } from "./_shared/output.js"
+import { kebab2Pascal } from "./_shared/strings.js"
 
 //#endregion ----------------------------------------------- Module Imports
 
@@ -33,14 +33,14 @@ export function webc({ outputStyler, flags }: ARGS_webc): void {
 	if (!(flags.t || flags.tag)) {
 		throw new HAQError({
 			message: "Missing tag flag.",
-			description: "You must specify a tag name for your WebComponent."
+			description: "You must specify a tag name for your Web Component."
 		})
 	}
 
 	if (!(flags.o || flags.output)) {
 		throw new HAQError({
 			message: "Missing output flag.",
-			description: "You must specify the output path to where your WebComponent will live."
+			description: "You must specify the output path to where your Web Component will live."
 		})
 	}
 
@@ -71,14 +71,14 @@ export function webc({ outputStyler, flags }: ARGS_webc): void {
 	// log success
 
 	Logger.showSuccessSummary({
-		message: `Generated WebComponent directory "${pascalName}" successfully.`,
+		message: `Generated Web Component directory "${pascalName}" successfully.`,
 		dir: componentDir
 	})
 
 	//* ---------- Helpers -----------------------------------------------
 
 	function _gen(): void {
-		Logger.showInfo({ message: "Generating WebComponent dir..." })
+		Logger.showInfo({ message: "Generating Web Component dir..." })
 
 		if (fs.existsSync(componentDir)) {
 			throw new HAQError({

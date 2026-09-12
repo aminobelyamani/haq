@@ -2,9 +2,16 @@
 
 import type { CommentNode, FrontmatterNode, Node, TagLikeNode } from "@astrojs/compiler/types"
 import type { TypedExtract } from "@haq/utils/types"
-import type { MarkupDirective } from "../../globals.js"
-import type { AstroComponentsMap, Diagnostic, I_AstroAttributeNode, JSON_Lists, SlotList } from "../_shared/types.js"
-import type { CustomElementsMap } from "../_shared/validation.js"
+import type { MarkupDirective } from "../../../globals.js"
+import type {
+	AstroASTMap,
+	AstroComponentsMap,
+	Diagnostic,
+	I_AstroAttributeNode,
+	JSON_Lists,
+	SlotList
+} from "../../_shared/types.js"
+import type { CustomElementsMap } from "../../_shared/validation.js"
 
 //#endregion ----------------------------------------------- Type Imports
 
@@ -12,7 +19,7 @@ import type { CustomElementsMap } from "../_shared/validation.js"
 
 import { parse } from "@astrojs/compiler"
 import { is } from "@astrojs/compiler/utils"
-import { GLOBALS } from "../../globals.js"
+import { GLOBALS } from "../../../globals.js"
 import {
 	getAttributeByName,
 	getAttributes,
@@ -23,21 +30,23 @@ import {
 	isDynamicAttribute,
 	isFragmentNode,
 	isSlotNode
-} from "../_shared/astro.js"
-import { getRelativeFilePath, getRouteFromAstroPage } from "../_shared/fs.js"
+} from "../../_shared/astro.js"
+import { sameDiagRanges } from "../../_shared/diag.js"
+import { getRelativeFilePath, getRouteFromAstroPage } from "../../_shared/fs.js"
 import {
 	generateArrayFromSpaceSeparatedList,
 	generateUnionFromArray,
 	getArrayFromStringifiedArray,
 	getClassesFromClassListValues,
 	getDuplicateArrayItem
-} from "../_shared/strings.js"
+} from "../../_shared/strings.js"
 
 //#endregion ----------------------------------------------- Module Imports
 
 type ARGS_getAstroDiagnostics = {
 	document: string
 	filePath: string
+	astroASTMap: AstroASTMap
 	lists: JSON_Lists
 	customElementsMap: CustomElementsMap
 	astroComponentsMap: AstroComponentsMap
@@ -51,8 +60,9 @@ type ARGS_getAstroDiagnostics = {
 
 export async function getAstroDiagnostics({
 	document,
-	lists,
 	filePath,
+	astroASTMap,
+	lists,
 	customElementsMap,
 	astroComponentsMap
 }: ARGS_getAstroDiagnostics): Promise<Diagnostic[]> {
@@ -72,13 +82,13 @@ export async function getAstroDiagnostics({
 
 	const ignoreDirectiveStack: { node: CommentNode; wasUsed: boolean }[] = []
 
-	let tagVisitedCount = 0
+	const ASTRecord = astroASTMap.get(filePath)
 
-	const parseResult = await parse(document, { position: true })
-	_walkAST(parseResult.ast)
+	const parseResult = ASTRecord ?? (await parse(document, { position: true })).ast
+	_walkAST(parseResult)
 
 	if (!(HAS_FRONT_MATTER || ASTRO_PAGE_ROUTE)) {
-		_addDiagnostic({
+		_addUniqueDiag({
 			message: `Missing frontmatter. Astro allows any props to be passed when no frontmatter is present. Use "type Props = Record<never, never>" if you expect no props to be passed.`,
 			range: {
 				start: {
@@ -103,14 +113,12 @@ export async function getAstroDiagnostics({
 		fragileTagMatch: boolean
 		componentWithSlotAttrMatch: boolean
 		slotMatch: boolean
-		aliasedComponentMatch: boolean
 	}
 
 	function _walkAST(root: Node): void {
 		const parentFragileTagStack: string[] = []
 		const parentComponentWithSlotAttrStack: string[] = []
 		const parentSlotStack: boolean[] = []
-		const parentAliasedComponentStack: string[] = []
 
 		__visitNode(root)
 		__checkUnusedIgnoreDirectives()
@@ -121,8 +129,7 @@ export async function getAstroDiagnostics({
 			const matches: Matches = {
 				fragileTagMatch: false,
 				componentWithSlotAttrMatch: false,
-				slotMatch: false,
-				aliasedComponentMatch: false
+				slotMatch: false
 			}
 
 			switch (node.type) {
@@ -140,11 +147,9 @@ export async function getAstroDiagnostics({
 			}
 
 			if (is.tag(node)) {
-				tagVisitedCount++
 				_handleTagNode({
 					tagLikeNode: node,
 					matches,
-					parentAliasedComponentStack,
 					parentComponentWithSlotAttrStack,
 					parentFragileTagStack,
 					parentSlotStack
@@ -160,7 +165,6 @@ export async function getAstroDiagnostics({
 			__handleFragileTagStack(matches.fragileTagMatch)
 			__handleFragileFragmentStack(matches.componentWithSlotAttrMatch)
 			__handleSlotStack(matches.slotMatch)
-			__handleAliasedComponentStack(matches.aliasedComponentMatch)
 		}
 
 		function __handleCommentNode(componentNode: CommentNode): void {
@@ -172,7 +176,7 @@ export async function getAstroDiagnostics({
 		function __checkUnusedIgnoreDirectives(): void {
 			for (const obj of ignoreDirectiveStack) {
 				if (obj.wasUsed) continue
-				_addDiagnostic({
+				_addUniqueDiag({
 					message:
 						"Suppression comment has no effect. Remove the suppression or make sure you are suppressing the correct error.",
 					range: getPositionRange({ node: obj.node, endOffset: obj.node.value.length })
@@ -191,10 +195,6 @@ export async function getAstroDiagnostics({
 		function __handleSlotStack(slotMatch: boolean): void {
 			if (slotMatch) parentSlotStack.pop()
 		}
-
-		function __handleAliasedComponentStack(aliasedComponentMatch: boolean): void {
-			if (aliasedComponentMatch) parentAliasedComponentStack.pop()
-		}
 	}
 
 	//* ---------- Tag Node -----------------------------------------------
@@ -205,29 +205,20 @@ export async function getAstroDiagnostics({
 		parentFragileTagStack: string[]
 		parentComponentWithSlotAttrStack: string[]
 		parentSlotStack: boolean[]
-		parentAliasedComponentStack: string[]
 	}
 	function _handleTagNode({
 		tagLikeNode,
 		matches,
-		parentAliasedComponentStack,
 		parentComponentWithSlotAttrStack,
 		parentFragileTagStack,
 		parentSlotStack
 	}: ARGS__handleTagNode): void {
-		_handleSlotName(tagLikeNode, parentAliasedComponentStack)
-
 		matches.slotMatch = _handleSlotMatch(tagLikeNode, parentSlotStack)
 		matches.fragileTagMatch = _handleFragileTagSlot(tagLikeNode, parentFragileTagStack)
 		matches.componentWithSlotAttrMatch = _handleComponentWithSlotAttrMatch(
 			tagLikeNode,
 			parentComponentWithSlotAttrStack
 		)
-
-		if (is.component(tagLikeNode)) {
-			matches.aliasedComponentMatch = true
-			parentAliasedComponentStack.push(tagLikeNode.name)
-		}
 
 		_handleSpreadAttribute(tagLikeNode)
 		_handleAttributeName(tagLikeNode)
@@ -286,7 +277,7 @@ export async function getAstroDiagnostics({
 		}
 
 		if (!(propsMatch || ASTRO_PAGE_ROUTE)) {
-			_addDiagnostic({
+			_addUniqueDiag({
 				message: `Missing "Props" type or interface in frontmatter.`,
 				range: getPositionRange({
 					node: frontMaterNode
@@ -306,7 +297,7 @@ export async function getAstroDiagnostics({
 
 			if (defaultImport === fileNameWithoutExtension) return
 
-			_addDiagnostic({
+			_addUniqueDiag({
 				message: `The default import "${defaultImport}" doesn't match the imported file name "${fileNameWithoutExtension}.astro".`,
 				range: {
 					start: {
@@ -330,7 +321,7 @@ export async function getAstroDiagnostics({
 
 			if (haqRouteMatch === ASTRO_PAGE_ROUTE) return
 
-			_addDiagnostic({
+			_addUniqueDiag({
 				message: `${GLOBALS.HAQ_ROUTE_VAR_NAME} doesn't match the current file. Expected "${ASTRO_PAGE_ROUTE}".`,
 				range: {
 					start: {
@@ -358,7 +349,7 @@ export async function getAstroDiagnostics({
 			)
 				return
 
-			_addDiagnostic({
+			_addUniqueDiag({
 				message: `Astro.locals route doesn't match the current file. Expected "${ASTRO_PAGE_ROUTE}".`,
 				range: {
 					start: {
@@ -384,7 +375,7 @@ export async function getAstroDiagnostics({
 
 		for (const attribute of attributes) {
 			if (attributesInTag.has(attribute.name)) {
-				_addDiagnostic({
+				_addUniqueDiag({
 					message: `Duplicate attribute "${attribute.name}".`,
 					range: getPositionRange({
 						node: attribute
@@ -435,7 +426,7 @@ export async function getAstroDiagnostics({
 
 		function __handleHaq({ attribute, directive }: HandlerArgs): void {
 			if (is.component(tagLikeNode) || isSlotNode(tagLikeNode)) {
-				_addDiagnostic({
+				_addUniqueDiag({
 					message: `You can only use the "${directive}" directive with native or custom-elements.`,
 					range: getPositionRange({
 						node: attribute,
@@ -446,7 +437,7 @@ export async function getAstroDiagnostics({
 			}
 
 			if (attrMap.get("x_webc")) {
-				_addDiagnostic({
+				_addUniqueDiag({
 					message: `You can either use the "${directive}" or "${webcDirective}" directive, not both.`,
 					range: getPositionRange({
 						node: attribute,
@@ -459,7 +450,7 @@ export async function getAstroDiagnostics({
 		function __handleWebc({ attribute, directive }: HandlerArgs): void {
 			if (isCustomTagNode(tagLikeNode)) return
 
-			_addDiagnostic({
+			_addUniqueDiag({
 				message: `You can only use the "${directive}" directive with custom-elements.`,
 				range: getPositionRange({
 					node: attribute,
@@ -471,7 +462,7 @@ export async function getAstroDiagnostics({
 		function __handleAppc({ attribute, directive }: HandlerArgs): void {
 			if (is.component(tagLikeNode)) return
 
-			_addDiagnostic({
+			_addUniqueDiag({
 				message: `You can only use the "${directive}" directive on aliased components inside your /pages folder.`,
 				range: getPositionRange({
 					node: attribute,
@@ -483,7 +474,7 @@ export async function getAstroDiagnostics({
 		function __handleAlias({ attribute, directive }: HandlerArgs): void {
 			if (is.component(tagLikeNode)) return
 
-			_addDiagnostic({
+			_addUniqueDiag({
 				message: `You can only use the "${directive}" directive on aliased components.`,
 				range: getPositionRange({
 					node: attribute,
@@ -495,7 +486,7 @@ export async function getAstroDiagnostics({
 		function __handleSlot({ attribute, directive }: HandlerArgs): void {
 			if (isSlotNode(tagLikeNode)) return
 
-			_addDiagnostic({
+			_addUniqueDiag({
 				message: `You can only use the "${directive}" directive on slot elements.`,
 				range: getPositionRange({
 					node: attribute,
@@ -506,7 +497,7 @@ export async function getAstroDiagnostics({
 
 		function __handle_Sel_InputValues_Child({ attribute, directive, endOffset }: HandlerArgs): void {
 			if (isSlotNode(tagLikeNode)) {
-				_addDiagnostic({
+				_addUniqueDiag({
 					message: `You can not use the "${directive}" directive on slot elements.`,
 					range: getPositionRange({
 						node: attribute,
@@ -518,7 +509,7 @@ export async function getAstroDiagnostics({
 			if (attrMap.get("x_input_values")) return
 
 			if (!(attrMap.get("x_haq") || attrMap.get("x_webc") || attrMap.get("x_alias"))) {
-				_addDiagnostic({
+				_addUniqueDiag({
 					message: `Missing one of the following directives: "${haqDirective}" | "${webcDirective}" | "${aliasDirective}"`,
 					range: getPositionRange({
 						node: attribute,
@@ -530,7 +521,7 @@ export async function getAstroDiagnostics({
 
 		function __handleAttrValues({ attribute, directive, endOffset }: HandlerArgs): void {
 			if (isSlotNode(tagLikeNode)) {
-				_addDiagnostic({
+				_addUniqueDiag({
 					message: `You can not use the "${directive}" directive on slot elements.`,
 					range: getPositionRange({
 						node: attribute,
@@ -542,7 +533,7 @@ export async function getAstroDiagnostics({
 
 			if (attrMap.get("x_webc") || (attrMap.get("id") && attrMap.get("id")?.kind === "quoted")) return
 
-			_addDiagnostic({
+			_addUniqueDiag({
 				message: `Missing one of the following directives:  "${webcDirective}" | "id". Should only use on top level Web Components or App Components.`,
 				range: getPositionRange({
 					node: attribute,
@@ -553,7 +544,7 @@ export async function getAstroDiagnostics({
 
 		function __handle_EvTypes_DynSel_ClassList({ attribute, directive, endOffset }: HandlerArgs): void {
 			if (is.component(tagLikeNode) || isSlotNode(tagLikeNode)) {
-				_addDiagnostic({
+				_addUniqueDiag({
 					message: `You can only use the "${directive}" directive with native or custom-elements.`,
 					range: getPositionRange({
 						node: attribute,
@@ -564,7 +555,7 @@ export async function getAstroDiagnostics({
 			}
 
 			if (!(attrMap.get("x_haq") || attrMap.get("x_webc"))) {
-				_addDiagnostic({
+				_addUniqueDiag({
 					message: `Missing one of the following directives: "${haqDirective}" | "${webcDirective}"`,
 					range: getPositionRange({
 						node: attribute,
@@ -577,7 +568,7 @@ export async function getAstroDiagnostics({
 		function __handle_Xpage({ attribute, directive }: HandlerArgs): void {
 			const value = attribute.value
 			if (!ASTRO_PAGE_ROUTE && value) {
-				_addDiagnostic({
+				_addUniqueDiag({
 					message: `Do not use any value for "${directive}" outisde of the pages directory. You can pass it as a prop instead.`,
 					range: getPositionRange({
 						node: attribute,
@@ -592,7 +583,7 @@ export async function getAstroDiagnostics({
 
 			if (value === ASTRO_PAGE_ROUTE || value === GLOBALS.HAQ_ROUTE_VAR_NAME) return
 
-			_addDiagnostic({
+			_addUniqueDiag({
 				message: `"${value}" doesn't match the current file. Expected "${ASTRO_PAGE_ROUTE}".`,
 				range: getPositionRange({
 					node: attribute,
@@ -604,7 +595,7 @@ export async function getAstroDiagnostics({
 		function __handleNonQuotedAttribute({ attribute, directive, endOffset }: HandlerArgs): void {
 			if (!isDynamicAttribute(attribute) || attribute.kind === "empty") return
 
-			_addDiagnostic({
+			_addUniqueDiag({
 				message: `Avoid using dynamic values on "${directive}" attributes. Use quoted values instead.`,
 				range: getPositionRange({
 					node: attribute,
@@ -695,7 +686,7 @@ export async function getAstroDiagnostics({
 	}: ARGS__showClassDiagnostics): void {
 		for (const invalidClass of invalidClasses) {
 			const indexOfClass = classAttribute.value.indexOf(invalidClass)
-			_addDiagnostic({
+			_addUniqueDiag({
 				message: `Invalid class "${invalidClass}". Define "${invalidClass}" in your global css folder.`,
 				range: getPositionRange({
 					node: classAttribute,
@@ -747,7 +738,7 @@ export async function getAstroDiagnostics({
 		const isValidAttribute = lists.aliasableComponents.includes(tagLikeNode.name)
 		if (isValidAttribute) return
 
-		_addDiagnostic({
+		_addUniqueDiag({
 			message: `Invalid "${aliasDirective}" directive for component: "${tagLikeNode.name}". Make sure to add a "${haqDirective}" or "${webcDirective}" directive for the aliased component.`,
 			range: getPositionRange({
 				node: aliasAttribute,
@@ -807,7 +798,7 @@ export async function getAstroDiagnostics({
 
 		for (const invalidVal of invalidValues) {
 			const indexOfVal = attribute.value.indexOf(invalidVal)
-			_addDiagnostic({
+			_addUniqueDiag({
 				message: `Invalid "${slotDirective}" value: "${invalidVal}".`,
 				range: getPositionRange({
 					node: attribute,
@@ -837,7 +828,7 @@ export async function getAstroDiagnostics({
 		const isValidTagName = customElementsMap.has(name)
 		if (isValidTagName) return
 
-		_addDiagnostic({
+		_addUniqueDiag({
 			message: `Undefined HTML tag: "${name}". You should define it in a *.haq.json file.`,
 			range: getPositionRange({
 				node: tagLikeNode,
@@ -853,7 +844,7 @@ export async function getAstroDiagnostics({
 		const spreadAttribute = getAttributes(tagLikeNode).find((attr) => attr.kind === "spread")
 		if (!spreadAttribute) return
 
-		_addDiagnostic({
+		_addUniqueDiag({
 			message: "Avoid using spread attributes, type checking is not as precise. Use explicit attributes instead.",
 			range: getPositionRange({
 				node: spreadAttribute,
@@ -890,7 +881,7 @@ export async function getAstroDiagnostics({
 		function __handleDataAttribute(attribute: I_AstroAttributeNode): void {
 			const { name } = attribute
 
-			_addDiagnostic({
+			_addUniqueDiag({
 				message: `Attributes that start with "${GLOBALS.DATA_ATTRIBUTE_PREFIX}" are not allowed.`,
 				range: getPositionRange({
 					node: attribute,
@@ -909,7 +900,7 @@ export async function getAstroDiagnostics({
 
 			if (validAttributes?.includes(name) || globalAttributes.includes(name)) return
 
-			_addDiagnostic({
+			_addUniqueDiag({
 				message: `Invalid attribute: "${name}". You should define it in a *.haq.json file.`,
 				range: getPositionRange({
 					node: attribute,
@@ -921,7 +912,7 @@ export async function getAstroDiagnostics({
 		function __handleDashedAttributeOnComponent(attribute: I_AstroAttributeNode): void {
 			const { name } = attribute
 
-			_addDiagnostic({
+			_addUniqueDiag({
 				message: `Invalid attribute: "${name}". Attributes with "-" aren't type safe. We recommend using "_" or camelCase props in the receiving component.`,
 				range: getPositionRange({
 					node: attribute,
@@ -943,7 +934,7 @@ export async function getAstroDiagnostics({
 		if (parentSlot === undefined) return false
 
 		if (parentSlot === true) {
-			_addDiagnostic({
+			_addUniqueDiag({
 				message: `Children of slot elements with an "${slotDirective}" directive are unreachable.`,
 				range: getPositionRange({
 					node: tagLikeNode,
@@ -956,7 +947,7 @@ export async function getAstroDiagnostics({
 
 		if (!hasHAQDirective(tagLikeNode)) return false
 
-		_addDiagnostic({
+		_addUniqueDiag({
 			message: "Do not use HAQ Directives in a slot's child element. They will be ignored.",
 			range: getPositionRange({
 				node: tagLikeNode,
@@ -989,7 +980,7 @@ export async function getAstroDiagnostics({
 
 		if (_matchesFragileSlotAttribute(tagLikeNode, "name")) return false
 
-		_addDiagnostic({
+		_addUniqueDiag({
 			message:
 				"Do not use slots as children of a component that will be passed into another component's slot. Place it outisde of the component.",
 			range: getPositionRange({
@@ -1032,7 +1023,7 @@ export async function getAstroDiagnostics({
 
 		const tag = matchingSlotAttribute ? matchingSlotAttribute : parentFragileTag
 
-		_addDiagnostic({
+		_addUniqueDiag({
 			message: `Slot name inside a <${tag}> element must start with "${tag}:" as a prefix.`,
 			range: getPositionRange({
 				node: tagLikeNode,
@@ -1042,31 +1033,6 @@ export async function getAstroDiagnostics({
 		})
 
 		return false
-	}
-
-	function _handleSlotName(tagLikeNode: TagLikeNode, parentAliasedComponentStack: string[]): void {
-		const slotAttribute = getAttributeByName(tagLikeNode, "slot")
-		if (!slotAttribute) return
-
-		const prevAliasedComponent = parentAliasedComponentStack.at(-1)
-		const rootAliasedComponent = is.component(tagLikeNode) && tagVisitedCount === 1 ? tagLikeNode.name : undefined
-
-		const parentAliasedComponent = prevAliasedComponent ?? rootAliasedComponent
-
-		if (!parentAliasedComponent) {
-			_addDiagnostic({
-				message: `"${tagLikeNode.name}"'s parent does not take in any slots.`,
-				range: getPositionRange({
-					node: slotAttribute
-				})
-			})
-			return
-		}
-
-		const currentElem = astroComponentsMap.get(parentAliasedComponent)
-		if (!currentElem) return
-
-		_expectValidSlotName(tagLikeNode, currentElem)
 	}
 
 	function _handleSlotNames(tagLikeNode: TagLikeNode): void {
@@ -1100,7 +1066,7 @@ export async function getAstroDiagnostics({
 		const slotAttribute = getAttributeByName(tagLikeNode, "slot")
 		if (!slotAttribute) {
 			if (slotList.some((s) => s.slotName === GLOBALS.ASTRO_DEFAULT_SLOT_NAME)) return
-			_addDiagnostic({
+			_addUniqueDiag({
 				message: `"${tagLikeNode.name}" must take in a slot attribute with name: ${slotListStringUnion}`,
 				range: getPositionRange({
 					node: tagLikeNode,
@@ -1113,8 +1079,8 @@ export async function getAstroDiagnostics({
 
 		if (slotList.some((s) => s.slotName === slotAttribute.value)) return
 
-		_addDiagnostic({
-			message: `"${slotAttribute.value}" is not assignable to ${slotListStringUnion}.`,
+		_addUniqueDiag({
+			message: `Slot name "${slotAttribute.value}" is not assignable to ${slotListStringUnion}.`,
 			range: getPositionRange({
 				node: tagLikeNode,
 				startOffset: 1, // we want to start after the opening tag character '<'
@@ -1147,7 +1113,7 @@ export async function getAstroDiagnostics({
 			if (!attr) return
 
 			if (tagLikeNode.name === "slot") {
-				_addDiagnostic({
+				_addUniqueDiag({
 					message: `Do not use "${attrToCheck}" attribute on a <slot> element. This will likely cause unexpected behavior.`,
 					range: getPositionRange({
 						node: attr,
@@ -1161,7 +1127,7 @@ export async function getAstroDiagnostics({
 
 			// should not be used on components
 
-			_addDiagnostic({
+			_addUniqueDiag({
 				message: `Do not use "${attrToCheck}" attribute on an aliased component. Instead use it on the original tag element.`,
 				range: getPositionRange({
 					node: attr,
@@ -1172,6 +1138,17 @@ export async function getAstroDiagnostics({
 	}
 
 	//* ---------- Helpers -----------------------------------------------
+
+	function _addUniqueDiag({ message, range }: Pick<Diagnostic, "message" | "range">): void {
+		const existingDiag = diagnostics.find(
+			(d) =>
+				sameDiagRanges(range, { start: d.range.start, end: d.range.end }) &&
+				d.message === message &&
+				d.sourceFile === sourceFile
+		)
+		if (existingDiag) return
+		_addDiagnostic({ message, range })
+	}
 
 	function _addDiagnostic({ message, range }: Pick<Diagnostic, "message" | "range">): void {
 		// handle ignoreDirectiveStack
@@ -1220,7 +1197,7 @@ export async function getAstroDiagnostics({
 		directiveOffset
 	}: ARGS__showRedundantValueDiagnostic): void {
 		const indexOfClass = attribute.value.indexOf(duplicateValue)
-		_addDiagnostic({
+		_addUniqueDiag({
 			message: `Redundant ${valueType} value "${duplicateValue}".`,
 			range: getPositionRange({
 				node: attribute,

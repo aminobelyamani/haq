@@ -1,7 +1,7 @@
 //#region -------------------------------------------------- Type Imports
 
 import type { CssLocation, Identifier } from "css-tree"
-import type { MarkupDirective } from "../../globals.js"
+import type { MarkupDirective } from "../../../globals.js"
 import type {
 	AttributeSelectorNode,
 	CSSMarkupMap,
@@ -16,8 +16,8 @@ import type {
 	PseudoClassSelectorNode,
 	SelectorNode,
 	TypeSelectorNode
-} from "../_shared/types.js"
-import type { CustomElementsMap, JSON_Attribute, JSON_CustomElement } from "../_shared/validation.js"
+} from "../../_shared/types.js"
+import type { CustomElementsMap, JSON_Attribute, JSON_CustomElement } from "../../_shared/validation.js"
 
 //#endregion ----------------------------------------------- Type Imports
 
@@ -25,7 +25,7 @@ import type { CustomElementsMap, JSON_Attribute, JSON_CustomElement } from "../_
 
 import { assertUnreachable } from "@haq/utils"
 import { parse, walk } from "css-tree"
-import { GLOBALS } from "../../globals.js"
+import { GLOBALS } from "../../../globals.js"
 import {
 	constructSelectorStringFromMarkup,
 	getClosestAttachedTypeSelector,
@@ -44,10 +44,10 @@ import {
 	isStringNode,
 	isTypeSelector,
 	isVarFunction
-} from "../_shared/css.js"
-import { sameDiagRanges } from "../_shared/diag.js"
-import { getRelativeFilePath } from "../_shared/fs.js"
-import { generateUnionFromArray } from "../_shared/strings.js"
+} from "../../_shared/css.js"
+import { sameDiagRanges } from "../../_shared/diag.js"
+import { getRelativeFilePath } from "../../_shared/fs.js"
+import { generateUnionFromArray } from "../../_shared/strings.js"
 
 //#endregion ----------------------------------------------- Module Imports
 

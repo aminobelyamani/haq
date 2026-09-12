@@ -1,7 +1,7 @@
 [
 	{
-		"cssFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/HAQ-monorepo/examples/astro/src/app-components/MyHeader/MyHeader.css",
-		"astroFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/HAQ-monorepo/examples/astro/src/app-components/MyHeader/MyHeader.astro",
+		"cssFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/haq/examples/astro/src/app-components/MyHeader/MyHeader.css",
+		"astroFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/haq/examples/astro/src/app-components/MyHeader/MyHeader.astro",
 		"componentName": "MyHeader",
 		"flatMarkup": [
 			{
@@ -17,8 +17,8 @@
 		]
 	},
 	{
-		"cssFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/HAQ-monorepo/examples/astro/src/components/OldMyHeader.css",
-		"astroFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/HAQ-monorepo/examples/astro/src/components/OldMyHeader.astro",
+		"cssFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/haq/examples/astro/src/components/OldMyHeader.css",
+		"astroFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/haq/examples/astro/src/components/OldMyHeader.astro",
 		"componentName": "OldMyHeader",
 		"flatMarkup": [
 			{ "id": "Nav", "selKind": "HAQ_SEL_ATTR", "selValue": "nav", "parentId": "OldMyHeader", "tagName": "nav" },
@@ -26,14 +26,14 @@
 		]
 	},
 	{
-		"cssFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/HAQ-monorepo/examples/astro/src/components/SvgIcon/SvgIcon.css",
-		"astroFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/HAQ-monorepo/examples/astro/src/components/SvgIcon/SvgIcon.astro",
+		"cssFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/haq/examples/astro/src/components/SvgIcon/SvgIcon.css",
+		"astroFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/haq/examples/astro/src/components/SvgIcon/SvgIcon.astro",
 		"componentName": "SvgIcon",
 		"flatMarkup": [{ "id": "SvgIcon", "selKind": "TAG", "tagName": "svg-icon" }]
 	},
 	{
-		"cssFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/HAQ-monorepo/examples/astro/src/components/btns/MinusBtn.css",
-		"astroFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/HAQ-monorepo/examples/astro/src/components/btns/MinusBtn.astro",
+		"cssFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/haq/examples/astro/src/components/btns/MinusBtn.css",
+		"astroFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/haq/examples/astro/src/components/btns/MinusBtn.astro",
 		"componentName": "MinusBtn",
 		"flatMarkup": [
 			{ "tagName": "svg-icon", "id": "SvgIcon", "selKind": "TAG", "parentId": "MinusBtn" },
@@ -41,8 +41,8 @@
 		]
 	},
 	{
-		"cssFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/HAQ-monorepo/examples/astro/src/components/btns/PlusBtn.css",
-		"astroFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/HAQ-monorepo/examples/astro/src/components/btns/PlusBtn.astro",
+		"cssFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/haq/examples/astro/src/components/btns/PlusBtn.css",
+		"astroFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/haq/examples/astro/src/components/btns/PlusBtn.astro",
 		"componentName": "PlusBtn",
 		"flatMarkup": [
 			{ "tagName": "svg-icon", "id": "SvgIcon", "selKind": "TAG", "parentId": "PlusBtn" },
@@ -50,8 +50,8 @@
 		]
 	},
 	{
-		"cssFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/HAQ-monorepo/examples/astro/src/css/styles.css",
-		"astroFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/HAQ-monorepo/examples/astro/src/layouts/Scaffold.astro",
+		"cssFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/haq/examples/astro/src/css/styles.css",
+		"astroFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/haq/examples/astro/src/layouts/Scaffold.astro",
 		"componentName": "Scaffold",
 		"flatMarkup": [
 			{ "tagName": "header", "id": "MyHeader", "selKind": "ID", "selValue": "header", "parentId": "Scaffold" },
@@ -68,8 +68,8 @@
 		]
 	},
 	{
-		"cssFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/HAQ-monorepo/examples/astro/src/web-components/MyConfetti/MyConfetti.css",
-		"astroFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/HAQ-monorepo/examples/astro/src/web-components/MyConfetti/MyConfetti.astro",
+		"cssFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/haq/examples/astro/src/web-components/MyConfetti/MyConfetti.css",
+		"astroFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/haq/examples/astro/src/web-components/MyConfetti/MyConfetti.astro",
 		"componentName": "MyConfetti",
 		"flatMarkup": [
 			{
@@ -83,8 +83,8 @@
 		]
 	},
 	{
-		"cssFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/HAQ-monorepo/examples/astro/src/web-components/MyCounter/MyCounter.css",
-		"astroFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/HAQ-monorepo/examples/astro/src/web-components/MyCounter/MyCounter.astro",
+		"cssFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/haq/examples/astro/src/web-components/MyCounter/MyCounter.css",
+		"astroFilePath": "/Users/aminobelyamani/Sites/Code/TS/Packages/haq/examples/astro/src/web-components/MyCounter/MyCounter.astro",
 		"componentName": "MyCounter",
 		"flatMarkup": [
 			{

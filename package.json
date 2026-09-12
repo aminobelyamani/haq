@@ -16,12 +16,12 @@
 		"up-all": "pnpm up --latest -r"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.5.12",
+		"@biomejs/biome": "2.5.13",
 		"@changesets/cli": "^3.0.2",
 		"@total-typescript/ts-reset": "^0.6.1",
-		"@types/node": "^26.4.1",
+		"@types/node": "^26.5.1",
 		"turbo": "^2.10.12",
 		"typescript": "^7.0.2"
 	},
-	"packageManager": "pnpm@12.3.4"
+	"packageManager": "pnpm@12.4.1"
 }
