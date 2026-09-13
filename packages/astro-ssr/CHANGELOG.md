@@ -1,5 +1,11 @@
 # @haq/astro-ssr
 
+## 0.1.4
+
+### Patch Changes
+
+- Added default error messages for every error type for client/browser response.
+
 ## 0.1.3
 
 ### Patch Changes
