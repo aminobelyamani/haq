@@ -14,14 +14,14 @@ import type { BaseErrorType } from "./types.js"
 export function errorLogger(data: ARGS_errorLogger): void {
 	const { method, route, error, errorType, errorMessage } = data
 
-	console.error("\n------------------ Error -----------------------", "\n")
-	console.error("❌ Date:     ", formatDate())
-	console.error("❌ Method:   ", method)
-	console.error("❌ Route:    ", route)
-	console.error("❌ ErrorType:", errorType)
-	console.error("❌ Message:  ", errorMessage, "\n")
-	console.trace(error, "\n\n")
-	console.error("\n------------------------------------------------", "\n")
+	console.error("\n------------------------------------------------------------", "\n")
+	console.error(`Error -> ${errorType}`, "\n")
+	console.error("❌ Date:      ", formatDate())
+	console.error("❌ Method:    ", method)
+	console.error("❌ Route:     ", route)
+	console.error("❌ Message:   ", errorMessage, "\n")
+	console.trace(error)
+	console.error("\n------------------------------------------------------------", "\n")
 }
 
 type ARGS_errorLogger = {

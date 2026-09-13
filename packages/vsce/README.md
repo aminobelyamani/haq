@@ -27,7 +27,7 @@ This extension provides completions and inline diagnostics in Astro (`.astro`) a
 
 ## Donate
 
-This project has been developed and maintained by me alone.
+I am the sole developer and maintainer of this project.
 
 A coffee would be much appreciated - [Buy me a coffee](https://ko-fi.com/aminobelyamani)
 

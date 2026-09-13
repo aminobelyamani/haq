@@ -158,8 +158,17 @@ export function indexPage(Router: T_Router) {
 
 And now the Astro page will know about `title`.
 
-```html
-// index.astro --- const data = Astro.locals["/"] // data.title is of type string const { title } = data ---
+```tsx
+// index.astro
+---
+
+const data = Astro.locals["/"]
+
+const { title } = data
+// title is of type string
+
+---
+
 <div>
 	<span>{title}</span>
 </div>
@@ -243,7 +252,7 @@ if (!response.success) {
 
 ## Donate
 
-This project has been developed and maintained by me alone.
+I am the sole developer and maintainer of this project.
 
 A coffee would be much appreciated - [Buy me a coffee](https://ko-fi.com/aminobelyamani)
 

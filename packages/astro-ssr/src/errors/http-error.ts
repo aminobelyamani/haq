@@ -2,7 +2,7 @@
 
 import type { Method } from "../server/types/static.js"
 import type { CustomError } from "./custom-error.js"
-import type { BaseErrorType, ErrorStatusCodes } from "./types.js"
+import type { AllExceptClientErrorTypes, BaseErrorType, ErrorStatusCodes } from "./types.js"
 
 //#endregion ----------------------------------------------- Type Imports
 
@@ -134,26 +134,34 @@ export function makeHttpError({ error, method, isDevMode, route }: ARGS_makeHttp
 	function _getMessageFromError(e: Error): { clientMessage: string; internalMessage: string } {
 		const defaultClientMessage = "An internal server error occurred."
 
+		const defaultClientMessageLookup: Record<AllExceptClientErrorTypes<BaseErrorType>, string> = {
+			BAD_REQUEST: "Your browser sent a request that the server could not understand.",
+			NOT_FOUND: "Request not found.",
+			UNAUTHENTICATED: "You are not authenticated. Please log in.",
+			UNAUTHORIZED: "You do not have access to this request.",
+			INTERNAL_SERVER_ERROR: defaultClientMessage
+		}
+
 		if (e instanceof ZodError) {
 			return {
-				clientMessage: "Your browser sent a request that the server could not understand.",
+				clientMessage: defaultClientMessageLookup.BAD_REQUEST,
 				internalMessage: _getZodErrorMessage(e)
 			}
 		}
 		if (!Errors.isCustomError(e)) return { clientMessage: defaultClientMessage, internalMessage: e.message }
 
 		return {
-			clientMessage: ___getCustomErrorClientMessage(e, defaultClientMessage),
+			clientMessage: ___getCustomErrorClientMessage(e),
 			internalMessage: e.message
 		}
 
 		//* ---------- Helpers -----------------------------------------------
 
-		function ___getCustomErrorClientMessage(customErr: CustomError<BaseErrorType>, defaultMessage: string): string {
+		function ___getCustomErrorClientMessage(customErr: CustomError<AllExceptClientErrorTypes<BaseErrorType>>): string {
 			if (customErr.options?.forClient) {
 				return typeof customErr.options.forClient === "string" ? customErr.options.forClient : e.message
 			}
-			return defaultMessage
+			return defaultClientMessageLookup[customErr.errorType] ?? defaultClientMessage
 		}
 	}
 }

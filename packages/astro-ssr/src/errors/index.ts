@@ -59,7 +59,7 @@ export function makeErrors<PA_CustomErrorType extends string = BaseErrorType>():
 	})
 
 	function isCustomError(e: unknown): e is CustomError<AllExceptClientErrorTypes<PA_CustomErrorType>> {
-		return e instanceof CustomError
+		return e instanceof Error && "errorType" in e
 	}
 
 	function isErrorType(

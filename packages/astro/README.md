@@ -216,7 +216,7 @@ Since this project is in its infancy and proper documentation is still in progre
 
 ## Donate
 
-This project has been developed and maintained by me alone.
+I am the sole developer and maintainer of this project.
 
 A coffee would be much appreciated - [Buy me a coffee](https://ko-fi.com/aminobelyamani)
 

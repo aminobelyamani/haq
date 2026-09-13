@@ -13,7 +13,7 @@ The monorepo for all HAQ related projects.
 
 ## Donate
 
-This project has been developed and maintained by me alone.
+I am the sole developer and maintainer of this project.
 
 A coffee would be much appreciated - [Buy me a coffee](https://ko-fi.com/aminobelyamani)
 
