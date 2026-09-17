@@ -2,6 +2,7 @@
 
 import type {
 	AttributeSelectorNode,
+	Completion,
 	CSSNode,
 	CursorPos,
 	GeneratedCSSMarkupObject,
@@ -45,7 +46,7 @@ type VisitContext = {
 	typeSelectorsInSelector: TypeSelectorNode[]
 	isCursorInRuleRange: boolean
 	revisitAst: CSSNode | undefined
-	completions: string[]
+	completions: Completion[]
 	context: CSSCompletionContext
 }
 
@@ -58,7 +59,7 @@ type ARGS_getCssCompletions = {
 
 type RT_getCssCompletions = {
 	context: CSSCompletionContext
-	completions: string[]
+	completions: Completion[]
 }
 
 /*******************************************************************************
@@ -68,7 +69,7 @@ type RT_getCssCompletions = {
  ******************************************************************************/
 
 export function getCssCompletions(args: ARGS_getCssCompletions): RT_getCssCompletions {
-	const ast = parse(args.documentText, {
+	const AST = parse(args.documentText, {
 		positions: true
 	})
 	const CHAR_BEFORE_CURSOR = args.documentText.at(args.cursorPos.offset - 1)
@@ -76,34 +77,38 @@ export function getCssCompletions(args: ARGS_getCssCompletions): RT_getCssComple
 		.split("\n")
 		.some((line, index) => args.cursorPos.line - 1 === index && line.trim().length === 0)
 
-	const rootMarkup = args.cssMarkup?.find((r) => !r.parentId)
+	const ROOT_MARKUP = args.cssMarkup?.find((r) => !r.parentId)
 
-	const selDirective: MarkupDirective = "x_sel"
-	const dynSelDirective: MarkupDirective = "x_dyn_sel"
+	const SEL_DIRECTIVE: MarkupDirective = "x_sel"
+	const DYN_SEL_DIRECTIVE: MarkupDirective = "x_dyn_sel"
 
-	let VISIT_CONTEXT: VisitContext = _init()
+	let visitContext: VisitContext = _init()
 
-	_walkAST(ast)
+	_walkAST(AST)
 
-	const revisitAST = VISIT_CONTEXT.revisitAst
+	const revisitAST = visitContext.revisitAst
 
 	if (revisitAST) {
 		// adjust cursor
 		args.cursorPos.col += GLOBALS.HAQ_CSS_RAW_ATTRIBUTE_PLACEHOLDER.length
 		// reset visit context
-		VISIT_CONTEXT = _init()
+		visitContext = _init()
 		// then traverse
 		_walkAST(revisitAST)
 	}
 
-	if (!VISIT_CONTEXT.isCursorInRuleRange && IS_CURRENT_LINE_EMPTY && rootMarkup) {
+	if (!visitContext.isCursorInRuleRange && IS_CURRENT_LINE_EMPTY && ROOT_MARKUP) {
 		return {
 			context: "EMPTY_RULE",
-			completions: [constructSelectorStringFromMarkup(rootMarkup)]
+			completions: [
+				{
+					label: constructSelectorStringFromMarkup(ROOT_MARKUP)
+				}
+			]
 		}
 	}
 
-	return { completions: VISIT_CONTEXT.completions, context: VISIT_CONTEXT.context }
+	return { completions: visitContext.completions, context: visitContext.context }
 
 	//* ---------- Initialize -----------------------------------------------
 
@@ -126,11 +131,11 @@ export function getCssCompletions(args: ARGS_getCssCompletions): RT_getCssComple
 		walk(astNode, {
 			enter: (node: CSSNode, item: ListItem) => {
 				if (isRule(node)) {
-					VISIT_CONTEXT.isCursorInRuleRange = _isCursorInRange(node)
-					if (VISIT_CONTEXT.isCursorInRuleRange) _handleRule(node)
+					visitContext.isCursorInRuleRange = _isCursorInRange(node)
+					if (visitContext.isCursorInRuleRange) _handleRule(node)
 				}
 
-				if (!VISIT_CONTEXT.isCursorInRuleRange) return
+				if (!visitContext.isCursorInRuleRange) return
 
 				_handleInRuleRange(node, item)
 			},
@@ -158,9 +163,13 @@ export function getCssCompletions(args: ARGS_getCssCompletions): RT_getCssComple
 		}
 
 		// Cursor at rule start
-		if (args.cursorPos.col === ruleNode.loc?.start.column && rootMarkup) {
-			VISIT_CONTEXT.context = "TYPE_SELECTOR"
-			VISIT_CONTEXT.completions = [constructSelectorStringFromMarkup(rootMarkup)]
+		if (args.cursorPos.col === ruleNode.loc?.start.column && ROOT_MARKUP) {
+			visitContext.context = "TYPE_SELECTOR"
+			visitContext.completions = [
+				{
+					label: constructSelectorStringFromMarkup(ROOT_MARKUP)
+				}
+			]
 		}
 	}
 
@@ -170,7 +179,7 @@ export function getCssCompletions(args: ARGS_getCssCompletions): RT_getCssComple
 		if (isSelector(node)) _handleSelector()
 
 		if (isTypeSelector(node)) {
-			VISIT_CONTEXT.typeSelectorsInSelector.push(node)
+			visitContext.typeSelectorsInSelector.push(node)
 			_handleTypeSelector(node, item)
 		}
 
@@ -195,7 +204,7 @@ export function getCssCompletions(args: ARGS_getCssCompletions): RT_getCssComple
 		const isAfterSpace = CHAR_BEFORE_CURSOR === GLOBALS.EMPTY_CHAR && _isCursorAfterNode(node)
 
 		if (isAfterTab || isAfterSpace) {
-			const parentMarkup = VISIT_CONTEXT.markupStack.at(-1)
+			const parentMarkup = visitContext.markupStack.at(-1)
 			if (!parentMarkup) return
 			_populateSelectorCompletions(parentMarkup.id)
 		}
@@ -205,12 +214,12 @@ export function getCssCompletions(args: ARGS_getCssCompletions): RT_getCssComple
 
 	function _handlePseudoClassSelectorEnter(pseudoClassSelectorNode: PseudoClassSelectorNode): void {
 		const hasSelector = isHasSelector(pseudoClassSelectorNode)
-		VISIT_CONTEXT.pseudoClassSelectorStack.push(hasSelector)
+		visitContext.pseudoClassSelectorStack.push(hasSelector)
 		if (hasSelector) _handleHasSelector(pseudoClassSelectorNode)
 	}
 
 	function _handleHasSelector(pseudoClassSelectorNode: PseudoClassSelectorNode): void {
-		const parentMarkup = VISIT_CONTEXT.markupStack.at(-1)
+		const parentMarkup = visitContext.markupStack.at(-1)
 		if (!parentMarkup) return
 
 		if (!_isCursorInRange(pseudoClassSelectorNode)) return
@@ -219,24 +228,24 @@ export function getCssCompletions(args: ARGS_getCssCompletions): RT_getCssComple
 	}
 
 	function _handlePseudoClassSelectorLeave(pseudoClassSelectorNode: PseudoClassSelectorNode): void {
-		if (!VISIT_CONTEXT.isCursorInRuleRange) return
-		VISIT_CONTEXT.pseudoClassSelectorStack.pop()
+		if (!visitContext.isCursorInRuleRange) return
+		visitContext.pseudoClassSelectorStack.pop()
 
 		if (isHasSelector(pseudoClassSelectorNode)) {
-			for (const _ of VISIT_CONTEXT.typeSelectorStackInHas) {
-				VISIT_CONTEXT.markupStack.pop()
+			for (const _ of visitContext.typeSelectorStackInHas) {
+				visitContext.markupStack.pop()
 			}
-			VISIT_CONTEXT.typeSelectorStackInHas.length = 0
+			visitContext.typeSelectorStackInHas.length = 0
 		}
 	}
 
 	//* ---------- Selector -----------------------------------------------
 
 	function _handleSelector(): void {
-		if (VISIT_CONTEXT.pseudoClassSelectorStack.length === 0) {
+		if (visitContext.pseudoClassSelectorStack.length === 0) {
 			// reset only if selector is not inside a PseudoClassSelector
-			VISIT_CONTEXT.markupStack.length = 0
-			VISIT_CONTEXT.typeSelectorsInSelector.length = 0
+			visitContext.markupStack.length = 0
+			visitContext.typeSelectorsInSelector.length = 0
 		}
 	}
 
@@ -246,7 +255,7 @@ export function getCssCompletions(args: ARGS_getCssCompletions): RT_getCssComple
 		if (!isCombinator(node)) return false
 		if (!_isCursorAfterNode(node)) return false
 
-		const parentMarkup = VISIT_CONTEXT.markupStack.at(-2)
+		const parentMarkup = visitContext.markupStack.at(-2)
 		if (!parentMarkup) return false
 
 		if (!GLOBALS.CSS_SIBLING_CHARS.includes(node.name)) return false
@@ -284,7 +293,7 @@ export function getCssCompletions(args: ARGS_getCssCompletions): RT_getCssComple
 			value = next.name
 		} else {
 			value =
-				(next.name.name === selDirective || next.name.name === dynSelDirective) && isStringNode(next.value)
+				(next.name.name === SEL_DIRECTIVE || next.name.name === DYN_SEL_DIRECTIVE) && isStringNode(next.value)
 					? next.value.value
 					: undefined
 		}
@@ -302,15 +311,15 @@ export function getCssCompletions(args: ARGS_getCssCompletions): RT_getCssComple
 		if (!markupRecord) return
 
 		const lookupIndex = _isPreviousSiblingCombinator(item) ? -2 : -1
-		const parentMarkupFromStack = VISIT_CONTEXT.markupStack.at(lookupIndex)
+		const parentMarkupFromStack = visitContext.markupStack.at(lookupIndex)
 		if (parentMarkupFromStack) {
 			const validParentMarkup = args.cssMarkup?.find((r) => r.id === markupRecord?.parentId)
 			if (validParentMarkup !== parentMarkupFromStack) return
 		}
 
-		VISIT_CONTEXT.markupStack.push(markupRecord)
+		visitContext.markupStack.push(markupRecord)
 
-		if (VISIT_CONTEXT.pseudoClassSelectorStack.some((p) => p === true)) VISIT_CONTEXT.typeSelectorStackInHas.push(true)
+		if (visitContext.pseudoClassSelectorStack.some((p) => p === true)) visitContext.typeSelectorStackInHas.push(true)
 	}
 
 	function _isPreviousSiblingCombinator(item: ListItem): boolean {
@@ -327,8 +336,10 @@ export function getCssCompletions(args: ARGS_getCssCompletions): RT_getCssComple
 
 		const childRecords = args.cssMarkup?.filter((r) => r.parentId === parentRecord.id) ?? []
 
-		VISIT_CONTEXT.context = "TYPE_SELECTOR"
-		VISIT_CONTEXT.completions = childRecords.map((r) => constructSelectorStringFromMarkup(r))
+		visitContext.context = "TYPE_SELECTOR"
+		visitContext.completions = childRecords.map((r) => ({
+			label: constructSelectorStringFromMarkup(r)
+		}))
 	}
 
 	//* ---------- AttributeSelector Raw [] -----------------------------------------------
@@ -345,7 +356,7 @@ export function getCssCompletions(args: ARGS_getCssCompletions): RT_getCssComple
 			positions: true
 		})
 
-		VISIT_CONTEXT.revisitAst = newAST
+		visitContext.revisitAst = newAST
 	}
 
 	function _isCursorInRangeOfRawAttribute(
@@ -372,12 +383,12 @@ export function getCssCompletions(args: ARGS_getCssCompletions): RT_getCssComple
 	//* ---------- AttributeSelector Parsed [attr] -----------------------------------------------
 
 	function _handleAttributeSelector(attributeSelectorNode: AttributeSelectorNode, item: ListItem): void {
-		if (!_isCursorAtAttributeEnd(attributeSelectorNode)) return
+		if (!_isCursorWithinAttribute(attributeSelectorNode)) return
 
 		const previous =
 			getClosestAttachedTypeSelector({ item }) ??
-			(VISIT_CONTEXT.pseudoClassSelectorStack.every((s) => s === false)
-				? VISIT_CONTEXT.typeSelectorsInSelector.at(-1)
+			(visitContext.pseudoClassSelectorStack.every((s) => s === false)
+				? visitContext.typeSelectorsInSelector.at(-1)
 				: undefined)
 		if (!previous) return
 
@@ -386,7 +397,7 @@ export function getCssCompletions(args: ARGS_getCssCompletions): RT_getCssComple
 			return
 		}
 
-		if (attributeSelectorNode.name.name === selDirective || attributeSelectorNode.name.name === dynSelDirective) {
+		if (attributeSelectorNode.name.name === SEL_DIRECTIVE || attributeSelectorNode.name.name === DYN_SEL_DIRECTIVE) {
 			_populateHaqAttributeSelectors(previous.name)
 			return
 		}
@@ -395,13 +406,13 @@ export function getCssCompletions(args: ARGS_getCssCompletions): RT_getCssComple
 	}
 
 	function _populateHaqAttributeSelectors(parentMarkupId: string): void {
-		VISIT_CONTEXT.completions = []
+		visitContext.completions = []
 		const filteredCssMarkup = args.cssMarkup?.filter((r) => r.parentId === parentMarkupId) ?? []
 		for (const record of filteredCssMarkup) {
 			if (record.selKind === "ID" || record.selKind === "TAG" || !record.selValue) continue
 
-			VISIT_CONTEXT.context = "ATTRIBUTE_VALUE"
-			VISIT_CONTEXT.completions.push(record.selValue)
+			visitContext.context = "ATTRIBUTE_VALUE"
+			visitContext.completions.push({ label: record.selValue })
 		}
 	}
 
@@ -417,8 +428,10 @@ export function getCssCompletions(args: ARGS_getCssCompletions): RT_getCssComple
 		const validAttribute = allAttributes.find((attr) => attr.name === attributeSelectorNode.name.name)
 		if (!(validAttribute && Array.isArray(validAttribute.value))) return
 
-		VISIT_CONTEXT.context = "ATTRIBUTE_VALUE"
-		VISIT_CONTEXT.completions = validAttribute.value
+		visitContext.context = "ATTRIBUTE_VALUE"
+		visitContext.completions = validAttribute.value.map((v) => ({
+			label: v
+		}))
 	}
 
 	function _populateAttributeCompletions(tagName: string): void {
@@ -430,22 +443,31 @@ export function getCssCompletions(args: ARGS_getCssCompletions): RT_getCssComple
 		const customAttributes = customElement.attrs || []
 
 		const filteredCssMarkup = args.cssMarkup?.filter((r) => r.tagName === tagName) ?? []
-		const haqAttrCompletions: string[] = []
+		const haqAttrCompletions: Completion[] = []
 		for (const record of filteredCssMarkup) {
 			if (record.selKind === "ID" || record.selKind === "TAG") continue
 			const sanitizedAttribute = record.selValue
-			const directive = record.selKind === "HAQ_SEL_ATTR" ? selDirective : dynSelDirective
+			const directive = record.selKind === "HAQ_SEL_ATTR" ? SEL_DIRECTIVE : DYN_SEL_DIRECTIVE
 			const insertText = `${directive}="${sanitizedAttribute}"`
-			haqAttrCompletions.push(insertText)
+			haqAttrCompletions.push({ label: insertText })
 		}
 
 		const allAttributes = nativeAttributes
 			.concat(customAttributes)
 			.concat(globalAttributes)
-			.map((attr) => attr.name)
+			.map((attr) => {
+				const acceptsStringValues = attr.value !== undefined
+				if (acceptsStringValues) {
+					return {
+						label: attr.name,
+						snippet: `${attr.name}="$0"`
+					}
+				}
+				return { label: attr.name }
+			})
 
-		VISIT_CONTEXT.context = "EMPTY_ATTRIBUTE"
-		VISIT_CONTEXT.completions = [...haqAttrCompletions, ...allAttributes]
+		visitContext.context = "EMPTY_ATTRIBUTE"
+		visitContext.completions = [...haqAttrCompletions, ...allAttributes]
 	}
 
 	function _getNativeElemAttributes(tagName: string): NonNullable<JSON_CustomElement["attrs"]> {
@@ -470,12 +492,12 @@ export function getCssCompletions(args: ARGS_getCssCompletions): RT_getCssComple
 		return args.cursorPos.offset >= nodeLoc.start.offset && args.cursorPos.offset <= nodeLoc.end.offset
 	}
 
-	function _isCursorAtAttributeEnd(attributeSelectorNode: AttributeSelectorNode): boolean {
+	function _isCursorWithinAttribute(attributeSelectorNode: AttributeSelectorNode): boolean {
 		const nodeLoc = attributeSelectorNode.loc
 		if (!nodeLoc) return false
 
 		const isSameLine = nodeLoc.start.line === args.cursorPos.line
-		return isSameLine && args.cursorPos.col < nodeLoc.end.column
+		return isSameLine && nodeLoc.start.column < args.cursorPos.col && args.cursorPos.col < nodeLoc.end.column
 	}
 
 	function _isCursorAfterNode(node: CSSNode): boolean {

@@ -5,6 +5,7 @@ import type { CompletionItem } from "vscode-languageserver"
 import type { Diagnostic as LSPDiagnostic, Range } from "vscode-languageserver/node"
 import type {
 	AstroComponentsMap,
+	Completion,
 	CompletionColRange,
 	CSSMarkupMap,
 	CursorPos,
@@ -248,6 +249,7 @@ export function makeLspTools({ currentDir, successCallback }: ARGS_makeLspTools)
 		result: ReturnType<typeof getCssCompletions>,
 		cursorPos: CursorPos
 	): CompletionItem[] {
+		console.error("result", result)
 		switch (result.context) {
 			case "EMPTY_RULE":
 				return _provideEmptyRuleCompletion(result.completions)
@@ -270,12 +272,12 @@ export function makeLspTools({ currentDir, successCallback }: ARGS_makeLspTools)
 		}
 	}
 
-	function _provideEmptyRuleCompletion(completions: string[]): CompletionItem[] {
+	function _provideEmptyRuleCompletion(completions: Completion[]): CompletionItem[] {
 		return completions.map((completion) => {
 			const item: CompletionItem = {
-				label: completion,
+				label: completion.label,
 				kind: CompletionItemKind.Snippet,
-				insertText: `${completion} $0 {}`,
+				insertText: `${completion.label} $0 {}`,
 				sortText: "  ",
 				insertTextFormat: InsertTextFormat.Snippet
 			}
@@ -286,7 +288,7 @@ export function makeLspTools({ currentDir, successCallback }: ARGS_makeLspTools)
 
 	function _provideTypeSelectorCompletions(
 		documentText: string,
-		completions: string[],
+		completions: Completion[],
 		cursorPos: CursorPos
 	): CompletionItem[] {
 		const charAfterCursor = documentText.at(cursorPos.offset) ?? ""
@@ -322,12 +324,12 @@ export function makeLspTools({ currentDir, successCallback }: ARGS_makeLspTools)
 
 		return completions.map((completion) => {
 			const item: CompletionItem = {
-				label: completion,
-				insertText: completion,
+				label: completion.label,
+				insertText: completion.label,
 				kind: CompletionItemKind.Snippet,
 				sortText: "  ",
 				textEdit: {
-					newText: completion,
+					newText: completion.label,
 					insert: matchesSpecialChar ? insertRange : replaceRange,
 					replace: replaceRange
 				}
@@ -337,7 +339,7 @@ export function makeLspTools({ currentDir, successCallback }: ARGS_makeLspTools)
 		})
 	}
 
-	function _provideAttributeCompletions(completions: string[]): CompletionItem[] {
+	function _provideAttributeCompletions(completions: Completion[]): CompletionItem[] {
 		const selDirective: MarkupDirective = "x_sel"
 		const dynSelDirective: MarkupDirective = "x_dyn_sel"
 
@@ -349,21 +351,22 @@ export function makeLspTools({ currentDir, successCallback }: ARGS_makeLspTools)
 		}
 		return completions.map((completion) => {
 			const item: CompletionItem = {
-				label: completion,
+				label: completion.label,
 				kind: CompletionItemKind.Snippet,
-				insertText: completion,
-				sortText: sortText(completion)
+				insertText: completion.snippet ?? completion.label,
+				sortText: sortText(completion.label),
+				insertTextFormat: InsertTextFormat.Snippet
 			}
 			return item
 		})
 	}
 
-	function _provideAttributeValueCompletion(completions: string[]): CompletionItem[] {
+	function _provideAttributeValueCompletion(completions: Completion[]): CompletionItem[] {
 		return completions.map((completion) => {
 			const item: CompletionItem = {
-				label: completion,
+				label: completion.label,
 				kind: CompletionItemKind.Snippet,
-				insertText: completion,
+				insertText: completion.label,
 				sortText: " "
 			}
 			return item

@@ -8,3 +8,7 @@ description = "IDE support for HAQ Astro"
 [language_servers.haq-astro]
 name = "HAQ Astro Language Server"
 languages = ["Astro", "CSS"]
+
+[language-servers.haq-astro.language_ids]
+"Astro" = "astro"
+"CSS" = "css"

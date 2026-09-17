@@ -60,8 +60,6 @@ export const cssCompletionProvider = (LspTools: I_LSPTools): Disposable =>
 function toVSCodeCompletion(completion: Awaited<ReturnType<I_LSPTools["getCompletions"]>>[number]): CompletionItem {
 	const { documentation, textEdit, additionalTextEdits, kind, insertText, ...rest } = completion
 
-	let range: CompletionItem["range"] | undefined
-
 	const vsCodeCompletion: CompletionItem = {
 		...rest
 	}
@@ -75,7 +73,7 @@ function toVSCodeCompletion(completion: Awaited<ReturnType<I_LSPTools["getComple
 	}
 
 	if (textEdit && "replace" in textEdit) {
-		range = {
+		const range: CompletionItem["range"] = {
 			inserting: new Range(
 				new Position(textEdit.insert.start.line, textEdit.insert.start.character),
 				new Position(textEdit.insert.end.line, textEdit.insert.end.character)
