@@ -1,7 +1,7 @@
 //#region -------------------------------------------------- Type Imports
 
 import type { Node, Position, TagLikeNode } from "@astrojs/compiler/types"
-import type { AstroComponentsMap, CompletionColRange, CursorPos } from "../cli/_shared/types.js"
+import type { AstroComponentsMap, CompletionColRange, CursorPos } from "../../cli/_shared/types.js"
 
 //#endregion ----------------------------------------------- Type Imports
 
@@ -9,29 +9,27 @@ import type { AstroComponentsMap, CompletionColRange, CursorPos } from "../cli/_
 
 import { parse } from "@astrojs/compiler"
 import { is } from "@astrojs/compiler/utils"
-import { getAttributeByName, hasChildren } from "../cli/_shared/astro.js"
-import { cleanUpObjectValues, getClassesFromClassListValues } from "../cli/_shared/strings.js"
-import { GLOBALS } from "../globals.js"
+import { getAttributeByName, hasChildren } from "../../cli/_shared/astro.js"
+import { cleanUpObjectValues, getClassesFromClassListValues } from "../../cli/_shared/strings.js"
+import { GLOBALS } from "../../globals.js"
 
 //#endregion ----------------------------------------------- Module Imports
 
-type AstroCompletionContext = "CLASS" | "CLASS_LIST" | "SLOT" | "X_SLOT"
+type AstroCompletionContext = "CLASS" | "CLASS_LIST" | "SLOT" | "X_SLOT" | "NONE"
 
 type ARGS_getAstroCompletions = {
-	document: string
+	documentText: string
 	astroComponentsMap: AstroComponentsMap
 	cursorPos: CursorPos
 	classNames: string[]
 	aliasableComponents: string[]
 }
 
-type RT_getAstroCompletions =
-	| {
-			completions: string[]
-			context: AstroCompletionContext
-			stringColRange: CompletionColRange
-	  }
-	| undefined
+type RT_getAstroCompletions = {
+	completions: string[]
+	context: AstroCompletionContext
+	stringColRange: CompletionColRange
+}
 
 /*******************************************************************************
  *
@@ -40,11 +38,11 @@ type RT_getAstroCompletions =
  ******************************************************************************/
 
 export async function getAstroCompletions(args: ARGS_getAstroCompletions): Promise<RT_getAstroCompletions> {
-	const parsed = await parse(args.document, { position: true })
+	const parsed = await parse(args.documentText, { position: true })
 
 	const parentComponentStack: string[] = []
 	let completions: string[] = []
-	let context: AstroCompletionContext | undefined
+	let context: AstroCompletionContext = "NONE"
 	const stringColRange: CompletionColRange = {
 		start: args.cursorPos.col,
 		end: args.cursorPos.col
@@ -52,7 +50,7 @@ export async function getAstroCompletions(args: ARGS_getAstroCompletions): Promi
 
 	_visitNode(parsed.ast)
 
-	if (!context) return
+	if (!context) return { completions: [], context, stringColRange }
 
 	return { completions, context, stringColRange }
 

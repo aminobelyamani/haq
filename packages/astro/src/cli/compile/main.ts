@@ -5,7 +5,7 @@ import type {
 	GeneratedNamespaceTypes,
 	GeneratedNamespaceTypesWithGlobal,
 	I_OutputStyler,
-	JSON_Lists
+	JSON_GeneratedLists
 } from "../_shared/types.js"
 import type { ConfigSchema, JSON_CustomElement } from "../_shared/validation.js"
 
@@ -16,12 +16,19 @@ import type { ConfigSchema, JSON_CustomElement } from "../_shared/validation.js"
 import fs from "node:fs"
 import { GLOBALS } from "../../globals.js"
 import { createAstroComponentsMap, createCssMarkupMap, createCustomElementsMap } from "../_shared/astro.js"
-import { getAllAstroAndJSONFileNamesInDir, getAllCSSFileNamesInDir, loadFile, writeLogFile } from "../_shared/fs.js"
+import {
+	getAllAstroAndJSONFileNamesInDir,
+	getAllCSSFileNamesInDir,
+	isAstroFile,
+	isHaqJsonFile,
+	loadFile,
+	writeLogFile
+} from "../_shared/fs.js"
 import { HAQLogger } from "../_shared/logger.js"
 import { formatAndWrite } from "../_shared/output.js"
 import { addDisclaimerComment, injectTypesInGlobalNamespace } from "../_shared/strings.js"
 import { getAstroDiagnostics } from "./diag/astro-diagnostics.js"
-import { getCSSDiagnostics } from "./diag/css-diagnostics.js"
+import { getCssDiagnostics } from "./diag/css-diagnostics.js"
 import { getMarkupDiagnostics } from "./diag/markup-diag.js"
 import { getAstroTypes } from "./gen/astro.js"
 import { getAttributeTypes } from "./gen/attributes.js"
@@ -109,9 +116,9 @@ async function generate({
 	const allAstroAndJSONFiles = getAllAstroAndJSONFileNamesInDir(projectDir)
 	const allCSSFiles = getAllCSSFileNamesInDir(projectDir)
 
-	const astroFileNames = allAstroAndJSONFiles.filter((file) => file.match(GLOBALS.REGEX_ASTRO_EXTENSION))
-	const jsonFiles = allAstroAndJSONFiles.filter((file) => file.match(GLOBALS.REGEX_HAQ_JSON_EXTENSION))
-	const globalCssFiles = allCSSFiles.filter((file) => file.includes(globalCssDir))
+	const astroFileNames = allAstroAndJSONFiles.filter((filePath) => isAstroFile(filePath))
+	const jsonFiles = allAstroAndJSONFiles.filter((filePath) => isHaqJsonFile(filePath))
+	const globalCssFiles = allCSSFiles.filter((filePath) => filePath.includes(globalCssDir))
 
 	const astroTypes = await getAstroTypes({
 		astroFileNames,
@@ -133,7 +140,7 @@ async function generate({
 	const customElementTypes =
 		addDisclaimerComment() + injectTypesInGlobalNamespace(generatedAttributeTypes.cssPropertyTypes)
 
-	const generatedLists: JSON_Lists = {
+	const generatedLists: JSON_GeneratedLists = {
 		classNames: cssLists.classNames,
 		rootCustomProperties: cssLists.rootCustomProperties,
 		aliasableComponents: astroTypes.aliasableComponents
@@ -225,10 +232,10 @@ async function generate({
 		for (const astroFileName of astroFileNames) {
 			fileDiagnostics.push(
 				...(await getAstroDiagnostics({
-					document: astroTypes.fileDocumentMap.get(astroFileName) ?? "",
+					documentText: astroTypes.fileDocumentMap.get(astroFileName) ?? "",
 					filePath: astroFileName,
 					astroASTMap: astroTypes.astroASTMap,
-					lists: generatedLists,
+					generatedLists,
 					customElementsMap,
 					astroComponentsMap
 				}))
@@ -245,8 +252,8 @@ async function generate({
 			if (!file || file.toString().length === 0) continue
 
 			fileDiagnostics.push(
-				...getCSSDiagnostics({
-					document: file.toString(),
+				...getCssDiagnostics({
+					documentText: file.toString(),
 					filePath: cssFileName,
 					globalCssPath: globalCssDir,
 					customElementsMap,

@@ -51,8 +51,8 @@ import { generateUnionFromArray } from "../../_shared/strings.js"
 
 //#endregion ----------------------------------------------- Module Imports
 
-type ARGS_getCSSDiagnostics = {
-	document: string
+type ARGS_getCssDiagnostics = {
+	documentText: string
 	filePath: string
 	globalCssPath: string
 	customElementsMap: CustomElementsMap
@@ -66,7 +66,7 @@ type ARGS_getCSSDiagnostics = {
  *
  ******************************************************************************/
 
-export function getCSSDiagnostics(args: ARGS_getCSSDiagnostics): Diagnostic[] {
+export function getCssDiagnostics(args: ARGS_getCssDiagnostics): Diagnostic[] {
 	const sourceFile = getRelativeFilePath(args.filePath)
 
 	const flatMarkup = args.cssMarkupMap.get(args.filePath)?.flatMarkup
@@ -98,7 +98,7 @@ export function getCSSDiagnostics(args: ARGS_getCSSDiagnostics): Diagnostic[] {
 	}
 
 	const comments: Comment[] = []
-	const ast = parse(args.document, {
+	const ast = parse(args.documentText, {
 		positions: true,
 		onComment: (value, loc) => {
 			const trimmedValue = value.trim().toLowerCase()

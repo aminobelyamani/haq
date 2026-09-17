@@ -6,6 +6,7 @@ import process from "node:process"
 import { GLOBALS } from "../../globals.js"
 import { HAQError } from "./errors.js"
 import { formatDate } from "./strings.js"
+import type { JSON_CustomElement } from "./validation.js"
 
 //#endregion ----------------------------------------------- Module Imports
 
@@ -58,6 +59,10 @@ export function loadJsonFile(url: string): unknown {
 	}
 }
 
+export function loadNativeElementsJson(outDir: string): JSON_CustomElement[] {
+	return loadJsonFile(`${outDir}/${GLOBALS.NATIVE_ELEMENTS_JSON_FILE_NAME}`) as JSON_CustomElement[]
+}
+
 export function writeLogFile(outDir: string): void {
 	fs.writeFileSync(`${outDir}/${GLOBALS.LOG_FILE_NAME}`, `Last updated on -> ${formatDate()}`)
 }
@@ -71,7 +76,7 @@ export function getAllAstroAndJSONFileNamesInDir(dir: string, files: string[] = 
 		}
 		if (file.isDirectory()) {
 			getAllAstroAndJSONFileNamesInDir(fullPath, files)
-		} else if (file.isFile() && (fullPath.endsWith(".astro") || fullPath.endsWith(".haq.json"))) {
+		} else if (file.isFile() && (isAstroFile(fullPath) || isHaqJsonFile(fullPath))) {
 			files.push(fullPath)
 		}
 	}
@@ -87,7 +92,7 @@ export function getAllCSSFileNamesInDir(dir: string, files: string[] = []): stri
 		}
 		if (file.isDirectory()) {
 			getAllCSSFileNamesInDir(fullPath, files)
-		} else if (file.isFile() && fullPath.endsWith(".css")) {
+		} else if (file.isFile() && isCssFile(fullPath)) {
 			files.push(fullPath)
 		}
 	}
@@ -103,7 +108,7 @@ export function getAstroPages(dir: string, files: string[] = []): string[] {
 		}
 		if (file.isDirectory()) {
 			getAllAstroAndJSONFileNamesInDir(fullPath, files)
-		} else if (file.isFile() && fullPath.endsWith(".astro")) {
+		} else if (file.isFile() && isAstroFile(fullPath)) {
 			files.push(fullPath)
 		}
 	}
@@ -117,7 +122,7 @@ export function getFileNameWithoutExtension(filePath: string): string {
 
 	if (!fileNameWithoutExtension)
 		throw new HAQError({
-			message: "Unable to get astro filename without extension",
+			message: "Unable to get astro filename without extension.",
 			sourceFiles: [filePath]
 		})
 
@@ -126,7 +131,7 @@ export function getFileNameWithoutExtension(filePath: string): string {
 
 export function getRouteFromAstroPage(filePath: string): string | undefined {
 	const cleanFilePath = filePath
-		.replace(".astro", "")
+		.replace(GLOBALS.ASTRO_FILENAME_EXTENSION, "")
 		.replace(GLOBALS.REGEX_ASTRO_INDEX_PAGE, "")
 		.replace("[", ":")
 		.replace("]", "")
@@ -140,4 +145,16 @@ export function getRouteFromAstroPage(filePath: string): string | undefined {
 
 export function getRelativeFilePath(filePath: string): string {
 	return path.relative(process.cwd(), filePath)
+}
+
+export function isAstroFile(filePath: string): boolean {
+	return filePath.endsWith(GLOBALS.ASTRO_FILENAME_EXTENSION)
+}
+
+export function isCssFile(filePath: string): boolean {
+	return filePath.endsWith(GLOBALS.CSS_FILENAME_EXTENSION)
+}
+
+export function isHaqJsonFile(filePath: string): boolean {
+	return filePath.endsWith(GLOBALS.HAQ_JSON_FILENAME_EXTENSION)
 }

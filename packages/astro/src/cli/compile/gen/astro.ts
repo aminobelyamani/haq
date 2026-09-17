@@ -14,7 +14,7 @@ import type {
 	I_AstroAttributeNode,
 	JSON_AstroComponent,
 	JSON_CSSMarkup,
-	JSON_Lists,
+	JSON_GeneratedLists,
 	SelectorKind
 } from "../../_shared/types.js"
 
@@ -115,7 +115,7 @@ type RT_getAstroTypes = Promise<{
 	generatedWebComponentTagMapTypes: GeneratedNamespaceTypesWithGlobal
 	generatedAppComponentMapTypes: GeneratedNamespaceTypesWithGlobal
 	generatedPartialMarkupTypes: GeneratedNamespaceTypes
-	aliasableComponents: JSON_Lists["aliasableComponents"]
+	aliasableComponents: JSON_GeneratedLists["aliasableComponents"]
 	astroComponents: JSON_AstroComponent[]
 	flatMarkupArray: JSON_CSSMarkup[]
 	generatedAppComponentsRouterTypes: GeneratedNamespaceTypes

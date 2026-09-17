@@ -11,9 +11,9 @@ import type {
 	RuleNode,
 	SelectorKind,
 	TypeSelectorNode
-} from "../cli/_shared/types.js"
-import type { CustomElementsMap, JSON_CustomElement } from "../cli/_shared/validation.js"
-import type { MarkupDirective } from "../globals.js"
+} from "../../cli/_shared/types.js"
+import type { CustomElementsMap, JSON_CustomElement } from "../../cli/_shared/validation.js"
+import type { MarkupDirective } from "../../globals.js"
 
 //#endregion ----------------------------------------------- Type Imports
 
@@ -31,8 +31,8 @@ import {
 	isSelector,
 	isStringNode,
 	isTypeSelector
-} from "../cli/_shared/css.js"
-import { GLOBALS } from "../globals.js"
+} from "../../cli/_shared/css.js"
+import { GLOBALS } from "../../globals.js"
 
 //#endregion ----------------------------------------------- Module Imports
 
@@ -49,19 +49,17 @@ type VisitContext = {
 	context: CSSCompletionContext
 }
 
-type ARGS_getCSSCompletions = {
-	document: string
+type ARGS_getCssCompletions = {
+	documentText: string
 	cursorPos: CursorPos
 	cssMarkup: GeneratedCSSMarkupObject[] | undefined
 	customElementsMap: CustomElementsMap
 }
 
-type RT_getCSSCompletions =
-	| {
-			context: CSSCompletionContext
-			completions: string[]
-	  }
-	| undefined
+type RT_getCssCompletions = {
+	context: CSSCompletionContext
+	completions: string[]
+}
 
 /*******************************************************************************
  *
@@ -69,12 +67,12 @@ type RT_getCSSCompletions =
  *
  ******************************************************************************/
 
-export function getCSSCompletions(args: ARGS_getCSSCompletions): RT_getCSSCompletions {
-	const ast = parse(args.document, {
+export function getCssCompletions(args: ARGS_getCssCompletions): RT_getCssCompletions {
+	const ast = parse(args.documentText, {
 		positions: true
 	})
-	const CHAR_BEFORE_CURSOR = args.document.at(args.cursorPos.offset - 1)
-	const IS_CURRENT_LINE_EMPTY = args.document
+	const CHAR_BEFORE_CURSOR = args.documentText.at(args.cursorPos.offset - 1)
+	const IS_CURRENT_LINE_EMPTY = args.documentText
 		.split("\n")
 		.some((line, index) => args.cursorPos.line - 1 === index && line.trim().length === 0)
 
@@ -342,7 +340,7 @@ export function getCSSCompletions(args: ARGS_getCSSCompletions): RT_getCSSComple
 		const result = _isCursorInRangeOfRawAttribute(matches, ruleStartOffset)
 		if (!result?.isInRange) return
 
-		const newParsableDocument = `${args.document.slice(0, ruleStartOffset + result.matchIndex)}${GLOBALS.HAQ_CSS_RAW_ATTRIBUTE_PLACEHOLDER}${args.document.slice(ruleStartOffset + result.matchIndex)}`
+		const newParsableDocument = `${args.documentText.slice(0, ruleStartOffset + result.matchIndex)}${GLOBALS.HAQ_CSS_RAW_ATTRIBUTE_PLACEHOLDER}${args.documentText.slice(ruleStartOffset + result.matchIndex)}`
 		const newAST = parse(newParsableDocument, {
 			positions: true
 		})
@@ -477,7 +475,7 @@ export function getCSSCompletions(args: ARGS_getCSSCompletions): RT_getCSSComple
 		if (!nodeLoc) return false
 
 		const isSameLine = nodeLoc.start.line === args.cursorPos.line
-		return isSameLine && args.cursorPos.col === nodeLoc.end.column - 1
+		return isSameLine && args.cursorPos.col < nodeLoc.end.column
 	}
 
 	function _isCursorAfterNode(node: CSSNode): boolean {

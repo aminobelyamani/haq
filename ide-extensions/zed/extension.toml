@@ -1,0 +1,10 @@
+id = "haq-astro"
+name = "HAQ Astro"
+version = "0.1.0"
+schema_version = 1
+authors = ["Amino Belyamani"]
+description = "IDE support for HAQ Astro"
+
+[language_servers.haq-astro]
+name = "HAQ Astro Language Server"
+languages = ["Astro", "CSS"]

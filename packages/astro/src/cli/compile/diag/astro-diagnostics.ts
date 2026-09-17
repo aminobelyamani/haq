@@ -8,7 +8,7 @@ import type {
 	AstroComponentsMap,
 	Diagnostic,
 	I_AstroAttributeNode,
-	JSON_Lists,
+	JSON_GeneratedLists,
 	SlotList
 } from "../../_shared/types.js"
 import type { CustomElementsMap } from "../../_shared/validation.js"
@@ -44,10 +44,10 @@ import {
 //#endregion ----------------------------------------------- Module Imports
 
 type ARGS_getAstroDiagnostics = {
-	document: string
+	documentText: string
 	filePath: string
 	astroASTMap: AstroASTMap
-	lists: JSON_Lists
+	generatedLists: JSON_GeneratedLists
 	customElementsMap: CustomElementsMap
 	astroComponentsMap: AstroComponentsMap
 }
@@ -59,10 +59,10 @@ type ARGS_getAstroDiagnostics = {
  ******************************************************************************/
 
 export async function getAstroDiagnostics({
-	document,
+	documentText,
 	filePath,
 	astroASTMap,
-	lists,
+	generatedLists,
 	customElementsMap,
 	astroComponentsMap
 }: ARGS_getAstroDiagnostics): Promise<Diagnostic[]> {
@@ -84,7 +84,7 @@ export async function getAstroDiagnostics({
 
 	const ASTRecord = astroASTMap.get(filePath)
 
-	const parseResult = ASTRecord ?? (await parse(document, { position: true })).ast
+	const parseResult = ASTRecord ?? (await parse(documentText, { position: true })).ast
 	_walkAST(parseResult)
 
 	if (!(HAS_FRONT_MATTER || ASTRO_PAGE_ROUTE)) {
@@ -656,7 +656,7 @@ export async function getAstroDiagnostics({
 	}: ARGS__processClassValues): void {
 		const invalidClasses: string[] = []
 		for (const cl of classesOnAttribute) {
-			if (!lists.classNames.includes(cl)) invalidClasses.push(cl)
+			if (!generatedLists.classNames.includes(cl)) invalidClasses.push(cl)
 		}
 		_showClassDiagnostics({ invalidClasses, classAttribute, directive, directiveOffset })
 
@@ -735,7 +735,7 @@ export async function getAstroDiagnostics({
 		const aliasAttribute = attrMap.get("x_alias")
 		if (!aliasAttribute) return
 
-		const isValidAttribute = lists.aliasableComponents.includes(tagLikeNode.name)
+		const isValidAttribute = generatedLists.aliasableComponents.includes(tagLikeNode.name)
 		if (isValidAttribute) return
 
 		_addUniqueDiag({
@@ -793,7 +793,7 @@ export async function getAstroDiagnostics({
 
 		const invalidValues: string[] = []
 		for (const val of valuesOnAttribute) {
-			if (!lists.aliasableComponents.includes(val)) invalidValues.push(val)
+			if (!generatedLists.aliasableComponents.includes(val)) invalidValues.push(val)
 		}
 
 		for (const invalidVal of invalidValues) {

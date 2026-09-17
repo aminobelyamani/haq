@@ -178,7 +178,7 @@ export type CharType = "EMPTY_STRING" | "OTHER"
  *
  ******************************************************************************/
 
-export type JSON_Lists = {
+export type JSON_GeneratedLists = {
 	classNames: string[]
 	rootCustomProperties: string[]
 	aliasableComponents: string[]

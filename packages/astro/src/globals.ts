@@ -43,8 +43,6 @@ export const GLOBALS = {
 	/* regex */
 
 	REGEX_ASTRO_EXTENSION: /(.+.)(.astro)$/,
-	REGEX_CSS_EXTENSION: /.+.(.css)$/,
-	REGEX_HAQ_JSON_EXTENSION: /.+.(.haq\.json)$/,
 	REGEX_STRING_NUMBER: /^[0-9]+$/,
 	REGEX_FILE_NAME: /(.+?)(\.[^.]*$|$)/,
 	REGEX_CLASS_LIST_SPECIAL_CHARS: /[^A-Za-z0-9-|]/,
@@ -118,6 +116,9 @@ export const GLOBALS = {
 
 	/* Other literals */
 
+	ASTRO_FILENAME_EXTENSION: ".astro",
+	CSS_FILENAME_EXTENSION: ".css",
+	HAQ_JSON_FILENAME_EXTENSION: ".haq.json",
 	HAQ_MARKUP_TYPE_PREFIX: "MU_",
 	CSS_STATIC_VARIABLE_PREFIX: "--_",
 	CSS_DYNAMIC_VARIABLE_PREFIX: "--__",

@@ -21,6 +21,7 @@ _work/
 @dist/
 dist/
 out/
+ide-extensions/zed/target/
 
 # NODE MODULES
 

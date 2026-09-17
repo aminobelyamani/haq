@@ -4,7 +4,7 @@ import fs from "node:fs"
 import path from "node:path"
 import { GLOBALS } from "../../../globals.js"
 import { HAQError } from "../../_shared/errors.js"
-import { getAstroPages, getRelativeFilePath } from "../../_shared/fs.js"
+import { getAstroPages, getRelativeFilePath, isAstroFile } from "../../_shared/fs.js"
 import { formatAndWrite } from "../../_shared/output.js"
 import { addDisclaimerComment, removeTrailingSlash } from "../../_shared/strings.js"
 
@@ -75,9 +75,9 @@ function getRoutesByFilenames(dir: string): RT_getRoutesByFilenames {
 			} else {
 				renderedRoutes = [...renderedRoutes, ..._sanitizeRoutes(pageFiles, fullPath, file.name)]
 			}
-		} else if (fullPath.endsWith(".astro")) {
+		} else if (isAstroFile(fullPath)) {
 			if (file.name.includes("index")) renderedRoutes.push("/")
-			else renderedRoutes.push(`/${file.name.replace(".astro", "")}`)
+			else renderedRoutes.push(`/${file.name.replace(GLOBALS.ASTRO_FILENAME_EXTENSION, "")}`)
 		}
 	}
 	return {
@@ -90,7 +90,7 @@ function getRoutesByFilenames(dir: string): RT_getRoutesByFilenames {
 
 	function _sanitizeRoutes(pageFiles: string[], fullPath: string, fileName: string): string[] {
 		const appRoutes = pageFiles.map((f) => {
-			const page = f.replace(`${fullPath}/`, "").replace(".astro", "")
+			const page = f.replace(`${fullPath}/`, "").replace(GLOBALS.ASTRO_FILENAME_EXTENSION, "")
 			if (page.includes("index")) return `/${fileName}/${page.replace("index", "")}`
 			if (page.match(GLOBALS.REGEX_ASTRO_DYNAMIC_ROUTE))
 				return `/${fileName}/:${page.replace("[", "").replace("]", "")}` // dynamic route .eg /route/[page]

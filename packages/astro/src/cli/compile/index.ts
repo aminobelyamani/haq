@@ -12,9 +12,15 @@ import path from "node:path"
 import process from "node:process"
 import watcher from "@parcel/watcher"
 import { GLOBALS } from "../../globals.js"
-import { loadNativeElementsJson } from "../../tools/load.js"
 import { HAQError, handleDiag, handleError } from "../_shared/errors.js"
-import { filePathExistsOrThrow, loadJsonFile } from "../_shared/fs.js"
+import {
+	filePathExistsOrThrow,
+	isAstroFile,
+	isCssFile,
+	isHaqJsonFile,
+	loadJsonFile,
+	loadNativeElementsJson
+} from "../_shared/fs.js"
 import { HAQLogger } from "../_shared/logger.js"
 import { isConfigValid } from "../_shared/validation.js"
 import { main } from "./main.js"
@@ -155,7 +161,7 @@ export async function compile({ flags, outputStyler }: ARGS_compile): Promise<RT
 
 	// Initialize watcher
 	const fileIsWatchable = (filePath: string): boolean =>
-		filePath.endsWith(".astro") || filePath.endsWith(".css") || filePath.endsWith(".haq.json")
+		isAstroFile(filePath) || isCssFile(filePath) || isHaqJsonFile(filePath)
 
 	await watcher.subscribe(
 		configContent.projectDir,

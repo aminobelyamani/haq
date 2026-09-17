@@ -1,6 +1,7 @@
 packages:
     - "packages/*"
     - "examples/*"
+    - "ide-extensions/*"
 
 allowBuilds:
     "@parcel/watcher": false

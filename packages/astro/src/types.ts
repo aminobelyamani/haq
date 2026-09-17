@@ -48,7 +48,7 @@ export type {
 	CSSMarkupMap as HAQ_CSSMarkupMap,
 	CursorPos as HAQ_CursorPos,
 	Diagnostic as HAQ_Diagnostic,
-	JSON_Lists as HAQ_GeneratedLists
+	JSON_GeneratedLists as HAQ_GeneratedLists
 } from "./cli/_shared/types.js"
 
 export type { CustomElementsMap as HAQ_CustomElementsMap } from "./cli/_shared/validation.js"

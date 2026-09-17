@@ -1,7 +1,7 @@
 //#region -------------------------------------------------- Type Imports
 
-import type { DiagnosticCollection, Disposable, Uri } from "vscode"
-import type { RT_makeDiagnostics } from "./diagnostics.js"
+import type { I_LSPTools } from "@haq/astro/tools"
+import type { DiagnosticCollection, Disposable, TextDocument, Uri } from "vscode"
 
 //#endregion ----------------------------------------------- Type Imports
 
@@ -9,11 +9,11 @@ import type { RT_makeDiagnostics } from "./diagnostics.js"
 
 import { GLOBALS } from "@haq/astro/tools"
 import { commands, window, workspace } from "vscode"
-import { loadFile } from "./utils.js"
+import { updateDiagnostics } from "./diagnostics.js"
 
 //#endregion ----------------------------------------------- Module Imports
 
-export const checkCommand = (Diagnostics: RT_makeDiagnostics, collection: DiagnosticCollection): Disposable =>
+export const checkCommand = (LspTools: I_LSPTools, collection: DiagnosticCollection): Disposable =>
 	commands.registerCommand("haq-astro-vsce.check", () => {
 		const startLintTime = performance.now()
 
@@ -24,7 +24,10 @@ export const checkCommand = (Diagnostics: RT_makeDiagnostics, collection: Diagno
 			let errorCount = 0
 
 			for (const file of files) {
-				errorCount += await runFileDiagnostics(file, Diagnostics, collection)
+				const document = await getDocumentFromUri(file)
+				if (!document) continue
+
+				errorCount += await updateDiagnostics(LspTools, document, collection)
 				count++
 			}
 
@@ -40,30 +43,12 @@ export const checkCommand = (Diagnostics: RT_makeDiagnostics, collection: Diagno
 		})
 	})
 
-async function runFileDiagnostics(
-	file: Uri,
-	Diagnostics: RT_makeDiagnostics,
-	collection: DiagnosticCollection
-): Promise<number> {
+async function getDocumentFromUri(uri: Uri): Promise<TextDocument | undefined> {
 	try {
-		const fileContents = loadFile(file.path)
-		if (!fileContents) return 0
-
-		const diagnostics = file.path.endsWith(".astro")
-			? await Diagnostics.getAstroDiag({
-					document: fileContents.toString(),
-					sourceFile: file.path
-				})
-			: Diagnostics.getCSSDiagnosticsFromHAQ({
-					document: fileContents.toString(),
-					sourceFile: file.path
-				})
-		collection.set(file, diagnostics)
-
-		return diagnostics.length
-	} catch (err) {
-		window.showErrorMessage(`Encountered an error while checking diagnostics for file: ${file.path}`)
-		console.trace(err)
-		return 0
+		// Retrieves the document object into memory without showing it in the editor UI
+		return await workspace.openTextDocument(uri)
+	} catch (error) {
+		console.error("Failed to load text document:", error)
+		return undefined
 	}
 }
