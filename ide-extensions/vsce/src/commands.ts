@@ -1,7 +1,7 @@
 //#region -------------------------------------------------- Type Imports
 
 import type { I_LSPTools } from "@haq/astro/tools"
-import type { DiagnosticCollection, Disposable, TextDocument, Uri } from "vscode"
+import type { DiagnosticCollection, Disposable } from "vscode"
 
 //#endregion ----------------------------------------------- Type Imports
 
@@ -10,6 +10,7 @@ import type { DiagnosticCollection, Disposable, TextDocument, Uri } from "vscode
 import { GLOBALS } from "@haq/astro/tools"
 import { commands, window, workspace } from "vscode"
 import { updateDiagnostics } from "./diagnostics.js"
+import { getDocumentFromUri } from "./utils.js"
 
 //#endregion ----------------------------------------------- Module Imports
 
@@ -42,13 +43,3 @@ export const checkCommand = (LspTools: I_LSPTools, collection: DiagnosticCollect
 			}
 		})
 	})
-
-async function getDocumentFromUri(uri: Uri): Promise<TextDocument | undefined> {
-	try {
-		// Retrieves the document object into memory without showing it in the editor UI
-		return await workspace.openTextDocument(uri)
-	} catch (error) {
-		console.error("Failed to load text document:", error)
-		return undefined
-	}
-}

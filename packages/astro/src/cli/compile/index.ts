@@ -12,17 +12,10 @@ import path from "node:path"
 import process from "node:process"
 import watcher from "@parcel/watcher"
 import { GLOBALS } from "../../globals.js"
-import { HAQError, handleDiag, handleError } from "../_shared/errors.js"
-import {
-	filePathExistsOrThrow,
-	isAstroFile,
-	isCssFile,
-	isHaqJsonFile,
-	loadJsonFile,
-	loadNativeElementsJson
-} from "../_shared/fs.js"
+import { handleDiag, handleError } from "../_shared/errors.js"
+import { filePathExistsOrThrow, isAstroFile, isCssFile, isHaqJsonFile } from "../_shared/fs.js"
 import { HAQLogger } from "../_shared/logger.js"
-import { isConfigValid } from "../_shared/validation.js"
+import { getProjectConfig, loadNativeElementsJson } from "../_shared/validation.js"
 import { main } from "./main.js"
 
 //#endregion ----------------------------------------------- Module Imports
@@ -38,29 +31,8 @@ type RT_compile = {
 }
 export async function compile({ flags, outputStyler }: ARGS_compile): Promise<RT_compile> {
 	const currentDir = process.cwd()
-	const configFile = `${currentDir}/${GLOBALS.HAQ_CONFIG_JSON_FILE_NAME}`
 
-	// config file must exist
-
-	filePathExistsOrThrow({
-		filePath: configFile,
-		kind: "config file",
-		description: `Make sure to include a configured "${GLOBALS.HAQ_CONFIG_JSON_FILE_NAME}" file in the root of your project.\nYou can run "haq init" to add a config file.`
-	})
-
-	// load config json content
-
-	const configContent = loadJsonFile(configFile)
-
-	// validate
-
-	if (!isConfigValid(configContent)) {
-		throw new HAQError({
-			message: "Invalid Config.",
-			description: `Run "haq init" to setup a correct config for your project.`,
-			sourceFiles: [configFile]
-		})
-	}
+	const configContent = getProjectConfig(currentDir)
 
 	const outDirInput = path.join(currentDir, configContent.outDir)
 	const projectDir = path.join(currentDir, configContent.projectDir)

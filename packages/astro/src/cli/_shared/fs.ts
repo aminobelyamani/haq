@@ -6,7 +6,6 @@ import process from "node:process"
 import { GLOBALS } from "../../globals.js"
 import { HAQError } from "./errors.js"
 import { formatDate } from "./strings.js"
-import type { JSON_CustomElement } from "./validation.js"
 
 //#endregion ----------------------------------------------- Module Imports
 
@@ -57,10 +56,6 @@ export function loadJsonFile(url: string): unknown {
 			{ cause: err }
 		)
 	}
-}
-
-export function loadNativeElementsJson(outDir: string): JSON_CustomElement[] {
-	return loadJsonFile(`${outDir}/${GLOBALS.NATIVE_ELEMENTS_JSON_FILE_NAME}`) as JSON_CustomElement[]
 }
 
 export function writeLogFile(outDir: string): void {

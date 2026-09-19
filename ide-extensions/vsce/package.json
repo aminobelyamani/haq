@@ -36,12 +36,11 @@
 		"onLanguage:css"
 	],
 	"engines": {
-		"vscode": "^1.137.0"
+		"vscode": "^1.138.0"
 	},
 	"main": "./out/src/extension.js",
 	"scripts": {
 		"bundle": "node --experimental-strip-types @build/esbuild.ts",
-		"postbundle": "node --experimental-strip-types @build/post-bundle.ts",
 		"bundle:watch": "pnpm bundle --watch",
 		"clean": "rm -rf out",
 		"lint": "biome lint .",
@@ -59,7 +58,7 @@
 	},
 	"devDependencies": {
 		"@types/mocha": "^10.0.10",
-		"@types/vscode": "^1.137.0",
+		"@types/vscode": "^1.138.0",
 		"@vscode/test-cli": "^0.0.15",
 		"@vscode/test-electron": "^3.1.0",
 		"@vscode/vsce": "^4.0.0",

@@ -2,7 +2,9 @@
 
 import { stringArray } from "@haq/utils"
 import { z } from "zod"
+import { GLOBALS } from "../../globals.js"
 import { HAQError } from "./errors.js"
+import { filePathExistsOrThrow, loadJsonFile } from "./fs.js"
 import type { __TagName__ } from "./types.js"
 
 //#endregion ----------------------------------------------- Module Imports
@@ -25,7 +27,35 @@ const configSchema = z.object({
 
 export type ConfigSchema = z.infer<typeof configSchema>
 
-export function isConfigValid(json: unknown): json is ConfigSchema {
+export function getProjectConfig(currentDir: string): ConfigSchema {
+	const configFile = `${currentDir}/${GLOBALS.HAQ_CONFIG_JSON_FILE_NAME}`
+
+	// config file must exist
+
+	filePathExistsOrThrow({
+		filePath: configFile,
+		kind: "config file",
+		description: `Make sure to include a configured "${GLOBALS.HAQ_CONFIG_JSON_FILE_NAME}" file in the root of your project.\nYou can run "haq init" to add a config file.`
+	})
+
+	// load config json content
+
+	const configContent = loadJsonFile(configFile)
+
+	// validate
+
+	if (!isConfigValid(configContent)) {
+		throw new HAQError({
+			message: "Invalid Config.",
+			description: `Run "haq init" to setup a correct config for your project.`,
+			sourceFiles: [configFile]
+		})
+	}
+
+	return configContent
+}
+
+function isConfigValid(json: unknown): json is ConfigSchema {
 	return configSchema.safeParse(json).success
 }
 
@@ -82,6 +112,18 @@ const JSONSchema: z.ZodType<JSON_Schema> = z.object({
 export type JSON_CustomElement = NonNullable<JSON_Schema["custom-elements"]>[number]
 export type JSON_NativeElement = NonNullable<JSON_Schema["native-elements"]>[number]
 export type JSON_Attribute = NonNullable<JSON_CustomElement["attrs"]>[number]
+
+export function loadNativeElementsJson(outDir: string): JSON_CustomElement[] {
+	const nativeElmentsJsonFilePath = `${outDir}/${GLOBALS.NATIVE_ELEMENTS_JSON_FILE_NAME}`
+
+	filePathExistsOrThrow({
+		filePath: nativeElmentsJsonFilePath,
+		kind: "generated native elements json file",
+		description: "Please run the `compile` command to generate this file."
+	})
+
+	return loadJsonFile(nativeElmentsJsonFilePath) as JSON_CustomElement[]
+}
 
 /*******************************************************************************
  *

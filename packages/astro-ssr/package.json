@@ -36,7 +36,7 @@
 	},
 	"dependencies": {
 		"@haq/utils": "workspace:*",
-		"astro": "^7.3.2",
+		"astro": "^7.3.3",
 		"bcrypt": "^6.0.0",
 		"express": "^5.2.1",
 		"express-fileupload": "^1.5.2",

@@ -17,7 +17,8 @@
 			"!**/*.js",
 			"!**/*.mjs",
 			"!**/*.cjs",
-			"!**/settings.json"
+			"!**/settings.json",
+			"!**/zed/target"
 		],
 		"maxSize": 3000000
 	},
@@ -103,7 +104,9 @@
 						"useThisInClassMethods": "off",
 						"useReactFunctionComponentDefinition": "off",
 						"noRestrictedDependencies": "off",
-						"noUnsafeTypeAssertion": "warn"
+						"noUnsafeTypeAssertion": "warn",
+						"useLayeredStyles": "off",
+						"useConsistentFunctionStyle": "off"
 					},
 
 					"performance": {

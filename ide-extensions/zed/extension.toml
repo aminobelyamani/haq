@@ -1,14 +1,14 @@
-id = "haq-astro"
+id = "haq-astro-lsp"
 name = "HAQ Astro"
 version = "0.1.0"
 schema_version = 1
 authors = ["Amino Belyamani"]
 description = "IDE support for HAQ Astro"
 
-[language_servers.haq-astro]
+[language_servers.haq-astro-language-server]
 name = "HAQ Astro Language Server"
 languages = ["Astro", "CSS"]
 
-[language-servers.haq-astro.language_ids]
+[language-servers.haq-astro-language-server.language_ids]
 "Astro" = "astro"
 "CSS" = "css"

@@ -27,6 +27,7 @@ function run(): void {
 		currentDir = workspaceUri ? fileURLToPath(workspaceUri) : undefined
 
 		if (!currentDir) {
+			connection.window.showErrorMessage("Unable to find current workspace directory.")
 			return {
 				capabilities: {},
 				message: "Unable to find current workspace directory."
@@ -36,17 +37,26 @@ function run(): void {
 		LspTools = makeLspTools({
 			currentDir,
 			successCallback: () => {
-				connection.console.log("HAQ Astro LSP Initialized...")
-			}
+				connection.console.log("HAQ Astro language server initialized...")
+				connection.window.showInformationMessage("HAQ Astro LSP loaded successfully.")
+			},
+			errorCallback: (message: string) => {
+				connection.console.error(message)
+				connection.window.showErrorMessage(message)
+			},
+			updateDiagnosticsCallback
 		})
 
 		return {
 			capabilities: {
 				textDocumentSync: TextDocumentSyncKind.Incremental,
-				// Tell the client that this server supports code completion.
 				completionProvider: {}
 			}
 		}
+	})
+
+	documents.onDidOpen((event) => {
+		publishDiagnostics(event.document)
 	})
 
 	documents.onDidChangeContent((event) => {
@@ -59,6 +69,12 @@ function run(): void {
 	connection.listen()
 
 	//* ---------- Diagnostics -----------------------------------------------
+
+	async function updateDiagnosticsCallback(): Promise<void> {
+		for (const doc of documents.all()) {
+			await publishDiagnostics(doc)
+		}
+	}
 
 	async function publishDiagnostics(document: TextDocument): Promise<void> {
 		if (!LspTools) return

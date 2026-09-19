@@ -1,5 +1,9 @@
 {
-	"name": "haq-astro-zed-extension",
+	"name": "haq-astro-language-server",
+	"version": "0.1.0",
+	"author": "Amino Belyamani",
+	"description": "HAQ Astro Language Server",
+	"license": "AGPL-3.0-or-later",
 	"private": true,
 	"type": "module",
 	"scripts": {
@@ -10,7 +14,6 @@
 	},
 	"dependencies": {
 		"@haq/astro": "workspace:*",
-		"@haq/utils": "workspace:*",
 		"vscode-languageserver": "^10.1.1",
 		"vscode-languageserver-textdocument": "^1.0.14"
 	}

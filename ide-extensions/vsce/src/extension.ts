@@ -1,6 +1,6 @@
 //#region -------------------------------------------------- Type Imports
 
-import type * as vscode from "vscode"
+import type { ExtensionContext } from "vscode"
 
 //#endregion ----------------------------------------------- Type Imports
 
@@ -11,10 +11,11 @@ import { commands, languages, window, workspace } from "vscode"
 import { checkCommand } from "./commands.js"
 import { astroCompletionProvider, cssCompletionProvider } from "./completions.js"
 import { updateDiagnostics } from "./diagnostics.js"
+import { getDocumentFromUri, getOpenFiles } from "./utils.js"
 
 //#endregion ----------------------------------------------- Module Imports
 
-export async function activate(context: vscode.ExtensionContext): Promise<void> {
+export async function activate(context: ExtensionContext): Promise<void> {
 	try {
 		const currentDir = workspace.workspaceFolders?.at(0)?.uri.fsPath
 		if (!currentDir) {
@@ -22,14 +23,25 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 			return
 		}
 
+		const collection = languages.createDiagnosticCollection(GLOBALS.HAQ_ASTRO_OFFICIAL_NAME)
+
 		const LspTools = makeLspTools({
 			currentDir,
 			successCallback: () => {
-				window.showInformationMessage(`Activated ${GLOBALS.VS_CODE_EXTENSION_NAME} succesfully.`)
+				window.showInformationMessage(`Activated ${GLOBALS.HAQ_ASTRO_OFFICIAL_NAME} succesfully.`)
+			},
+			errorCallback: async (message: string) => {
+				await showError(message)
+			},
+			updateDiagnosticsCallback: async () => {
+				for (const file of getOpenFiles()) {
+					const document = await getDocumentFromUri(file)
+					if (!document) continue
+
+					await updateDiagnostics(LspTools, document, collection)
+				}
 			}
 		})
-
-		const collection = languages.createDiagnosticCollection(GLOBALS.VS_CODE_EXTENSION_NAME)
 
 		context.subscriptions.push(astroCompletionProvider(LspTools))
 		context.subscriptions.push(cssCompletionProvider(LspTools))
@@ -66,12 +78,12 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
 // This method is called when your extension is deactivated
 export function deactivate(): void {
-	console.info(`Extension ${GLOBALS.VS_CODE_EXTENSION_NAME} deactivated...`)
+	window.showInformationMessage(`Extension ${GLOBALS.HAQ_ASTRO_OFFICIAL_NAME} deactivated...`)
 }
 
 async function showError(message: string): Promise<void> {
 	const value = await window.showErrorMessage(message, "Reload")
 	if (value === "Reload") {
-		commands.executeCommand("workbench.action.reloadWindow")
+		commands.executeCommand("workbench.action.restartExtensionHost")
 	}
 }
