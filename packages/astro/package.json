@@ -1,6 +1,6 @@
 {
 	"name": "@haq/astro",
-	"version": "0.1.9",
+	"version": "0.1.10",
 	"description": "Compile time framework and a lightweight runtime library for building type safe, performant, and scalable vanilla Astro projects.",
 	"author": "Amino Belyamani",
 	"license": "AGPL-3.0-or-later",
