@@ -4,12 +4,13 @@ The monorepo for all HAQ related projects.
 
 ## Directory
 
-| Package                                                                                |
-| :------------------------------------------------------------------------------------- |
-| [@haq/astro](https://github.com/aminobelyamani/haq/tree/master/packages/astro)         |
-| [@haq/astro-ssr](https://github.com/aminobelyamani/haq/tree/master/packages/astro-ssr) |
-| [@haq/utils](https://github.com/aminobelyamani/haq/tree/master/packages/utils)         |
-| [haq-astro-vsce](https://github.com/aminobelyamani/haq/tree/master/packages/vsce)      |
+| Package                                                                                            |
+| :------------------------------------------------------------------------------------------------- |
+| [@haq/astro](https://github.com/aminobelyamani/haq/tree/master/packages/astro)                     |
+| [@haq/astro-ssr](https://github.com/aminobelyamani/haq/tree/master/packages/astro-ssr)             |
+| [@haq/language-server](https://github.com/aminobelyamani/haq/tree/master/packages/language-server) |
+| [@haq/utils](https://github.com/aminobelyamani/haq/tree/master/packages/utils)                     |
+| [haq-astro-vsce](https://github.com/aminobelyamani/haq/tree/master/ide-extensions/vscode)          |
 
 ## Donate
 
