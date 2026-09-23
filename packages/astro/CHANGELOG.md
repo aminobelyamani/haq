@@ -1,19 +1,26 @@
 # @haq/astro
 
+## 0.1.10
+
+### Patch Changes
+
+- Exposed `validateEnv` function in main entry point.
+- Created `makeLspTools` factory function for ide-extesions to consume.
+- Cleaned up exposed types and tools.
+
 ## 0.1.9
 
 ### Patch Changes
 
-- - Combined `gen` and `check` cli commands into one `compile` command.
-  
-  - Improves DX and performance.
+- Combined `gen` and `check` cli commands into one `compile` command.
+- Improves DX and performance.
 
 ## 0.1.8
 
 ### Patch Changes
 
 - Updated dependencies
-  - @haq/utils@0.1.5
+    - @haq/utils@0.1.5
 
 ## 0.1.7
 
@@ -60,13 +67,13 @@
 
 - Fix critical CLI bug. Now CLI must be invoked using a node launcher wrapper.
 
-    ```typescript
-    // src/haq.ts
-    import "@haq/astro/cli";
-    ```
+```typescript
+// src/haq.ts
+import "@haq/astro/cli";
+```
 
-    Then either in "scripts" in your package.json or directly in the terminal.
+Then either in "scripts" in your package.json or directly in the terminal.
 
-    ```bash
-    node src/haq.ts [command] [...flags]
-    ```
+```bash
+node src/haq.ts [command] [...flags]
+```
