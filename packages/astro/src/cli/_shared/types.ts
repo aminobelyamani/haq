@@ -17,6 +17,7 @@ export type __FilePath__ = string & { filePath?: never }
 export type __FileContents__ = string & { fileContents?: never }
 export type __ComponentName__ = string & { componentName?: never }
 export type __TagName__ = string & { tagName?: never }
+export type __TypeName__ = string & { typeName?: never }
 
 //------------------------------------------------------------------------------
 //
@@ -100,7 +101,6 @@ export type CSSMarkupMap = Map<__FilePath__, JSON_CSSMarkup>
 export type CSSNode = csstree.CssNode
 export type List = csstree.List<CSSNode>
 export type ListItem = csstree.ListItem<CSSNode>
-
 export type AtRuleNode = csstree.Atrule
 export type RuleNode = csstree.Rule
 export type SelectorNode = csstree.Selector
@@ -310,11 +310,12 @@ export type SuccessDisplayPayload = {
 //
 //------------------------------------------------------------------------------
 
-export type CI_Flag = "astro" | "astro-ssr"
+export type CI_Flag = "astro" | "astro-ssr" | "language-server"
 
 export type CI_PackageJson = {
 	version: string
 	dependencies: {
 		"@haq/utils": string
+		"@haq/astro": string
 	}
 }

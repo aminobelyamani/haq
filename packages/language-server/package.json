@@ -1,0 +1,27 @@
+{
+	"name": "@haq/language-server",
+	"version": "0.1.0",
+	"description": "HAQ Astro Language Server.",
+	"author": "Amino Belyamani",
+	"license": "AGPL-3.0-or-later",
+	"type": "module",
+	"main:": "./@dist/index.js",
+	"exports": {
+		".": {
+			"types": "./src/index.ts",
+			"default": "./@dist/index.js"
+		}
+	},
+	"scripts": {
+		"clean": "rm -rf @dist",
+		"compile": "tsc -p ./",
+		"deploy:publish": "bash _scripts/deploy.sh",
+		"deploy:dry-run": "pnpm dlx jsr publish --dry-run --allow-dirty",
+		"watch": "tsc --watch"
+	},
+	"dependencies": {
+		"@haq/astro": "workspace:*",
+		"vscode-languageserver": "^10.1.1",
+		"vscode-languageserver-textdocument": "^1.0.14"
+	}
+}

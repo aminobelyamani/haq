@@ -38,12 +38,117 @@ import { getCssCompletions } from "./css-completions.js"
 
 //#endregion ----------------------------------------------- Module Imports
 
+//#region -------------------------------------------------- Types
+
+/*******************************************************************************
+ *
+ * Factory function that provides methods for language servers that follow the Language Server Protocol.
+ *
+ * @param object The object to initialize with.
+ *
+ * @returns The methods to use for your language server.
+ *
+ ******************************************************************************/
+
+export interface I_LSPTools {
+	/*******************************************************************************
+	 *
+	 * Method that provides diagnostics for a given file.
+	 *
+	 * @param object The object containing the file data.
+	 *
+	 * @returns Array of diagnostics.
+	 *
+	 ******************************************************************************/
+
+	readonly getFileDiagnostics: (args: ARGS_getFileDiagnostics) => Promise<LSPDiagnostic[]>
+
+	/*******************************************************************************
+	 *
+	 * Method that provides completions for a given file.
+	 *
+	 * @param object The object containing the file data.
+	 *
+	 * @returns Array of completions.
+	 *
+	 ******************************************************************************/
+
+	readonly getCompletions: (args: ARGS_getCompletions) => Promise<CompletionItem[]>
+}
+
+type ARGS_getFileDiagnostics = {
+	/*******************************************************************************
+	 *
+	 * The text content of the document.
+	 *
+	 ******************************************************************************/
+
+	documentText: string
+
+	/*******************************************************************************
+	 *
+	 * The file path of the document.
+	 *
+	 ******************************************************************************/
+	filePath: string
+}
+
+type ARGS_getCompletions = ARGS_getFileDiagnostics & {
+	/*******************************************************************************
+	 *
+	 * The object containing the cursor position and offset.
+	 *
+	 ******************************************************************************/
+
+	cursorPos: CursorPos
+}
+
 type ARGS_makeLspTools = {
+	/*******************************************************************************
+	 *
+	 * The full path of the current workspace directory.
+	 *
+	 ******************************************************************************/
+
 	currentDir: string
+
+	/*******************************************************************************
+	 *
+	 * The success callback that will be called on a successfull initialization.
+	 *
+	 ******************************************************************************/
+
 	successCallback: () => void
+
+	/*******************************************************************************
+	 *
+	 * The error callback that will be called when an error is encountered.
+	 *
+	 ******************************************************************************/
+
 	errorCallback: (message: string) => void
+
+	/*******************************************************************************
+	 *
+	 * The callback that will be called whenever the `compile` command runs and updates the generated output.
+	 *
+	 ******************************************************************************/
+
 	updateDiagnosticsCallback: () => void
 }
+
+//#endregion ----------------------------------------------- Types
+
+/*******************************************************************************
+ *
+ * Factory function that provides methods for language servers that follow the Language Server Protocol.
+ *
+ * @param object The object to initialize with.
+ *
+ * @returns The methods to use for your language server.
+ *
+ ******************************************************************************/
+
 export function makeLspTools({
 	currentDir,
 	successCallback,
@@ -482,19 +587,4 @@ export function makeLspTools({
 			getCompletions: async (_args: ARGS_getCompletions) => []
 		})
 	}
-}
-
-type ARGS_getFileDiagnostics = {
-	documentText: string
-	filePath: string
-}
-
-type ARGS_getCompletions = ARGS_getFileDiagnostics & {
-	cursorPos: CursorPos
-}
-
-export interface I_LSPTools {
-	readonly getFileDiagnostics: (args: ARGS_getFileDiagnostics) => Promise<LSPDiagnostic[]>
-
-	readonly getCompletions: (args: ARGS_getCompletions) => Promise<CompletionItem[]>
 }

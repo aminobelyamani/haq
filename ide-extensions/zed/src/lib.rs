@@ -15,7 +15,7 @@ impl zed::Extension for Extension {
         Ok(zed::Command {
         	command: zed::node_binary_path()?,
             args: vec![
-                "/Users/aminobelyamani/Sites/Code/TS/Packages/haq/ide-extensions/zed/@dist/server.js"
+                "/Users/aminobelyamani/Sites/Code/TS/Packages/haq/packages/language-server/@dist/index.js"
                     .to_string(),
             ],
             env: vec![],

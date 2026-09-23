@@ -6,12 +6,6 @@
  *
  ******************************************************************************/
 
-//------------------------------------------------------------------------------
-//
-// Exposed types for type generation
-//
-//------------------------------------------------------------------------------
-
 export type {
 	DOMElement as HAQ_DOMElement,
 	ExtractNativeEventTypesByKind as HAQ_ExtractNativeEventTypesByKind,
@@ -35,22 +29,3 @@ export type {
 	NativeEventType as HAQ_NativeEventType,
 	NativeEventTypeKind as HAQ_NativeEventTypeKind
 } from "./runtime/types/static.js"
-
-//------------------------------------------------------------------------------
-//
-// Exposed types for tooling/extensions
-//
-//------------------------------------------------------------------------------
-
-export type {
-	AstroComponentsMap as HAQ_AstroComponentsMap,
-	CompletionColRange as HAQ_CompletionColRange,
-	CSSMarkupMap as HAQ_CSSMarkupMap,
-	CursorPos as HAQ_CursorPos,
-	Diagnostic as HAQ_Diagnostic,
-	JSON_GeneratedLists as HAQ_GeneratedLists
-} from "./cli/_shared/types.js"
-
-export type { CustomElementsMap as HAQ_CustomElementsMap } from "./cli/_shared/validation.js"
-
-export type { MarkupDirective as HAQ_MarkupDirective } from "./globals.js"

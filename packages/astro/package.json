@@ -18,8 +18,7 @@
 			"types": "./src/tools/index.ts",
 			"default": "./@dist/tools/index.js"
 		},
-		"./types": "./src/types.ts",
-		"./internal": "./src/internal.ts"
+		"./types": "./src/types.ts"
 	},
 	"scripts": {
 		"clean": "rm -rf @dist",

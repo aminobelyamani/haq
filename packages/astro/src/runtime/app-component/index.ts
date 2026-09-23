@@ -94,7 +94,7 @@ export class AppComponentClass<PA_Component extends I_ComponentShape, PA_Compone
 	//------------------------------------------------------------------------------
 
 	// Changes to emitAppEvent should be reflected here
-	// LINK packages/astro-ssr/src/client//index.ts:222
+	// LINK packages/astro-ssr/src/client/index.ts:230
 
 	emitAppEvent<IA_EventName extends keyof PA_ComponentEvents>(
 		...args: ARGS_emitAppEvent<PA_ComponentEvents, IA_EventName>

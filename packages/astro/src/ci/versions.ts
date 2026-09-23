@@ -27,12 +27,21 @@ export async function versions(flag: CI_Flag): Promise<string> {
 
 	const packageJson = (await loadJsonFile(packageJsonPath)) as CI_PackageJson
 
-	// update utils version
+	if (flag === "astro" || flag === "astro-ssr") {
+		// update utils version for @haq/astro & @haq/astro-ssr
 
-	const utilsPackageJsonPath = path.join(currentDir, "../utils/package.json")
-	const utilsPackageJson = (await loadJsonFile(utilsPackageJsonPath)) as CI_PackageJson
-	const currentUtilsVersion = utilsPackageJson.version
-	packageJson.dependencies["@haq/utils"] = `npm:@jsr/haq__utils@^${currentUtilsVersion}`
+		const utilsPackageJsonPath = path.join(currentDir, "../utils/package.json")
+		const utilsPackageJson = (await loadJsonFile(utilsPackageJsonPath)) as CI_PackageJson
+		const currentUtilsVersion = utilsPackageJson.version
+		packageJson.dependencies["@haq/utils"] = `npm:@jsr/haq__utils@^${currentUtilsVersion}`
+	} else {
+		// update @haq/astro version for @haq/language-server
+
+		const haqAstroPackageJsonPath = path.join(currentDir, "../astro/package.json")
+		const haqAstroPackageJson = (await loadJsonFile(haqAstroPackageJsonPath)) as CI_PackageJson
+		const currentHaqAstroVersion = haqAstroPackageJson.version
+		packageJson.dependencies["@haq/astro"] = `npm:@jsr/haq__astro@^${currentHaqAstroVersion}`
+	}
 
 	// rewrite package.json
 

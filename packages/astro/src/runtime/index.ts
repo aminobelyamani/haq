@@ -68,7 +68,7 @@ export function defineWebComponent<
 
 /*******************************************************************************
  *
- * # HAQ Astro WebComponent
+ * # HAQ Astro Web Component
  *
  * Typed wrapper for the `HTMLElement` object that extends a custom element class.
  *
@@ -133,7 +133,7 @@ type WebComponentClassDef<
 
 /*******************************************************************************
  *
- * # HAQ Astro AppComponent
+ * # HAQ Astro App Component
  *
  * Typed wrapper for the element returned by `document.getElementById`.
  *

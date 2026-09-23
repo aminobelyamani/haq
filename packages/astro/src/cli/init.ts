@@ -20,10 +20,7 @@ export async function init({ outputStyler }: ARGS_init): Promise<void> {
 	const currentDir = process.cwd()
 
 	await copyFile(
-		new URL(
-			`../../../${GLOBALS.INTERNAL_GENERATED_TYPES_FOLDER}/${GLOBALS.HAQ_CONFIG_JSON_FILE_NAME}`,
-			import.meta.url
-		),
+		new URL(`../../${GLOBALS.INTERNAL_GENERATED_TYPES_FOLDER}/${GLOBALS.HAQ_CONFIG_JSON_FILE_NAME}`, import.meta.url),
 		`${currentDir}/${GLOBALS.HAQ_CONFIG_JSON_FILE_NAME}`
 	)
 

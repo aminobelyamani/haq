@@ -4,6 +4,7 @@ import type { ComponentNode, Node, TagLikeNode } from "@astrojs/compiler/types"
 import type { TypedOmit } from "@haq/utils/types"
 import type {
 	__ComponentName__,
+	__TypeName__,
 	AstroASTMap,
 	CSSMarkupObject,
 	FileDocumentMap,
@@ -63,11 +64,7 @@ import { addUniqueSetValueOrThrow } from "../../_shared/validation.js"
 
 //#endregion ----------------------------------------------- Module Imports
 
-/*******************************************************************************
- *
- * Local Types
- *
- ******************************************************************************/
+//#region -------------------------------------------------- Types
 
 type ProcessedNodeObj = {
 	typeName: string
@@ -79,7 +76,6 @@ type ProcessedNodeObj = {
 	formNode: TagLikeNode | undefined
 }
 
-type __TypeName__ = string & { typeName?: never }
 type ChildMapRecord = {
 	childrenTypeNameSet: Set<string>
 	typeAsString: string[]
@@ -98,11 +94,7 @@ type AttrValuesPayload = { filePath: string; tagLikeNode: TagLikeNode; attribute
 
 type AttrValuesASTMap = Map<__ComponentName__, AttrValuesPayload>
 
-/*******************************************************************************
- *
- * Main Module
- *
- ******************************************************************************/
+//#endregion ----------------------------------------------- Types
 
 type ARGS_getAstroTypes = {
 	astroFileNames: string[]

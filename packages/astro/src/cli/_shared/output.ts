@@ -29,12 +29,18 @@ export const outputStyler: I_OutputStyler = colors
 //
 //------------------------------------------------------------------------------
 
-type ARGS_formatWithBiome = {
+type ARGS_formatAndWrite = {
 	outDir: string
 	filePath: string
 	content: string
 }
-function formatWithBiome({ outDir, filePath, content }: ARGS_formatWithBiome): string {
+
+export function formatAndWrite({ outDir, filePath, content }: ARGS_formatAndWrite): void {
+	const formattedContent = formatWithBiome({ outDir, filePath, content })
+	fs.writeFileSync(filePath, formattedContent)
+}
+
+function formatWithBiome({ outDir, filePath, content }: ARGS_formatAndWrite): string {
 	const biome = new Biome()
 	const { projectKey } = biome.openProject(outDir)
 
@@ -66,9 +72,4 @@ function formatWithBiome({ outDir, filePath, content }: ARGS_formatWithBiome): s
 	})
 
 	return result.content
-}
-
-export function formatAndWrite({ outDir, filePath, content }: ARGS_formatWithBiome): void {
-	const formattedContent = formatWithBiome({ outDir, filePath, content })
-	fs.writeFileSync(filePath, formattedContent)
 }

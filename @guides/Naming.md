@@ -2,7 +2,14 @@
 
 ## Modules
 
-- Exports first
+### Code order
+
+- Type imports
+- Module imports
+- Exported types
+- Local types
+- Exported functions
+- Local functions
 
 ## Types
 

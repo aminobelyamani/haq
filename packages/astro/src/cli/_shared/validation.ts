@@ -125,6 +125,10 @@ export function loadNativeElementsJson(outDir: string): JSON_CustomElement[] {
 	return loadJsonFile(nativeElmentsJsonFilePath) as JSON_CustomElement[]
 }
 
+export function isJSONSchemaValid(json: unknown): json is JSON_Schema {
+	return JSONSchema.safeParse(json).success
+}
+
 /*******************************************************************************
  *
  * Map of generated custom elements by tag.
@@ -132,10 +136,6 @@ export function loadNativeElementsJson(outDir: string): JSON_CustomElement[] {
  ******************************************************************************/
 
 export type CustomElementsMap = Map<__TagName__, Pick<JSON_CustomElement, "attrs" | "cssDynamicVars" | "cssStaticVars">>
-
-export function isJSONSchemaValid(json: unknown): json is JSON_Schema {
-	return JSONSchema.safeParse(json).success
-}
 
 //------------------------------------------------------------------------------
 //

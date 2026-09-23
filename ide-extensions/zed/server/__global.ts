@@ -1,1 +1,0 @@
-import "@haq/astro/internal"

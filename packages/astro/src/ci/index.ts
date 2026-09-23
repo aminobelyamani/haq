@@ -16,16 +16,8 @@ import { outputStyler } from "../cli/_shared/output.js"
 
 //#endregion ----------------------------------------------- Module Imports
 
-function resolveCommand(flags: yargs.Arguments): CI_Flag {
-	const flag = flags._[2] as CI_Flag
-
-	const allFlags = stringArray<CI_Flag>()(["astro", "astro-ssr"])
-	const validFlags: Set<CI_Flag> = new Set(allFlags)
-
-	if (validFlags.has(flag)) {
-		return flag
-	}
-	throw new HAQError({ message: `Invalid flag: ${flag}` })
+if (import.meta.main) {
+	main(process.argv).catch(() => process.exit(1))
 }
 
 async function main(argv: string[]): Promise<void> {
@@ -41,6 +33,14 @@ async function main(argv: string[]): Promise<void> {
 	}
 }
 
-if (import.meta.main) {
-	main(process.argv).catch(() => process.exit(1))
+function resolveCommand(flags: yargs.Arguments): CI_Flag {
+	const flag = flags._[2] as CI_Flag
+
+	const allFlags = stringArray<CI_Flag>()(["astro", "astro-ssr", "language-server"])
+	const validFlags: Set<CI_Flag> = new Set(allFlags)
+
+	if (validFlags.has(flag)) {
+		return flag
+	}
+	throw new HAQError({ message: `Invalid flag: ${flag}` })
 }

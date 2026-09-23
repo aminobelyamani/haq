@@ -1,7 +1,6 @@
 //#region -------------------------------------------------- Type Imports
 
 import type { I_LSPTools } from "@haq/astro/tools"
-import type { HAQ_CursorPos } from "@haq/astro/types"
 import type { CompletionItem, Disposable } from "vscode"
 
 //#endregion ----------------------------------------------- Type Imports
@@ -89,7 +88,7 @@ function toVSCodeCompletion(completion: Awaited<ReturnType<I_LSPTools["getComple
 	return vsCodeCompletion
 }
 
-function get1BasedIndexPosition(position: Position): Pick<HAQ_CursorPos, "col" | "line"> {
+function get1BasedIndexPosition(position: Position): { line: number; col: number } {
 	return {
 		line: position.line + 1,
 		col: position.character + 1

@@ -8,7 +8,7 @@ import type { I_ComponentShape } from "./static.js"
 
 //------------------------------------------------------------------------------
 //
-// Exposed helper types for generated HAQ_ComponentsShape
+// Exposed helper types for generated HAQ_ComponentShape
 //
 //------------------------------------------------------------------------------
 

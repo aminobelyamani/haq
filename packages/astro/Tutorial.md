@@ -2753,7 +2753,7 @@ interface Props extends Pick<HAQ_AliasableComponentProps, "x_appc"> {}
 ```
 
 You'll notice a new directive (`x_class_list`) we're using on the `<h1>` element.
-It takes in a space separated list of valid class names (those defined in your global css) that can then be used to perform class manipulation in the browser.
+It takes in a space-separated list of valid class names (those defined in your global css) that can then be used to perform class manipulation in the browser.
 
 #### `class PerfectNumber`
 
@@ -3320,7 +3320,7 @@ The `FormManipulation` factory function provides a few other useful methods you 
 Sometimes you may have components that accept plain string attributes or custom attributes with their values as `string` (set in a `*.haq.json` file).
 You then might want to access the literal values you pass in to these components for better type safety.
 
-`x_attr_values` takes in a space separated list of attribute names to track.
+`x_attr_values` takes in a space-separated list of attribute names to track.
 
 **NOTE** - This directive can only be used on the root component of a Web Component or App Component. HAQ will scan all nested children, whether aliased or not, and generate types.
 
@@ -3378,7 +3378,7 @@ Sometimes you may want to restrict what kind of Astro components get passed in a
 
 By adding a `x_slot` directive to a `<slot>` element, it enforces to pass in at least one slotted component when aliasing the component.
 
-`x_slot` can also take in a space separated list of valid typed components (components with a `x_haq` or `x_webc` directive).
+`x_slot` can also take in a space-separated list of valid typed components (components with a `x_haq` or `x_webc` directive).
 In that case, then the aliasing component must pass in at least one component that satisfies the values passed in to `x_slot`.
 
 For example, in our `Scaffold` component, we can enforce that we must pass in a `MyHeader` component to our `<body>`.

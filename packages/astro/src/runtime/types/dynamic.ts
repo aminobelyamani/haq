@@ -104,6 +104,7 @@ export type DOMElementPropsWithOnPrefix = NonNullable<
 >
 
 type ForbiddenDOMElementProps = TypedExtract<keyof HTMLElement, "replaceChildren" | DOMElementPropsWithOnPrefix>
+
 //------------------------------------------------------------------------------
 //
 // Web Component DOM Element types of `HAQ_elType`

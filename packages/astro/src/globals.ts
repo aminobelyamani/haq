@@ -62,7 +62,7 @@ export const GLOBALS = {
 	REGEX_ASTRO_LOCALS_DECLARATION         : /\s*Astro\.locals\[(.+.)\]/,
 	REGEX_CSS_IMPORT                       : /\s*import\s["'](.+.(?:.css))["']/,
 	REGEX_ASTRO_COMPONENT_IMPORT           : /import\s+([^\s.]+)\s+from\s+["'][^\s.]+\/(.+)\.astro["']/,
-	REGEX_ASTRO_PROPS_DECLARATION          : /(?:type|interface)\sProps/,
+	REGEX_ASTRO_PROPS_DECLARATION          : /(?:type|interface)\sProps\s/,
 	REGEX_ASTRO_CSS_CLASSNAMES             : /"([0-9a-z-A-Z_\s]+)"/,
 
 	/* char literal */

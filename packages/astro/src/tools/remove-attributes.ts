@@ -10,6 +10,20 @@ import { isAstroFile } from "../cli/_shared/fs.js"
 
 //#endregion ----------------------------------------------- Module Imports
 
+//#region -------------------------------------------------- Types
+
+type TransformReturn = {
+	code: string
+	map: null
+}
+type VitePlugin = {
+	readonly name: "remove-astro-attributes"
+	readonly enforce: "pre"
+	readonly transform: (src: string, id: string) => TransformReturn
+}
+
+//#endregion ----------------------------------------------- Types
+
 /*******************************************************************************
  *
  * Vite Plugin to remove attributes in Astro components
@@ -93,20 +107,4 @@ function removeAttributes(src: string, attributes: string[]): string {
 
 function matchFileExtension(fileName: string): boolean {
 	return isAstroFile(fileName)
-}
-
-//------------------------------------------------------------------------------
-//
-// Vite Plugin to remove attributes in Astro components
-//
-//------------------------------------------------------------------------------
-
-type TransformReturn = {
-	code: string
-	map: null
-}
-type VitePlugin = {
-	readonly name: "remove-astro-attributes"
-	readonly enforce: "pre"
-	readonly transform: (src: string, id: string) => TransformReturn
 }

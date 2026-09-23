@@ -1,6 +1,6 @@
 # Publishing Guide
 
-## All publishable packages (@haq/astro, @haq/astro-ssr, @haq/utils)
+## All publishable packages (@haq/astro, @haq/astro-ssr, @haq/utils, @haq/language-server)
 
 - [ ] `pn deploy:dry-run`
 - [ ] commit and push all changes made
@@ -14,7 +14,7 @@
 - [ ] Review changes and commit and push [CI Release]
 - [ ] `pn deploy:publish`
 
-## @haq/astro or @haq/astro-ssr
+## All other packages
 
 **NOTE** - We can skip running changesets if change was made in @haq/utils
 

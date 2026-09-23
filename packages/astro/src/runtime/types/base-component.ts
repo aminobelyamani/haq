@@ -23,12 +23,6 @@ export type I_BaseComponent<PA_Component extends I_ComponentShape> = {
 	 *
 	 * Object that provides typed methods for common DOM manipulation.
 	 *
-	 * @example
-	 * ```ts
-	 *
-	 * const MyElem = this.DOMManipulation.createElement("my-elem")
-	 * ```
-	 *
 	 * @author Amino Belyamani
 	 ******************************************************************************/
 
