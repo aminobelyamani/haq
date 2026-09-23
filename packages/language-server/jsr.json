@@ -3,6 +3,6 @@
 	"name": "@haq/language-server",
 	"version": "0.1.0",
 	"license": "AGPL-3.0-or-later",
-	"exports": { ".": "./src/index.ts" },
+	"exports": "./src/index.ts",
 	"publish": { "include": ["LICENSE", "README.md", "src"] }
 }
