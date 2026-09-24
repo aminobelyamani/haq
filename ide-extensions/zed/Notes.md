@@ -16,4 +16,4 @@ Run zed: install dev extension from the command pallette.
 
 If the rust part doesn't change, simply restarting the language server (option + R) is enough.
 
-If the rust part changes, then run `pn build` before restarting the language server.
+If the rust part changes, then run rebuild from the extensions menu before restarting the language server.

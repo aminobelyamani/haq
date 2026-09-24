@@ -7,9 +7,9 @@ echo -e "Publishing @haq/language-server -> v$PACKAGE_VERSION ...\n"
 
 # commit locally, no push
 
-git add .
+git add . &&
 
-git commit -m "CI Release - @haq/language-server v$PACKAGE_VERSION"
+git commit -m "CI Release - @haq/language-server v$PACKAGE_VERSION" &&
 
 # publish to jsr
 

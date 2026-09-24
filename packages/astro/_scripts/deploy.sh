@@ -7,9 +7,9 @@ echo -e "Publishing @haq/astro -> v$PACKAGE_VERSION ...\n"
 
 # commit locally, no push
 
-git add .
+git add . &&
 
-git commit -m "CI Release - @haq/astro v$PACKAGE_VERSION"
+git commit -m "CI Release - @haq/astro v$PACKAGE_VERSION" &&
 
 # publish to jsr
 
@@ -27,5 +27,3 @@ git add . &&
 git commit --amend --no-edit &&
 
 git push
-
-

@@ -20,7 +20,7 @@
 		"watch": "tsc --watch"
 	},
 	"dependencies": {
-		"@haq/astro": "npm:@jsr/haq__astro@^0.1.10",
+		"@haq/astro": "workspace:*",
 		"vscode-languageserver": "^10.1.1",
 		"vscode-languageserver-textdocument": "^1.0.14"
 	}
