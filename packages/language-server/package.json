@@ -1,6 +1,6 @@
 {
 	"name": "@haq/language-server",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "HAQ Astro Language Server.",
 	"author": "Amino Belyamani",
 	"license": "AGPL-3.0-or-later",

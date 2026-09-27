@@ -1,5 +1,11 @@
 # @haq/astro
 
+## 0.1.11
+
+### Patch Changes
+
+- Improved error handling in language-server for ide extensions.
+
 ## 0.1.10
 
 ### Patch Changes
