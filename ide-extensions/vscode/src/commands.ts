@@ -7,7 +7,7 @@ import type { DiagnosticCollection, Disposable } from "vscode"
 
 //#region -------------------------------------------------- Module Imports
 
-import { GLOBALS } from "@haq/astro/tools"
+import { HAQ_GLOBALS } from "@haq/astro/tools"
 import { commands, window, workspace } from "vscode"
 import { updateDiagnostics } from "./diagnostics.js"
 import { getDocumentFromUri } from "./utils.js"
@@ -20,7 +20,7 @@ export const checkCommand = (LspTools: I_LSPTools, collection: DiagnosticCollect
 
 		collection.clear()
 
-		workspace.findFiles("**/*.{astro,css}", `**/{${GLOBALS.IGNORABLE_FOLDERS.join()}}/**`).then(async (files) => {
+		workspace.findFiles("**/*.{astro,css}", `**/{${HAQ_GLOBALS.IGNORABLE_FOLDERS.join()}}/**`).then(async (files) => {
 			let count = 0
 			let errorCount = 0
 

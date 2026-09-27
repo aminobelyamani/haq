@@ -1,6 +1,11 @@
 //#region -------------------------------------------------- Type Imports
 
-import type { CompletionItem, InitializeParams, TextDocumentPositionParams } from "vscode-languageserver/node"
+import type {
+	CompletionItem,
+	InitializeParams,
+	ServerCapabilities,
+	TextDocumentPositionParams
+} from "vscode-languageserver/node"
 
 //#endregion ----------------------------------------------- Type Imports
 
@@ -8,11 +13,19 @@ import type { CompletionItem, InitializeParams, TextDocumentPositionParams } fro
 
 import process from "node:process"
 import { fileURLToPath } from "node:url"
-import { makeLspTools } from "@haq/astro/tools"
-import { createConnection, ProposedFeatures, TextDocumentSyncKind, TextDocuments } from "vscode-languageserver/node"
+import { isHAQError, makeLspTools } from "@haq/astro/tools"
+import { createConnection, ProposedFeatures, TextDocuments } from "vscode-languageserver/node"
 import { TextDocument } from "vscode-languageserver-textdocument"
 
 //#endregion ----------------------------------------------- Module Imports
+
+//#region -------------------------------------------------- Types
+
+type ServerInitializationResult = {
+	capabilities: ServerCapabilities
+}
+
+//#endregion ----------------------------------------------- Types
 
 function run(): void {
 	const connection = createConnection(ProposedFeatures.all, process.stdin, process.stdout)
@@ -22,67 +35,81 @@ function run(): void {
 	let currentDir: string | undefined
 	let LspTools: ReturnType<typeof makeLspTools> | undefined
 
-	connection.onInitialize((params: InitializeParams) => {
-		const workspaceUri = params.workspaceFolders?.at(0)?.uri
-		currentDir = workspaceUri ? fileURLToPath(workspaceUri) : undefined
-
-		if (!currentDir) {
-			connection.window.showErrorMessage("Unable to find current workspace directory.")
-			return {
-				capabilities: {},
-				message: "Unable to find current workspace directory."
-			}
-		}
-
-		LspTools = makeLspTools({
-			currentDir,
-			successCallback: () => {
-				connection.console.log("HAQ Astro language server initialized...")
-				connection.window.showInformationMessage("HAQ Astro LSP loaded successfully.")
-			},
-			errorCallback: (message: string) => {
-				connection.console.error(message)
-				connection.window.showErrorMessage(message)
-			},
-			updateDiagnosticsCallback
-		})
-
-		return {
-			capabilities: {
-				textDocumentSync: TextDocumentSyncKind.Incremental,
-				completionProvider: {}
-			}
-		}
-	})
+	connection.onInitialize(_initialize)
 
 	documents.onDidOpen((event) => {
-		publishDiagnostics(event.document)
+		_publishDiagnostics(event.document)
 	})
 
-	documents.onDidChangeContent((event) => {
-		publishDiagnostics(event.document)
+	documents.onDidSave((event) => {
+		_publishDiagnostics(event.document)
 	})
 
-	connection.onCompletion(publishCompletions)
+	connection.onCompletion(_publishCompletions)
 
 	documents.listen(connection)
 	connection.listen()
 
-	//* ---------- Diagnostics -----------------------------------------------
+	//* ---------- Initialization -----------------------------------------------
 
-	async function updateDiagnosticsCallback(): Promise<void> {
-		for (const doc of documents.all()) {
-			await publishDiagnostics(doc)
+	function _initialize(params: InitializeParams): ServerInitializationResult {
+		const serverInitializationRestuls: ServerInitializationResult = {
+			capabilities: {
+				textDocumentSync: {
+					openClose: true,
+					save: true
+				},
+				completionProvider: {}
+			}
+		}
+		try {
+			const workspaceUri = params.workspaceFolders?.at(0)?.uri
+			currentDir = workspaceUri ? fileURLToPath(workspaceUri) : undefined
+
+			if (!currentDir) {
+				const errorMessage = "Unable to find current workspace directory."
+				_showError(errorMessage)
+				return serverInitializationRestuls
+			}
+
+			LspTools = makeLspTools({
+				currentDir,
+				successCallback: () => {
+					connection.console.log("HAQ Astro language server initialized...")
+					connection.window.showInformationMessage("HAQ Astro LSP loaded successfully.")
+				},
+				updateDiagnosticsCallback: _updateDiagnosticsCallback
+			})
+
+			return serverInitializationRestuls
+		} catch (e) {
+			_handleError(e)
+			return serverInitializationRestuls
 		}
 	}
 
-	async function publishDiagnostics(document: TextDocument): Promise<void> {
+	//* ---------- Diagnostics -----------------------------------------------
+
+	async function _updateDiagnosticsCallback(): Promise<void> {
+		for (const doc of documents.all()) {
+			await _publishDiagnostics(doc)
+		}
+	}
+
+	async function _publishDiagnostics(document: TextDocument): Promise<void> {
 		if (!LspTools) return
 
-		const diagnostics = await LspTools.getFileDiagnostics({
-			documentText: document.getText(),
-			filePath: fileURLToPath(document.uri)
-		})
+		const [error, diagnostics] = await _tryCatch(
+			LspTools.getFileDiagnostics({
+				documentText: document.getText(),
+				filePath: fileURLToPath(document.uri)
+			})
+		)
+
+		if (error) {
+			_handleError(error)
+			return
+		}
 
 		connection.sendDiagnostics({
 			uri: document.uri,
@@ -92,7 +119,7 @@ function run(): void {
 
 	//* ---------- Completions -----------------------------------------------
 
-	async function publishCompletions(positionParams: TextDocumentPositionParams): Promise<CompletionItem[]> {
+	async function _publishCompletions(positionParams: TextDocumentPositionParams): Promise<CompletionItem[]> {
 		if (!LspTools) return []
 
 		const textDocument = documents.get(positionParams.textDocument.uri)
@@ -100,16 +127,54 @@ function run(): void {
 
 		const offset = textDocument.offsetAt(positionParams.position)
 
-		const completions = await LspTools.getCompletions({
-			documentText: textDocument.getText(),
-			filePath: fileURLToPath(textDocument.uri),
-			cursorPos: {
-				offset,
-				col: positionParams.position.character + 1,
-				line: positionParams.position.line + 1
-			}
-		})
+		const [error, completions] = await _tryCatch(
+			LspTools.getCompletions({
+				documentText: textDocument.getText(),
+				filePath: fileURLToPath(textDocument.uri),
+				cursorPos: {
+					offset,
+					col: positionParams.position.character + 1,
+					line: positionParams.position.line + 1
+				}
+			})
+		)
+
+		if (error) {
+			_handleError(error)
+			return []
+		}
+
 		return completions
+	}
+
+	//* ---------- Error Notifications -----------------------------------------------
+
+	function _tryCatch<T>(promise: Promise<T>): Promise<[undefined, T] | [Error]> {
+		return promise.then((data) => [undefined, data] as [undefined, T]).catch((error) => [error] as [Error])
+	}
+
+	function _getErrorMessage(e: unknown): string {
+		if (isHAQError(e)) {
+			let fullMessage = e.message
+			if (e.description) fullMessage += `\n${e.description}\n`
+			if (e.sourceFiles) {
+				for (const file of e.sourceFiles) {
+					fullMessage += `\nFILE: ${file}\n`
+				}
+			}
+			return fullMessage
+		}
+		return "An unknown error occurred."
+	}
+
+	function _handleError(e: unknown): void {
+		const fullMessage = _getErrorMessage(e)
+		_showError(fullMessage)
+	}
+
+	function _showError(message: string): void {
+		connection.console.error(message)
+		connection.window.showErrorMessage(message)
 	}
 }
 

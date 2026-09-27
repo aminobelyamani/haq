@@ -1,7 +1,7 @@
 {
 	"name": "haq-astro-vsce",
 	"displayName": "HAQ Astro",
-	"version": "0.1.2",
+	"version": "0.1.3",
 	"private": true,
 	"author": "Amino Belyamani",
 	"publisher": "aminobelyamani",

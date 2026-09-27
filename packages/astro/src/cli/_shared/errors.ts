@@ -19,12 +19,39 @@ type HAQErrorPayload = {
 }
 
 export class HAQError extends Error {
-	readonly description
-	readonly sourceFiles
-	readonly ranges
-	readonly numOfDiagErrors
+	/*******************************************************************************
+	 *
+	 * The description of the error message.
+	 *
+	 ******************************************************************************/
 
-	readonly options
+	readonly description: HAQErrorPayload["description"]
+
+	/*******************************************************************************
+	 *
+	 * An array of source files pertaining to the error.
+	 *
+	 ******************************************************************************/
+
+	readonly sourceFiles: HAQErrorPayload["sourceFiles"]
+
+	/*******************************************************************************
+	 *
+	 * An array of ranges pertaining to the error.
+	 *
+	 ******************************************************************************/
+
+	readonly ranges: HAQErrorPayload["ranges"]
+
+	/*******************************************************************************
+	 *
+	 * The number of diagnostic errors that occurred.
+	 *
+	 ******************************************************************************/
+
+	readonly numOfDiagErrors: HAQErrorPayload["numOfDiagErrors"]
+
+	readonly options: ErrorOptions | undefined
 
 	constructor(
 		{ message = "An unexpected error occurred!", description, sourceFiles, ranges, numOfDiagErrors }: HAQErrorPayload,

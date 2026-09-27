@@ -6,7 +6,7 @@ import type { ExtensionContext } from "vscode"
 
 //#region -------------------------------------------------- Module Imports
 
-import { GLOBALS, makeLspTools } from "@haq/astro/tools"
+import { HAQ_GLOBALS, isHAQError, makeLspTools } from "@haq/astro/tools"
 import { commands, languages, window, workspace } from "vscode"
 import { checkCommand } from "./commands.js"
 import { astroCompletionProvider, cssCompletionProvider } from "./completions.js"
@@ -23,15 +23,12 @@ export async function activate(context: ExtensionContext): Promise<void> {
 			return
 		}
 
-		const collection = languages.createDiagnosticCollection(GLOBALS.HAQ_ASTRO_OFFICIAL_NAME)
+		const collection = languages.createDiagnosticCollection(HAQ_GLOBALS.HAQ_ASTRO_OFFICIAL_NAME)
 
 		const LspTools = makeLspTools({
 			currentDir,
 			successCallback: () => {
-				window.showInformationMessage(`Activated ${GLOBALS.HAQ_ASTRO_OFFICIAL_NAME} succesfully.`)
-			},
-			errorCallback: async (message: string) => {
-				await showError(message)
+				window.showInformationMessage(`Activated ${HAQ_GLOBALS.HAQ_ASTRO_OFFICIAL_NAME} succesfully.`)
 			},
 			updateDiagnosticsCallback: async () => {
 				for (const file of getOpenFiles()) {
@@ -60,25 +57,39 @@ export async function activate(context: ExtensionContext): Promise<void> {
 			})
 		)
 
-		// ON CONTENT CHANGE
+		// ON SAVE
 		context.subscriptions.push(
-			workspace.onDidChangeTextDocument(async (event) => {
-				await updateDiagnostics(LspTools, event.document, collection)
+			workspace.onDidSaveTextDocument(async (document) => {
+				await updateDiagnostics(LspTools, document, collection)
 			})
 		)
 
 		//CHECK COMMAND
 		context.subscriptions.push(checkCommand(LspTools, collection))
-	} catch (err) {
-		const message = err instanceof Error ? err.message : "Encountered an unknown error."
-		showError(message)
-		console.trace(err)
+	} catch (e) {
+		const fullMessage = getErrorMessage(e)
+		showError(fullMessage)
+		console.trace(e)
 	}
 }
 
 // This method is called when your extension is deactivated
 export function deactivate(): void {
-	window.showInformationMessage(`Extension ${GLOBALS.HAQ_ASTRO_OFFICIAL_NAME} deactivated...`)
+	window.showInformationMessage(`Extension ${HAQ_GLOBALS.HAQ_ASTRO_OFFICIAL_NAME} deactivated...`)
+}
+
+function getErrorMessage(e: unknown): string {
+	if (isHAQError(e)) {
+		let fullMessage = e.message
+		if (e.description) fullMessage += `\n${e.description}\n`
+		if (e.sourceFiles) {
+			for (const file of e.sourceFiles) {
+				fullMessage += `\nFILE: ${file}\n`
+			}
+		}
+		return fullMessage
+	}
+	return "An unknown error occurred."
 }
 
 async function showError(message: string): Promise<void> {

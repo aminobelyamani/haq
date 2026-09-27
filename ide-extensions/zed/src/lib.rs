@@ -17,11 +17,11 @@ impl HAQAstroExtension {
     fn jsr_error(&self, operation: &str, error: String) -> String {
         format!(
             "HAQ Astro language server: failed to {operation}.\n\n\
-                     The HAQ language server is distributed through JSR.\n\
-                     Please add the following to ~/.npmrc:\n\n\
-                     @jsr:registry=https://npm.jsr.io/\n\n\
-                     Then restart Zed.\n\n\
-                     npm error: {error}"
+            The HAQ Astro language server is distributed through JSR.\n\
+            Please add the following to ~/.npmrc:\n\n\
+            @jsr:registry=https://npm.jsr.io/\n\n\
+            Then restart Zed.\n\n\
+            npm error: {error}"
         )
     }
 
@@ -88,13 +88,20 @@ impl zed::Extension for HAQAstroExtension {
         let server_path = self.server_script_path(language_server_id)?;
 
         Ok(zed::Command {
+           // for local testing
+
             command: zed::node_binary_path()?,
-            args: vec![env::current_dir()
-                .unwrap()
-                .join(&server_path)
-                .to_string_lossy()
-                .to_string()],
-            env: Default::default(),
+            args: vec![ "/Users/aminobelyamani/Sites/Code/TS/Packages/haq/packages/language-server/@dist/index.js" .to_string(), ],
+            env: vec![],
+
+            // for production
+
+            // args: vec![env::current_dir()
+            //     .unwrap()
+            //     .join(&server_path)
+            //     .to_string_lossy()
+            //     .to_string()],
+            // env: Default::default(),
         })
     }
 }
