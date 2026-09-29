@@ -1,5 +1,12 @@
 # @haq/astro
 
+## 0.1.12
+
+### Patch Changes
+
+- Allowed multiple forms with directives within a single astro file.
+- Fixed regex for astro props type/interface declaration diagnostics.
+
 ## 0.1.11
 
 ### Patch Changes
