@@ -31,7 +31,7 @@
 		"@astrojs/compiler": "^4.0.0",
 		"@biomejs/js-api": "^6.0.0",
 		"@biomejs/wasm-nodejs": "^2.5.14",
-		"@haq/utils": "npm:@jsr/haq__utils@^0.1.5",
+		"@haq/utils": "workspace:*",
 		"@parcel/watcher": "^2.6.0",
 		"astro": "^7.3.5",
 		"css-tree": "^3.2.1",
