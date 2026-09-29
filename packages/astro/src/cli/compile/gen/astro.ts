@@ -73,7 +73,7 @@ type ProcessedNodeObj = {
 	selKind: SelectorKind | undefined
 	selTypeLiteral: string | undefined
 	selValue: string | undefined
-	formNode: TagLikeNode | undefined
+	formPayload: FormPayload | undefined
 }
 
 type ChildMapRecord = {
@@ -85,10 +85,12 @@ type ChildMap = Map<__TypeName__, ChildMapRecord>
 type ProcessedMarkupObject = CSSMarkupObject & { reference: string | undefined }
 
 type FormPayload = {
-	filePath: string
+	formComponentName: string
 	formNode: TagLikeNode
 }
-type FormASTMap = Map<__ComponentName__, FormPayload>
+
+type FormASTRecord = { filePath: string; formPayloads: FormPayload[] }
+type FormASTMap = Map<__ComponentName__, FormASTRecord>
 
 type AttrValuesPayload = { filePath: string; tagLikeNode: TagLikeNode; attributesToTrack: string[] }
 
@@ -432,6 +434,8 @@ function generateFileTypes({
 		hasAppComponentDirective: false
 	}
 
+	const formPayloads: FormPayload[] = []
+
 	let topLevelCount = 0
 	let tagVisitedCount = 0
 	let hasRootConditionalExpression = false
@@ -540,8 +544,7 @@ function generateFileTypes({
 			node: tagLikeNode,
 			rootTypeName: getFileNameWithoutExtension(filePath),
 			markupObject: [],
-			currentDirectiveAncestor: undefined,
-			formNode: undefined
+			currentDirectiveAncestor: undefined
 		})
 
 		if (!generated) return
@@ -555,7 +558,7 @@ function generateFileTypes({
 
 		context.componentName = generated.typeName
 
-		_handleFormAST(generated.formNode)
+		_handleFormAST()
 		_handleAttrValuesAST(tagLikeNode)
 
 		flatMarkupMap.set(generated.typeName, {
@@ -585,11 +588,11 @@ function generateFileTypes({
 		context.fileTypes += removeEmptyLines(generated.typeAsString)
 	}
 
-	function _handleFormAST(formNode: TagLikeNode | undefined): void {
-		if (formNode) {
+	function _handleFormAST(): void {
+		if (formPayloads.length > 0) {
 			formASTMap.set(context.componentName, {
 				filePath,
-				formNode
+				formPayloads
 			})
 		}
 	}
@@ -672,12 +675,10 @@ function generateFileTypes({
 		rootTypeName: string
 		markupObject: ProcessedMarkupObject[]
 		currentDirectiveAncestor: string | undefined
-		formNode: TagLikeNode | undefined
 	}
 	type RT__processNode = ProcessedNodeObj & { markupObject: ProcessedMarkupObject[]; isAlias: boolean }
 
 	function _processNode({
-		formNode,
 		node,
 		currentDirectiveAncestor,
 		isRootVisited,
@@ -720,7 +721,7 @@ function generateFileTypes({
 			tagName: undefined,
 			selValue: undefined,
 			selTypeLiteral: undefined,
-			formNode
+			formPayload: undefined
 		}
 		let thisTypeName: string | undefined
 
@@ -744,7 +745,7 @@ function generateFileTypes({
 			typeName: thisTypeName,
 			tagName: thisGeneratedType.tagName,
 			isAlias,
-			formNode,
+			formPayload: thisGeneratedType.formPayload,
 			typeAsString: isRootVisited
 				? _injectChildrenTypeInChild({
 						childMap,
@@ -780,8 +781,8 @@ function generateFileTypes({
 				rootTypeName
 			})
 
-			if (thisGeneratedType.formNode) {
-				formNode = thisGeneratedType.formNode
+			if (thisGeneratedType.formPayload) {
+				formPayloads.push(thisGeneratedType.formPayload)
 			}
 
 			thisTypeName = thisGeneratedType.typeName
@@ -808,13 +809,8 @@ function generateFileTypes({
 				isRootVisited: true,
 				childMap,
 				rootTypeName: scopedRootTypeName ?? rootTypeName,
-				markupObject,
-				formNode
+				markupObject
 			})
-
-			if (processedChild?.formNode) {
-				formNode = processedChild.formNode
-			}
 
 			_handleChildMap({
 				currentDirectiveAncestor,
@@ -889,6 +885,10 @@ function generateFileTypes({
 	}: ARGS__generateNodeType): ProcessedNodeObj {
 		const tagName = tagLikeNode.name
 
+		//* ---------- Type Alias Name -----------------------------------------------
+
+		const typeName = _generateTypeNameByDirective(tagLikeNode, isRootNode)
+
 		//* ---------- HAQ_tag -----------------------------------------------
 
 		const HAQ_tag = `HAQ_tag: "${tagName}"`
@@ -927,8 +927,14 @@ function generateFileTypes({
 
 		//* ---------- HAQ_formData -----------------------------------------------
 
-		const formNode = tagName === "form" ? tagLikeNode : undefined
-		const HAQ_formData = tagName === "form" ? `HAQ_formData : FD_${rootTypeName}` : ""
+		const formPayload: FormPayload | undefined =
+			tagName === "form"
+				? {
+						formComponentName: typeName,
+						formNode: tagLikeNode
+					}
+				: undefined
+		const HAQ_formData = tagName === "form" ? `HAQ_formData : FD_${rootTypeName}_${typeName}` : ""
 
 		//* ---------- HAQ_attributeValues -----------------------------------------------
 
@@ -949,17 +955,13 @@ function generateFileTypes({
 
 		const HAQ_isMaybeRendered = isMaybeRendered ? "HAQ_isMaybeRendered : true" : ""
 
-		//* ---------- Type Alias Name -----------------------------------------------
-
-		const typeName = _generateTypeNameByDirective(tagLikeNode, isRootNode)
-
 		return {
 			tagName,
 			selKind: selectors.selKind,
 			selTypeLiteral: selectors.selTypeLiteral,
 			selValue: selectors.selValue,
 			typeName,
-			formNode,
+			formPayload,
 			typeAsString: `
                 ${HAQ_tag}
                 ${HAQ_elType}
@@ -1061,7 +1063,7 @@ function generateFileTypes({
 			selTypeLiteral,
 			selValue: selectors.selValue,
 			tagName: aliasName,
-			formNode: undefined,
+			formPayload: undefined,
 			typeName: _generateTypeNameByDirective(tagLikeNode, isRootNode),
 			typeAsString: `${injectAliasTypeInHelper(aliasName)}
                 ${HAQ_idExtension}
@@ -1324,7 +1326,7 @@ function generateFileTypes({
 
 	type ARGS__handleChildMap = {
 		childMap: ChildMap
-		processedChild: TypedOmit<ProcessedNodeObj, "formNode"> | undefined
+		processedChild: TypedOmit<ProcessedNodeObj, "formPayload"> | undefined
 		thisTypeName: string | undefined
 		currentDirectiveAncestor: string | undefined
 	}
@@ -1624,21 +1626,25 @@ function generateFormDataTypes({
 	formASTMap,
 	generatedTypes
 }: ARGS_generateFormDataTypes): void {
-	for (const [componentName, formObj] of formASTMap.entries()) {
-		const formRecord = _processFormNode({
-			formObj,
-			formDataRecord: {},
-			quotedComponentStack: [],
-			fileTypeAttrStack: []
-		})
+	for (const [componentName, record] of formASTMap.entries()) {
+		for (const formObj of record.formPayloads) {
+			const formRecord = _processFormNode({
+				filePath: record.filePath,
+				formObj,
+				formDataRecord: {},
+				quotedComponentStack: [],
+				fileTypeAttrStack: []
+			})
 
-		const formTypes = _generateTypeFromRecord(formRecord)
-		generatedTypes.push(injectFormDataType(componentName, formTypes, formObj.filePath))
+			const formTypes = _generateTypeFromRecord(formRecord)
+			generatedTypes.push(injectFormDataType(componentName, formObj.formComponentName, formTypes, record.filePath))
+		}
 	}
 
 	//* ---------- Helpers -----------------------------------------------
 
 	type ARGS__processFormNode = {
+		filePath: string
 		formObj: FormPayload
 		formDataRecord: Record<string, string>
 		quotedComponentStack: {
@@ -1648,6 +1654,7 @@ function generateFormDataTypes({
 		fileTypeAttrStack: (string | "tag")[]
 	}
 	function _processFormNode({
+		filePath,
 		formObj,
 		formDataRecord,
 		quotedComponentStack,
@@ -1744,7 +1751,7 @@ function generateFormDataTypes({
 					throw new HAQError({
 						message: "Nested name attributes encountered.",
 						description: `"${tagLikeNode.name}" implements a name attribute inside "${prevComponent.componentName}". This will likely cause unexpected behavior.`,
-						sourceFiles: [formObj.filePath],
+						sourceFiles: [filePath],
 						ranges: [getPositionRange({ node: tagLikeNode })]
 					})
 				}
@@ -1785,10 +1792,7 @@ function generateFormDataTypes({
 		function __updateFormRecord(tagLikeNode: TagLikeNode, nameAttributeValue: string): void {
 			const inputValuesAttribute = getAttributeByName(tagLikeNode, "x_input_values")
 			if (inputValuesAttribute) {
-				formDataRecord[nameAttributeValue] = generateUnionTypeFromStringifiedArray(
-					inputValuesAttribute.value,
-					formObj.filePath
-				)
+				formDataRecord[nameAttributeValue] = generateUnionTypeFromStringifiedArray(inputValuesAttribute.value, filePath)
 			}
 
 			if (fileTypeAttrStack.at(-1)) {
@@ -1799,7 +1803,7 @@ function generateFormDataTypes({
 		function __generateFormRecordValue(tagLikeNode: TagLikeNode): string {
 			const inputValuesAttribute = getAttributeByName(tagLikeNode, "x_input_values")
 			if (inputValuesAttribute) {
-				return generateUnionTypeFromStringifiedArray(inputValuesAttribute.value, formObj.filePath)
+				return generateUnionTypeFromStringifiedArray(inputValuesAttribute.value, filePath)
 			}
 
 			if (fileTypeAttrStack.at(-1)) {
@@ -1971,7 +1975,7 @@ type FlatMarkupMap = Map<__TypeName__, FlatMarkupMapContent>
 type ARGS_handleCssSelectors = {
 	reference: string | undefined
 	parentId: string | undefined
-	processedNode: TypedOmit<ProcessedNodeObj, "formNode"> | undefined
+	processedNode: TypedOmit<ProcessedNodeObj, "formPayload"> | undefined
 	data: ProcessedMarkupObject[]
 }
 function handleCssSelectors({ data, parentId, processedNode, reference }: ARGS_handleCssSelectors): void {
@@ -2206,10 +2210,15 @@ function isMaybeRenderedByNode(node: Node): boolean {
 /* String Literal Composition
 -----------------------------------------------*/
 
-function injectFormDataType(componentName: string, types: string, filePath: string): string {
+function injectFormDataType(
+	rootComponentName: string,
+	formComponentName: string,
+	types: string,
+	filePath: string
+): string {
 	return `
 	 	\n\n// LINK ${getRelativeFilePath(filePath)}\n\n
-		export type FD_${componentName} = {
+		export type FD_${rootComponentName}_${formComponentName} = {
 			${types}
 		}\n\n`
 }

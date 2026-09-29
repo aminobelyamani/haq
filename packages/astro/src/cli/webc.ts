@@ -129,7 +129,7 @@ export function webc({ outputStyler, flags }: ARGS_webc): void {
                 "${tagName}:some-event": undefined
             }
 
-            type X = FlattenChildren<T>
+            type X = HAQ_FlattenChildren<T>
 
             //#endregion ----------------------------------------------- Type Imports
 
