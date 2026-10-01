@@ -43,7 +43,7 @@ mv $PACKAGE_DIR/package-temp.json $PACKAGE_DIR/package.json &&
 
 # commit & push
 
-echo -e "\Pushing repo...\n"
+echo -e "\nPushing repo...\n"
 
 git add . &&
 
