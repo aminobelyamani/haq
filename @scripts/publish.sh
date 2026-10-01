@@ -22,7 +22,7 @@ fi
 # run node script that handles dependencies versions
 
 PACKAGE_VERSION=$(node $SCRIPT_PATH $PACKAGE_NAME -d $PACKAGE_DIR)
-echo -e "Publishing @haq/$PACKAGE_NAME -> v$PACKAGE_VERSION ...\n"
+echo -e "\nPublishing @haq/$PACKAGE_NAME -> v$PACKAGE_VERSION ...\n"
 
 # commit locally, no push
 
@@ -43,10 +43,12 @@ mv $PACKAGE_DIR/package-temp.json $PACKAGE_DIR/package.json &&
 
 # commit & push
 
+echo -e "\Pushing repo...\n"
+
 git add . &&
 
 git commit --amend --no-edit &&
 
 git push &&
 
-echo -e "Published @haq/$PACKAGE_NAME successfully!\n"
+echo -e "\nPublished @haq/$PACKAGE_NAME successfully!\n"
