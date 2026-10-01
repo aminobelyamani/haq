@@ -1,5 +1,13 @@
 # @haq/astro-ssr
 
+## 0.1.5
+
+### Patch Changes
+
+- Updated dependencies
+    - astro@7.3.5
+    - @haq/astro@0.1.13
+
 ## 0.1.4
 
 ### Patch Changes
@@ -11,7 +19,7 @@
 ### Patch Changes
 
 - Updated dependencies
-  - @haq/utils@0.1.5
+    - @haq/utils@0.1.5
 
 ## 0.1.2
 

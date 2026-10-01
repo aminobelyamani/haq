@@ -1,6 +1,6 @@
 {
 	"name": "@haq/astro",
-	"version": "0.1.12",
+	"version": "0.1.13",
 	"description": "Compile time framework and a lightweight runtime library for building type safe, performant, and scalable vanilla Astro projects.",
 	"author": "Amino Belyamani",
 	"license": "AGPL-3.0-or-later",
@@ -23,7 +23,7 @@
 	"scripts": {
 		"clean": "rm -rf @dist",
 		"compile": "tsc -p ./",
-		"publish:astro": "pnpm dlx jsr publish --dry-run --allow-dirty",
+		"publish:astro": "pnpm dlx jsr publish",
 		"deploy:dry-run": "pnpm dlx jsr publish --dry-run --allow-dirty",
 		"watch": "tsc --watch"
 	},

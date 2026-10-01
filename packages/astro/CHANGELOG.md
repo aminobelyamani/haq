@@ -1,5 +1,12 @@
 # @haq/astro
 
+## 0.1.13
+
+### Patch Changes
+
+- Improve form input type generation.
+- Updated Tutorial.md.
+
 ## 0.1.12
 
 ### Patch Changes

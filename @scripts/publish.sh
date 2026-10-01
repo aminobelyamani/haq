@@ -15,6 +15,7 @@ elif [[ "$PACKAGE_NAME" == "language-server" ]]; then
 	PUBLISH_SCRIPT_NAME="publish:language-server"
 	PACKAGE_DIR="./packages/language-server"
 else
+	echo -e "Missing or invalid package name\n"
 	exit 1
 fi
 

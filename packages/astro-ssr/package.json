@@ -1,6 +1,6 @@
 {
 	"name": "@haq/astro-ssr",
-	"version": "0.1.4",
+	"version": "0.1.5",
 	"description": "A lightweight library for building fully type safe HAQ Astro SSR projects in node.",
 	"author": "Amino Belyamani",
 	"license": "AGPL-3.0-or-later",
@@ -30,7 +30,7 @@
 	"scripts": {
 		"clean": "rm -rf @dist",
 		"compile": "tsc -p ./",
-		"publish:astro-ssr": "pnpm dlx jsr publish --dry-run --allow-dirty",
+		"publish:astro-ssr": "pnpm dlx jsr publish",
 		"deploy:dry-run": "pnpm dlx jsr publish --dry-run --allow-dirty",
 		"watch": "tsc --watch"
 	},

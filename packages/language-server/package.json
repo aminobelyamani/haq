@@ -1,6 +1,6 @@
 {
 	"name": "@haq/language-server",
-	"version": "0.1.2",
+	"version": "0.1.3",
 	"description": "HAQ Astro Language Server.",
 	"author": "Amino Belyamani",
 	"license": "AGPL-3.0-or-later",
@@ -15,7 +15,7 @@
 	"scripts": {
 		"clean": "rm -rf @dist",
 		"compile": "tsc -p ./",
-		"publish:language-server": "pnpm dlx jsr publish --dry-run --allow-dirty",
+		"publish:language-server": "pnpm dlx jsr publish",
 		"deploy:dry-run": "pnpm dlx jsr publish --dry-run --allow-dirty",
 		"watch": "tsc --watch"
 	},
