@@ -24,7 +24,7 @@ export type MU_MyForm = {
 	HAQ_styleProperties: HAQ_StylePropertiesByTag<"form">
 	HAQ_id: "myForm"
 	HAQ_selector: "#myForm"
-	HAQ_formData: FD_MyForm
+	HAQ_formData: FD_MyForm_MyForm
 }
 
 // LINK src/app-components/MyHeader/MyHeader.astro
@@ -231,7 +231,7 @@ export type MU_OddEven = {
 
 // LINK src/app-components/MyForm/MyForm.astro
 
-export type FD_MyForm = {
+export type FD_MyForm_MyForm = {
 	fullName: string
 	email: string
 	password: string

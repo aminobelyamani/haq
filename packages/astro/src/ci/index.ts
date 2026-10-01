@@ -2,7 +2,7 @@
 
 //#region -------------------------------------------------- Type Imports
 
-import type { CI_Flag } from "../cli/_shared/types.js"
+import type { CI_Flags, CI_SubCommand } from "../cli/_shared/types.js"
 
 //#endregion ----------------------------------------------- Type Imports
 
@@ -25,7 +25,7 @@ async function main(argv: string[]): Promise<void> {
 		const flags = yargs(argv)
 		const flag = resolveCommand(flags)
 		const { versions } = await import("./versions.js")
-		const newVersion = await versions(flag)
+		const newVersion = await versions({ command: flag, flags: flags as CI_Flags })
 		console.info(newVersion)
 	} catch (err) {
 		const { handleError } = await import("../cli/_shared/errors.js")
@@ -33,11 +33,11 @@ async function main(argv: string[]): Promise<void> {
 	}
 }
 
-function resolveCommand(flags: yargs.Arguments): CI_Flag {
-	const flag = flags._[2] as CI_Flag
+function resolveCommand(flags: yargs.Arguments): CI_SubCommand {
+	const flag = flags._[2] as CI_SubCommand
 
-	const allFlags = stringArray<CI_Flag>()(["astro", "astro-ssr", "language-server"])
-	const validFlags: Set<CI_Flag> = new Set(allFlags)
+	const allFlags = stringArray<CI_SubCommand>()(["astro", "astro-ssr", "language-server"])
+	const validFlags: Set<CI_SubCommand> = new Set(allFlags)
 
 	if (validFlags.has(flag)) {
 		return flag

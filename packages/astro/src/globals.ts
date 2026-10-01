@@ -18,6 +18,7 @@ export const GLOBALS = {
 	/* generated once */
 
 	NATIVE_ELEMENTS_JSON_FILE_NAME         : "__native_elements.json",
+	VERSION_TXT_FILE_NAME      			   : "__version.txt",
 	GLOBAL_DECLARATIONS_TXT_FILE_NAME      : "__global.txt",
 	GLOBAL_DECLARATIONS_FILE_NAME          : "__global.ts",
 	NULLABLE_COMPONENT_NAME                : "Nullable",
@@ -82,7 +83,6 @@ export const GLOBALS = {
 	X_SEL_DIRECTIVE_CHAR_LENGTH            : 5, // x_sel
 	X_DYN_SEL_DIRECTIVE_CHAR_LENGTH        : 9, // x_dyn_sel
 	X_EV_TYPES_DIRECTIVE_CHAR_LENGTH       : 10, // x_ev_types
-	X_INPUT_VALUES_DIRECTIVE_CHAR_LENGTH   : 14, // x_input_values
 	X_ATTR_VALUES_DIRECTIVE_CHAR_LENGTH    : 13, // x_attr_values
 	X_PAGE_DIRECTIVE_CHAR_LENGTH           : 6, // x_page
 	CLASS_LIST_ATTRIBUTE_CHAR_LENGTH       : 10, // class:list
@@ -130,7 +130,6 @@ export const GLOBALS = {
 		"x_dyn_sel",
 		"x_ev_types",
 		"x_class_list",
-		"x_input_values",
 		"x_attr_values",
 		"x_page"
 	],

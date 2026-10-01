@@ -12,6 +12,15 @@
 		"//#format": {
 			"inputs": ["**/src/**/*.{ts,json,css}"]
 		},
+		"publish:astro": {
+			"cache": false
+		},
+		"publish:astro-ssr": {
+			"cache": false
+		},
+		"publish:language-server": {
+			"cache": false
+		},
 		"clean": {
 			"cache": false
 		}

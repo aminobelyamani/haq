@@ -9,6 +9,10 @@
 		"clean": "turbo run clean --force",
 		"compile": "turbo run compile",
 		"compile-force": "turbo run compile --force",
+		"deploy:publish": "bash @scripts/publish.sh",
+		"publish:astro": "turbo run publish:astro",
+		"publish:astro-ssr": "turbo run publish:astro-ssr",
+		"publish:language-server": "turbo run publish:language-server",
 		"format": "biome format --semicolons=as-needed --trailing-commas=none --line-width=120 packages/ --fix",
 		"lint": "biome lint .",
 		"preship": "bash @scripts/preship.sh",
@@ -20,8 +24,8 @@
 		"@changesets/cli": "^3.0.3",
 		"@total-typescript/ts-reset": "^0.6.1",
 		"@types/node": "^26.6.3",
-		"turbo": "^2.11.4",
+		"turbo": "^2.11.5",
 		"typescript": "^7.0.2"
 	},
-	"packageManager": "pnpm@12.6.0"
+	"packageManager": "pnpm@12.8.1"
 }

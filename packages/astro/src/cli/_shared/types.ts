@@ -25,8 +25,16 @@ export type __TypeName__ = string & { typeName?: never }
 //
 //------------------------------------------------------------------------------
 
+export type FormInputAttributes = "name" | "type" | "value"
 export interface I_AstroAttributeNode extends AttributeNode {
-	name: MarkupDirective | keyof AstroBuiltinAttributes | "name" | "id" | "class" | "slot" | "transition:persist-props"
+	name:
+		| MarkupDirective
+		| keyof AstroBuiltinAttributes
+		| FormInputAttributes
+		| "id"
+		| "class"
+		| "slot"
+		| "transition:persist-props"
 }
 
 export type AstroASTMap = Map<__FilePath__, RootNode>
@@ -310,7 +318,12 @@ export type SuccessDisplayPayload = {
 //
 //------------------------------------------------------------------------------
 
-export type CI_Flag = "astro" | "astro-ssr" | "language-server"
+export type CI_SubCommand = "astro" | "astro-ssr" | "language-server"
+
+export type CI_Flags = {
+	d?: string
+	dir?: string
+}
 
 export type CI_PackageJson = {
 	version: string

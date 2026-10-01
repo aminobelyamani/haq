@@ -409,10 +409,9 @@ export async function getAstroDiagnostics({
 		_callHandler("x_appc", __handleAppc)
 		_callHandler("x_alias", __handleAlias)
 		_callHandler("x_slot", __handleSlot)
-		_callHandler("x_sel", __handle_Sel_InputValues_Child, GLOBALS.X_SEL_DIRECTIVE_CHAR_LENGTH)
+		_callHandler("x_sel", __handle_Sel, GLOBALS.X_SEL_DIRECTIVE_CHAR_LENGTH)
 		_callHandler("x_ev_types", __handle_EvTypes_DynSel_ClassList, GLOBALS.X_EV_TYPES_DIRECTIVE_CHAR_LENGTH)
 		_callHandler("x_attr_values", __handleAttrValues, GLOBALS.X_ATTR_VALUES_DIRECTIVE_CHAR_LENGTH)
-		_callHandler("x_input_values", __handle_Sel_InputValues_Child, GLOBALS.X_INPUT_VALUES_DIRECTIVE_CHAR_LENGTH)
 		_callHandler("x_dyn_sel", __handle_EvTypes_DynSel_ClassList, GLOBALS.X_DYN_SEL_DIRECTIVE_CHAR_LENGTH)
 		_callHandler("x_class_list", __handle_EvTypes_DynSel_ClassList, GLOBALS.CLASS_ATTRIBUTE_OFFSET - 1)
 		_callHandler("x_page", __handle_Xpage)
@@ -495,7 +494,7 @@ export async function getAstroDiagnostics({
 			})
 		}
 
-		function __handle_Sel_InputValues_Child({ attribute, directive, endOffset }: HandlerArgs): void {
+		function __handle_Sel({ attribute, directive, endOffset }: HandlerArgs): void {
 			if (isSlotNode(tagLikeNode)) {
 				_addUniqueDiag({
 					message: `You can not use the "${directive}" directive on slot elements.`,
@@ -506,7 +505,6 @@ export async function getAstroDiagnostics({
 				})
 				return
 			}
-			if (attrMap.get("x_input_values")) return
 
 			if (!(attrMap.get("x_haq") || attrMap.get("x_webc") || attrMap.get("x_alias"))) {
 				_addUniqueDiag({

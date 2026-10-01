@@ -222,7 +222,7 @@ async function generate({
 
 	return {
 		filesParsed: allAstroAndJSONFiles.length + allCSSFiles.length,
-		diagnostics: markupDiagnostics.concat(fileSpecificDiagnostics)
+		diagnostics: markupDiagnostics.concat(fileSpecificDiagnostics).concat(astroTypes.formDiagnostics)
 	}
 
 	//* ---------- Helpers -----------------------------------------------

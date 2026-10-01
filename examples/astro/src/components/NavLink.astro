@@ -11,4 +11,6 @@ interface Props extends Pick<HAQ_AliasableComponentProps, "x_alias"> {
 const { href, text } = Astro.props;
 ---
 
-<a {href} x_sel="nav-link" x_ev_types={["click"]} x_haq>{text}</a>
+<a {href} x_sel="nav-link" x_ev_types={["click"]} x_haq>
+	{text}
+</a>

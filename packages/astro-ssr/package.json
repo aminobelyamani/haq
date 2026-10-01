@@ -30,7 +30,7 @@
 	"scripts": {
 		"clean": "rm -rf @dist",
 		"compile": "tsc -p ./",
-		"deploy:publish": "bash _scripts/deploy.sh",
+		"publish:astro-ssr": "pnpm dlx jsr publish --dry-run --allow-dirty",
 		"deploy:dry-run": "pnpm dlx jsr publish --dry-run --allow-dirty",
 		"watch": "tsc --watch"
 	},

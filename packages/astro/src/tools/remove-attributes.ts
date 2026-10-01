@@ -67,7 +67,6 @@ export function removeAstroAttributes(attrs?: string[]): VitePlugin {
 
 //! Omitting 'x_sel' from attribute list because it is used at runtime
 //! Omitting 'x_dyn_sel' from attribute list because it is used at runtime
-//! Omitting 'x_input_values' from attribute list because it is passed around Astro Components as props
 
 function removeAttributesPlugin(attributes: string[]): VitePlugin {
 	return {

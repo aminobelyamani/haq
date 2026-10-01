@@ -3267,7 +3267,8 @@ Here is a simple example:
 	<input type="text" name="fullName" />
 	<input type="email" name="email" />
 	<input type="password" name="password" />
-	<input type="text" name="role" x_input_values={["ADMIN", "CLIENT"]} />
+	<input type="radio" name="role" value="ADMIN" />
+	<input type="radio" name="role" value="CLIENT" />
 	<input type="file" name="profilePic" />
 </form>
 ```
@@ -3284,11 +3285,17 @@ The generated type would look like this:
 }
 ```
 
-You'll notice we used the `x_input_values` directive to narrow down the possible values accepted by the `role` input. This can be especially useful for checkbox or radio inputs.
+You'll notice that we can narrow down the types for radio inputs when using literal values for the `value` attribute.
 
 You'll also notice that HAQ Astro detected that one of the inputs has `type="file"` and narrowed the value type as `File` instead of `string`.
 
 And now you can collect the data from this form safely in either an App Component or Web component.
+
+**NOTE** - The same rules of Web Component encapsulation applies with forms as well:
+
+- Every Web Component handles its own forms.
+- You cannot access the form elements inside of a child Web Component.
+- If a form element with the same `name` attribute is found inside of a child Web Component, an error will be reported to prevent unexpected behavior at runtime.
 
 Assuming we have an App Component where `this` is our form with an id of `"myForm"`.
 

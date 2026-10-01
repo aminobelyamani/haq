@@ -7,7 +7,9 @@ import type {
 	__TypeName__,
 	AstroASTMap,
 	CSSMarkupObject,
+	Diagnostic,
 	FileDocumentMap,
+	FormInputAttributes,
 	GeneratedComponentMap,
 	GeneratedCSSMarkupObject,
 	GeneratedNamespaceTypes,
@@ -55,7 +57,6 @@ import {
 	generateArrayFromSpaceSeparatedList,
 	generateUnionFromArray,
 	generateUnionTypeFromSpaceSeparatedList,
-	generateUnionTypeFromStringifiedArray,
 	getArrayFromStringifiedArray,
 	kebab2Pascal,
 	removeEmptyLines
@@ -117,6 +118,7 @@ type RT_getAstroTypes = Promise<{
 	astroASTMap: AstroASTMap
 	sortedComponentNames: string[]
 	generatedComponentMap: GeneratedComponentMap
+	formDiagnostics: Diagnostic[]
 }>
 export async function getAstroTypes({ astroFileNames, outDir, astroDirs }: ARGS_getAstroTypes): RT_getAstroTypes {
 	const generatedTypes: string[] = []
@@ -200,7 +202,13 @@ export async function getAstroTypes({ astroFileNames, outDir, astroDirs }: ARGS_
 	const graph = buildDependencyGraph(componentMap)
 	const sortedComponentNames = topologicalSort(graph)
 
-	generateFormDataTypes({ astroFileNames, astroASTMap, formASTMap, generatedTypes, componentMap })
+	const formDiagnostics = generateFormDataTypes({
+		astroFileNames,
+		astroASTMap,
+		formASTMap,
+		generatedTypes,
+		componentMap
+	})
 
 	generateAttrValuesTypes({ astroFileNames, componentMap, astroASTMap, attrValuesASTMap, generatedTypes })
 
@@ -224,7 +232,8 @@ export async function getAstroTypes({ astroFileNames, outDir, astroDirs }: ARGS_
 		fileDocumentMap,
 		astroASTMap,
 		generatedComponentMap: componentMap,
-		sortedComponentNames
+		sortedComponentNames,
+		formDiagnostics
 	}
 
 	//* ---------- Helpers -----------------------------------------------
@@ -1625,7 +1634,9 @@ function generateFormDataTypes({
 	astroASTMap,
 	formASTMap,
 	generatedTypes
-}: ARGS_generateFormDataTypes): void {
+}: ARGS_generateFormDataTypes): Diagnostic[] {
+	const diagnostics: Diagnostic[] = []
+
 	for (const [componentName, record] of formASTMap.entries()) {
 		for (const formObj of record.formPayloads) {
 			const formRecord = _processFormNode({
@@ -1633,7 +1644,8 @@ function generateFormDataTypes({
 				formObj,
 				formDataRecord: {},
 				quotedComponentStack: [],
-				fileTypeAttrStack: []
+				webComponentStack: [],
+				webComponentMap: new Map()
 			})
 
 			const formTypes = _generateTypeFromRecord(formRecord)
@@ -1641,31 +1653,64 @@ function generateFormDataTypes({
 		}
 	}
 
+	return diagnostics
+
 	//* ---------- Helpers -----------------------------------------------
+
+	type QuotedComponent = {
+		componentName: string
+		name: string | undefined
+		type: ("radio" | "file" | ({} & string)) | undefined
+		value: string | undefined
+	}
+
+	type WebComponentNameAttributes = {
+		componentName: string
+		nameAttributes: Set<string>
+	}
+
+	type FormDataRecord = Record<string, string | string[]>
+
+	type WebComponentMap = Map<__ComponentName__, Set<string>>
 
 	type ARGS__processFormNode = {
 		filePath: string
 		formObj: FormPayload
-		formDataRecord: Record<string, string>
-		quotedComponentStack: {
-			componentName: string
-			formRecordProp: string
-		}[]
-		fileTypeAttrStack: (string | "tag")[]
+		formDataRecord: FormDataRecord
+		quotedComponentStack: QuotedComponent[]
+		webComponentStack: WebComponentNameAttributes[]
+		webComponentMap: WebComponentMap
 	}
+
 	function _processFormNode({
 		filePath,
 		formObj,
 		formDataRecord,
 		quotedComponentStack,
-		fileTypeAttrStack
-	}: ARGS__processFormNode): Record<string, string> {
+		webComponentStack,
+		webComponentMap
+	}: ARGS__processFormNode): FormDataRecord {
 		if (hasChildren(formObj.formNode)) {
 			for (const child of formObj.formNode.children || []) {
 				__traverse(child)
 			}
 		} else {
 			__traverse(formObj.formNode)
+		}
+
+		for (const [componentName, values] of webComponentMap.entries()) {
+			const formDataKeys = new Set(Object.keys(formDataRecord))
+			const intersection = values.intersection(formDataKeys)
+
+			for (const duplicate of intersection.values()) {
+				diagnostics.push({
+					sourceFile: filePath,
+					message: `Duplicate name "${duplicate}" attribute found inside the Web Component "${componentName}". This will likely cause unexpected behavior when manipulating form data.`,
+					range: getPositionRange({
+						node: formObj.formNode
+					})
+				})
+			}
 		}
 
 		return formDataRecord
@@ -1677,7 +1722,7 @@ function generateFormDataTypes({
 
 			if (isTagNode) __handleTagNode(node)
 
-			if (is.component(node)) __handleComponentNode(node.name)
+			if (is.component(node)) __handleComponentNode(node)
 
 			if (hasChildren(node)) {
 				for (const child of node.children || []) {
@@ -1685,24 +1730,12 @@ function generateFormDataTypes({
 				}
 			}
 
-			if (isTagNode) __handlefileTypeAttrStack(node)
-			if (is.component(node)) __handleComponentLeave(node)
-		}
-
-		function __handlefileTypeAttrStack(tagLikeNode: TagLikeNode): void {
-			if (is.component(tagLikeNode)) {
-				const prevComponent = fileTypeAttrStack.at(-1)
-				if (!prevComponent) return
-
-				if (prevComponent !== tagLikeNode.name) return
-
-				fileTypeAttrStack.pop()
-				return
+			if (is.component(node)) {
+				__handleQuotedComponentLeave(node)
 			}
-			fileTypeAttrStack.pop()
 		}
 
-		function __handleComponentLeave(componentNode: ComponentNode): void {
+		function __handleQuotedComponentLeave(componentNode: ComponentNode): void {
 			const prevComponent = quotedComponentStack.at(-1)
 			if (!prevComponent) return
 
@@ -1712,111 +1745,187 @@ function generateFormDataTypes({
 		}
 
 		function __handleTagNode(tagLikeNode: TagLikeNode): void {
+			if (componentMap.get(tagLikeNode.name)?.isWebComponent) return
+
 			const nameAttribute = getFormInputNameAttributeValue(tagLikeNode)
+			const typeAttribute = getAttributeByName(tagLikeNode, "type")
+			const valueAttribute = getAttributeByName(tagLikeNode, "value")
 
-			if (hasFileTypeAttribute(tagLikeNode)) {
-				fileTypeAttrStack.push(is.component(tagLikeNode) ? tagLikeNode.name : "tag")
-			}
-
-			if (nameAttribute) __handleNameAttribute(tagLikeNode, nameAttribute)
+			__handleFormAttribute(tagLikeNode, nameAttribute, typeAttribute, valueAttribute)
 		}
 
-		function __handleNameAttribute(tagLikeNode: TagLikeNode, nameAttribute: I_AstroAttributeNode): void {
+		function __handleFormAttribute(
+			tagLikeNode: TagLikeNode,
+			nameAttribute: I_AstroAttributeNode | undefined,
+			typeAttribute: I_AstroAttributeNode | undefined,
+			valueAttribute: I_AstroAttributeNode | undefined
+		): void {
 			const validFormTags = ["input", "select", "textarea"]
-			if (!is.component(tagLikeNode)) ___handleNativeFormElement()
+			const newQuotedComponent: QuotedComponent = {
+				componentName: tagLikeNode.name,
+				name: undefined,
+				type: undefined,
+				value: undefined
+			}
+			const prevQuotedComponent = quotedComponentStack.at(-1)
+			const currentQuotedComponent = prevQuotedComponent ?? newQuotedComponent
 
-			if (nameAttribute.kind === "quoted") ___handleQuotedNameAttribute()
+			const prevWebComponent = webComponentStack.at(-1)
+
+			let hasQuotedAttribute = false
+
+			if (nameAttribute?.kind === "quoted") {
+				___updateQuotedComponent(currentQuotedComponent, "name", nameAttribute.value)
+				hasQuotedAttribute = true
+			}
+			if (typeAttribute?.kind === "quoted") {
+				___updateQuotedComponent(currentQuotedComponent, "type", typeAttribute.value)
+				hasQuotedAttribute = true
+			}
+			if (valueAttribute?.kind === "quoted") {
+				___updateQuotedComponent(currentQuotedComponent, "value", valueAttribute.value)
+				hasQuotedAttribute = true
+			}
+
+			if (hasQuotedAttribute) {
+				___handleQuotedFormAttribute()
+			}
+
+			if (!is.component(tagLikeNode)) ___handleNativeFormElement()
 
 			//* ---------- Helpers -----------------------------------------------
 
-			function ___handleNativeFormElement(): void {
-				const prevComponent = quotedComponentStack.at(-1)
-				if (!prevComponent) return
-
-				if (!validFormTags.includes(tagLikeNode.name)) {
-					__removeFormRecord(prevComponent.formRecordProp)
-					return
-				}
-
-				__updateFormRecord(tagLikeNode, prevComponent.formRecordProp)
-			}
-
-			function ___handleQuotedNameAttribute(): void {
+			function ___updateQuotedComponent(
+				quotedComponent: QuotedComponent,
+				key: FormInputAttributes,
+				value: string
+			): void {
 				if (!(is.component(tagLikeNode) || validFormTags.includes(tagLikeNode.name))) return
 
-				__setFormRecord(tagLikeNode, nameAttribute.value)
-
-				const prevComponent = quotedComponentStack.at(-1)
-				if (prevComponent) {
+				if (quotedComponent[key]) {
 					throw new HAQError({
-						message: "Nested name attributes encountered.",
-						description: `"${tagLikeNode.name}" implements a name attribute inside "${prevComponent.componentName}". This will likely cause unexpected behavior.`,
+						message: `Nested ${key} attributes encountered.`,
+						description: `"${tagLikeNode.name}" implements a ${key} attribute inside "${quotedComponent.componentName}". This will likely cause unexpected behavior.`,
 						sourceFiles: [filePath],
 						ranges: [getPositionRange({ node: tagLikeNode })]
 					})
 				}
 
-				if (is.component(tagLikeNode)) {
-					const componentFromMap = componentMap.get(tagLikeNode.name)
-					if (componentFromMap?.isWebComponent) return
+				quotedComponent[key] = value
+			}
 
-					quotedComponentStack.push({
-						componentName: tagLikeNode.name,
-						formRecordProp: nameAttribute.value
-					})
+			function ___handleQuotedFormAttribute(): void {
+				if (is.component(tagLikeNode) && !prevQuotedComponent) {
+					quotedComponentStack.push(newQuotedComponent)
+				}
+
+				if (!currentQuotedComponent.name) return
+
+				// update web component name attributes only if inside the web component file, no slot children
+				if (prevWebComponent) {
+					___updateWebComponentNameAttributes(prevWebComponent, currentQuotedComponent.name)
+					return
+				}
+
+				___updateFormType(currentQuotedComponent.name)
+			}
+
+			function ___updateFormType(name: string): void {
+				const currentFormDataRecord = formDataRecord[name]
+				const radioValue = currentQuotedComponent.type === "radio" && currentQuotedComponent.value
+
+				if (radioValue) {
+					if (!Array.isArray(currentFormDataRecord)) {
+						formDataRecord[name] = [radioValue]
+						return
+					}
+
+					currentFormDataRecord.push(radioValue)
+					return
+				}
+
+				// We don't want to destroy the array of radio values during traversal.
+				if (Array.isArray(currentFormDataRecord)) return
+
+				formDataRecord[name] = ___generateFormValueType()
+			}
+
+			function ___generateFormValueType(): string {
+				if (currentQuotedComponent.type === "file") {
+					return "File"
+				}
+
+				return "string"
+			}
+
+			function ___updateWebComponentNameAttributes(
+				currentWebComponent: WebComponentNameAttributes,
+				name: string
+			): void {
+				currentWebComponent.nameAttributes.add(name)
+			}
+
+			function ___handleNativeFormElement(): void {
+				if (!prevQuotedComponent?.name) return
+				if (!(nameAttribute || typeAttribute || valueAttribute)) return
+				if (validFormTags.includes(tagLikeNode.name)) {
+					// we can pop from the stack because we should ignore any other form attribute matches in this form element's children
+					quotedComponentStack.pop()
+				} else {
+					__removeFormRecord(prevQuotedComponent.name)
 				}
 			}
 		}
 
-		function __handleComponentNode(nodeName: string): void {
-			const targetAstroFile = astroFileNames.find((f) => f.endsWith(`/${nodeName}.astro`))
+		function __handleComponentNode(componentNode: ComponentNode): void {
+			const targetAstroFile = astroFileNames.find((f) => f.endsWith(`/${componentNode.name}.astro`))
 			if (!targetAstroFile) return
 
 			const ast = astroASTMap.get(targetAstroFile)
 			if (!ast) return
 
-			const componentFromMap = componentMap.get(nodeName)
-			if (componentFromMap?.isWebComponent) return
-
+			const componentFromMap = componentMap.get(componentNode.name)
+			if (componentFromMap?.isWebComponent) {
+				webComponentStack.push({
+					componentName: componentNode.name,
+					nameAttributes: new Set()
+				})
+			}
 			__traverse(ast)
+			__handleWebComponentLeave(componentNode)
 		}
 
-		function __setFormRecord(tagLikeNode: TagLikeNode, nameAttributeValue: string): void {
-			formDataRecord[nameAttributeValue] = __generateFormRecordValue(tagLikeNode)
+		function __handleWebComponentLeave(componentNode: ComponentNode): void {
+			const prevWebComponent = webComponentStack.at(-1)
+			if (!prevWebComponent) return
+
+			if (prevWebComponent.componentName !== componentNode.name) return
+
+			const webComponentMapRecord = webComponentMap.get(componentNode.name)
+
+			if (webComponentMapRecord) {
+				for (const name of prevWebComponent.nameAttributes.values()) {
+					webComponentMapRecord.add(name)
+				}
+			} else {
+				webComponentMap.set(componentNode.name, new Set(prevWebComponent.nameAttributes.values()))
+			}
+
+			webComponentStack.pop()
 		}
 
 		function __removeFormRecord(nameAttributeValue: string): void {
 			delete formDataRecord[nameAttributeValue]
 		}
-
-		function __updateFormRecord(tagLikeNode: TagLikeNode, nameAttributeValue: string): void {
-			const inputValuesAttribute = getAttributeByName(tagLikeNode, "x_input_values")
-			if (inputValuesAttribute) {
-				formDataRecord[nameAttributeValue] = generateUnionTypeFromStringifiedArray(inputValuesAttribute.value, filePath)
-			}
-
-			if (fileTypeAttrStack.at(-1)) {
-				formDataRecord[nameAttributeValue] = "File"
-			}
-		}
-
-		function __generateFormRecordValue(tagLikeNode: TagLikeNode): string {
-			const inputValuesAttribute = getAttributeByName(tagLikeNode, "x_input_values")
-			if (inputValuesAttribute) {
-				return generateUnionTypeFromStringifiedArray(inputValuesAttribute.value, filePath)
-			}
-
-			if (fileTypeAttrStack.at(-1)) {
-				return "File"
-			}
-
-			return "string"
-		}
 	}
 
-	function _generateTypeFromRecord(formDataRecord: Record<string, string>): string {
+	function _generateTypeFromRecord(formDataRecord: FormDataRecord): string {
 		let formTypes = ""
 		for (const [key, value] of entriesFromObject(formDataRecord)) {
+			if (Array.isArray(value)) {
+				formTypes += `${key} : ${generateUnionFromArray(Array.from(new Set(value)))}\n`
+				continue
+			}
 			formTypes += `${key} : ${value}\n`
 		}
 		return formTypes
@@ -2185,13 +2294,13 @@ function getFormInputNameAttributeValue(tagLikeNode: TagLikeNode): I_AstroAttrib
 	return nameAttribute
 }
 
-function hasFileTypeAttribute(tagLikeNode: TagLikeNode): boolean {
-	const typeAttribute = tagLikeNode.attributes.find((attr) => attr.name === "type")
-	if (!typeAttribute) {
-		return false
-	}
-	return typeAttribute.kind === "quoted" && typeAttribute.value === "file"
-}
+// function hasFileTypeAttribute(tagLikeNode: TagLikeNode): boolean {
+// 	const typeAttribute = tagLikeNode.attributes.find((attr) => attr.name === "type")
+// 	if (!typeAttribute) {
+// 		return false
+// 	}
+// 	return typeAttribute.kind === "quoted" && typeAttribute.value === "file"
+// }
 
 function generateDOMElementType(tagName: string): string {
 	if (tagName === "form") return "HAQ_HTMLFormElement"

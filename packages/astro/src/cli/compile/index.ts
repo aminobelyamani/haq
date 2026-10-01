@@ -13,9 +13,10 @@ import process from "node:process"
 import watcher from "@parcel/watcher"
 import { GLOBALS } from "../../globals.js"
 import { handleDiag, handleError } from "../_shared/errors.js"
-import { filePathExistsOrThrow, isAstroFile, isCssFile, isHaqJsonFile } from "../_shared/fs.js"
+import { filePathExistsOrThrow, isAstroFile, isCssFile, isHaqJsonFile, loadFile } from "../_shared/fs.js"
 import { HAQLogger } from "../_shared/logger.js"
 import { getProjectConfig, loadNativeElementsJson } from "../_shared/validation.js"
+import { PACKAGE_VERSION } from "../_shared/version.js"
 import { main } from "./main.js"
 
 //#endregion ----------------------------------------------- Module Imports
@@ -63,13 +64,28 @@ export async function compile({ flags, outputStyler }: ARGS_compile): Promise<RT
 
 	const outDir = `${outDirInput}/${GLOBALS.GENERATED_TYPES_FOLDER}`
 
-	// copy static generated files if don't exist
+	// copy static generated files if don't exist or if version mismatch
+
+	let versionMismatch = true
+	const versionFilePath = `${outDir}/${GLOBALS.VERSION_TXT_FILE_NAME}`
 
 	if (!fs.existsSync(outDir)) {
 		fs.mkdirSync(outDir)
 	}
 
-	if (!fs.existsSync(`${outDir}/${GLOBALS.NATIVE_ELEMENTS_JSON_FILE_NAME}`)) {
+	if (fs.existsSync(versionFilePath)) {
+		const versionFile = loadFile(versionFilePath)
+		versionMismatch = versionFile.toString().trim() !== PACKAGE_VERSION
+	}
+
+	if (!fs.existsSync(versionFilePath) || versionMismatch) {
+		await copyFile(
+			new URL(`../../../${GLOBALS.INTERNAL_GENERATED_TYPES_FOLDER}/${GLOBALS.VERSION_TXT_FILE_NAME}`, import.meta.url),
+			versionFilePath
+		)
+	}
+
+	if (!fs.existsSync(`${outDir}/${GLOBALS.NATIVE_ELEMENTS_JSON_FILE_NAME}`) || versionMismatch) {
 		await copyFile(
 			new URL(
 				`../../../${GLOBALS.INTERNAL_GENERATED_TYPES_FOLDER}/${GLOBALS.NATIVE_ELEMENTS_JSON_FILE_NAME}`,
@@ -79,7 +95,7 @@ export async function compile({ flags, outputStyler }: ARGS_compile): Promise<RT
 		)
 	}
 
-	if (!fs.existsSync(`${outDir}/${GLOBALS.GLOBAL_DECLARATIONS_FILE_NAME}`)) {
+	if (!fs.existsSync(`${outDir}/${GLOBALS.GLOBAL_DECLARATIONS_FILE_NAME}`) || versionMismatch) {
 		await copyFile(
 			new URL(
 				`../../../${GLOBALS.INTERNAL_GENERATED_TYPES_FOLDER}/${GLOBALS.GLOBAL_DECLARATIONS_TXT_FILE_NAME}`,
@@ -89,7 +105,7 @@ export async function compile({ flags, outputStyler }: ARGS_compile): Promise<RT
 		)
 	}
 
-	if (!fs.existsSync(`${outDir}/${GLOBALS.NULLABLE_COMPONENT_NAME}.astro`)) {
+	if (!fs.existsSync(`${outDir}/${GLOBALS.NULLABLE_COMPONENT_NAME}.astro`) || versionMismatch) {
 		await copyFile(
 			new URL(
 				`../../../${GLOBALS.INTERNAL_GENERATED_TYPES_FOLDER}/${GLOBALS.NULLABLE_COMPONENT_NAME}.astro`,
@@ -99,7 +115,7 @@ export async function compile({ flags, outputStyler }: ARGS_compile): Promise<RT
 		)
 	}
 
-	if (!fs.existsSync(`${outDir}/${GLOBALS.LOG_FILE_NAME}`)) {
+	if (!fs.existsSync(`${outDir}/${GLOBALS.LOG_FILE_NAME}`) || versionMismatch) {
 		await copyFile(
 			new URL(`../../../${GLOBALS.INTERNAL_GENERATED_TYPES_FOLDER}/${GLOBALS.LOG_FILE_NAME}`, import.meta.url),
 			`${outDir}/${GLOBALS.LOG_FILE_NAME}`

@@ -21,7 +21,6 @@ declare global {
 			x_dyn_sel?: boolean | string | undefined
 			x_ev_types?: HAQ_NativeEventType[] | undefined
 			x_class_list?: string | undefined
-			x_input_values?: string[] | undefined
 			x_attr_values?: string | undefined
 		}
 

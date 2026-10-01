@@ -1,21 +1,40 @@
 //#region -------------------------------------------------- Type Imports
 
-import type { CI_Flag, CI_PackageJson } from "../cli/_shared/types.js"
+import type { CI_Flags, CI_PackageJson, CI_SubCommand } from "../cli/_shared/types.js"
 
 //#endregion ----------------------------------------------- Type Imports
 
 //#region -------------------------------------------------- Module Imports
 
+import fs from "node:fs"
 import { copyFile } from "node:fs/promises"
 import path from "node:path"
 import process from "node:process"
+import { HAQError } from "../cli/_shared/errors.js"
 import { loadJsonFile } from "../cli/_shared/fs.js"
 import { formatAndWrite } from "../cli/_shared/output.js"
+import { GLOBALS } from "../globals.js"
 
 //#endregion ----------------------------------------------- Module Imports
 
-export async function versions(flag: CI_Flag): Promise<string> {
-	const currentDir = process.cwd()
+type ARGS_versions = {
+	command: CI_SubCommand
+	flags: CI_Flags
+}
+export async function versions({ command, flags }: ARGS_versions): Promise<string> {
+	// validation
+
+	if (!(flags.d || flags.dir)) {
+		throw new HAQError({
+			message: "Missing dir  flag.",
+			description: "You must specify a dir for the package."
+		})
+	}
+
+	const dir = flags.d || (flags.dir as string) // one of them will be valid
+	const rootDir = process.cwd()
+	const currentDir = path.join(rootDir, dir)
+
 	const packageJsonPath = `${currentDir}/package.json`
 	const jsrJsonPath = `${currentDir}/jsr.json`
 
@@ -27,7 +46,7 @@ export async function versions(flag: CI_Flag): Promise<string> {
 
 	const packageJson = (await loadJsonFile(packageJsonPath)) as CI_PackageJson
 
-	if (flag === "astro" || flag === "astro-ssr") {
+	if (command === "astro" || command === "astro-ssr") {
 		// update utils version for @haq/astro & @haq/astro-ssr
 
 		const utilsPackageJsonPath = path.join(currentDir, "../utils/package.json")
@@ -49,11 +68,14 @@ export async function versions(flag: CI_Flag): Promise<string> {
 
 	// update @haq/astro version global variable
 
-	if (flag === "astro") {
+	if (command === "astro") {
 		const globalsPath = `${currentDir}/src/cli/_shared/version.ts`
 		const newVersionContent = `export const PACKAGE_VERSION = "${packageJson.version}"`
 
 		formatAndWrite({ outDir: `${currentDir}/src/cli/_shared`, content: newVersionContent, filePath: globalsPath })
+
+		const versionFilePath = `${currentDir}/_static/${GLOBALS.VERSION_TXT_FILE_NAME}`
+		fs.writeFileSync(versionFilePath, packageJson.version)
 	}
 
 	// update jsr.json
