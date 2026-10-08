@@ -1855,6 +1855,11 @@ function generateFormDataTypes({
 					return "File"
 				}
 
+				if (currentQuotedComponent.type === "number") {
+					// biome-ignore lint/style/noUnusedTemplateLiteral: This is a biome bug.
+					return `\`\${number}\``
+				}
+
 				return "string"
 			}
 
@@ -1926,7 +1931,7 @@ function generateFormDataTypes({
 				formTypes += `${key} : ${generateUnionFromArray(Array.from(new Set(value)))}\n`
 				continue
 			}
-			formTypes += `${key} : ${value}\n`
+			formTypes += `"${key}" : ${value}\n`
 		}
 		return formTypes
 	}
@@ -2026,7 +2031,7 @@ function generateAttrValuesTypes({
 	function _generateTypeFromRecord(record: Record<string, Set<string>>): string {
 		let generatedType = ""
 		for (const [key, value] of entriesFromObject(record)) {
-			generatedType += `${key} : ${generateUnionFromArray([...value])}\n`
+			generatedType += `"${key}" : ${generateUnionFromArray([...value])}\n`
 		}
 		return generatedType
 	}

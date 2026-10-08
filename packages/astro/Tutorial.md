@@ -3267,6 +3267,7 @@ Here is a simple example:
 	<input type="text" name="fullName" />
 	<input type="email" name="email" />
 	<input type="password" name="password" />
+	<input type="number" name="age" />
 	<input type="radio" name="role" value="ADMIN" />
 	<input type="radio" name="role" value="CLIENT" />
 	<input type="file" name="profilePic" />
@@ -3280,12 +3281,15 @@ The generated type would look like this:
 	fullName: string;
 	email: string;
 	password: string;
+	age: `${number}`;
 	role: "ADMIN" | "CLIENT";
 	profilePic: File;
 }
 ```
 
 You'll notice that we can narrow down the types for radio inputs when using literal values for the `value` attribute.
+
+You'll also notice that HAQ Astro detected that one of the inputs has `type="number"` and narrowed the value type as `${number}`instead of`string`.
 
 You'll also notice that HAQ Astro detected that one of the inputs has `type="file"` and narrowed the value type as `File` instead of `string`.
 

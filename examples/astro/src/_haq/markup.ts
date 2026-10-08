@@ -235,6 +235,7 @@ export type FD_MyForm_MyForm = {
 	fullName: string
 	email: string
 	password: string
+	age: `${number}`
 	role: "ADMIN" | "CLIENT"
 	profilePic: File
 }
