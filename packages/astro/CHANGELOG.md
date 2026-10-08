@@ -1,5 +1,12 @@
 # @haq/astro
 
+## 0.1.14
+
+### Patch Changes
+
+- Added type narrowing for number type input in forms.
+- Added double quotes to generated form data keys.
+
 ## 0.1.13
 
 ### Patch Changes

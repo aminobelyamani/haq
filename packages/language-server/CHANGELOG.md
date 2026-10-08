@@ -1,5 +1,12 @@
 # @haq/language-server
 
+## 0.1.4
+
+### Patch Changes
+
+- Updated dependencies
+  - @haq/astro@0.1.14
+
 ## 0.1.3
 
 ### Patch Changes
